@@ -8,7 +8,7 @@ dotenv.config();  // Load environment variables
 
 const app = express();
 app.use(cors());
-app.use(express.json()); // Parse JSON request body
+app.use(express.json());
 
 // Set up routes
 app.use('/api/users', userRoutes);  // Example user route
@@ -21,3 +21,5 @@ sequelize.authenticate()
 // Start the server
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+
+module.exports = app;
