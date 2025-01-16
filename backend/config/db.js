@@ -3,7 +3,7 @@ const dotenv = require('dotenv');
 
 
 const env = process.env.NODE_ENV || 'development';
-dotenv.config({ path: env === 'test' ? '.env.test' : '.env' });
+dotenv.config();
 
 
 
