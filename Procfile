@@ -1,2 +1,5 @@
+# Backend (Node.js)
 web: npm start --prefix backend
-frontend: serve -s frontend/build
+
+# Frontend (Vite)
+frontend: npm run build --prefix frontend && serve -s frontend/dist
