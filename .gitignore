@@ -147,8 +147,4 @@ dist-ssr
 *.sln
 *.sw?
 
-
 .env
-*.sh
-backend/.env
-frontend/.env

@@ -18,14 +18,7 @@ Before you begin, ensure that you have the following software installed:
    cd AirBlue
    ```
 #### Backend Setup
-1. **Navigate to the backend folder:**
-   Make sure you're inside the `backend` folder:
-
-   ```bash
-   cd backend
-   ```
-
-2. **Install dependencies:**
+1. **Install dependencies:**
    Use npm to install all the required dependencies:
 
    ```bash
@@ -34,7 +27,7 @@ Before you begin, ensure that you have the following software installed:
 
 ##### Database Setup
 
-The project uses PostgreSQL 17 as the database, and it is configured with Sequelize ORM. In the `backend` folder follow the steps to set up the database:
+The project uses PostgreSQL 17 as the database, and it is configured with Sequelize ORM. Follow the steps to set up the database:
 
 1. **Run the setup script:**
 
