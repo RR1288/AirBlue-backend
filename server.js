@@ -3,12 +3,16 @@ const cors = require('cors');
 const dotenv = require('dotenv');
 const { sequelize } = require('./config/db');  // Import DB connection
 const userRoutes = require('./routes/userRoutes');
+const setupSwagger = require("./swagger"); // Import Swagger setup
 
 dotenv.config();  // Load environment variables
 
 const app = express();
 app.use(cors());
 app.use(express.json());
+
+// Set up Swagger
+setupSwagger(app);
 
 // Set up routes
 app.use('/api/users', userRoutes);  // Example user route
