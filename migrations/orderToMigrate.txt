@@ -1,0 +1,19 @@
+When creating these tables to avoid reference errors 
+Please create the tables in this order
+
+Tables:
+User
+UserLogins
+UserFlightPreferences
+Flights 
+EventTypes 
+DefaultEventTypes 
+Organizations
+OrganizationEventTypes
+UserOrganization
+Events 
+EventGroups
+Attendees
+EventStaff
+Itineraries
+FlightItineraries
