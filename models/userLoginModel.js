@@ -1,0 +1,16 @@
+// models/userLogin.js
+module.exports = (sequelize, DataTypes) => {
+    const UserLogin = sequelize.define('UserLogin', {
+      UserID: { type: DataTypes.BIGINT, primaryKey: true, references: { model: 'Users', key: 'UserID' }, unique: true },
+      Password: DataTypes.CHAR(128),
+      MFATarget: DataTypes.STRING(14),
+      LastPasswordChange: DataTypes.DATE,
+      LastMFAChange: DataTypes.DATE
+    });
+  
+    UserLogin.associate = (models) => {
+      UserLogin.belongsTo(models.User, { foreignKey: 'UserID' });
+    };
+  
+    return UserLogin;
+  };
