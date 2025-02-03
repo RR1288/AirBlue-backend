@@ -1,6 +1,3 @@
-const { DataTypes } = require('sequelize');
-const { sequelize } = require('../config/db');
-
 module.exports = (sequelize, DataTypes) => {
   const User = sequelize.define('User', {
     UserID: { type: DataTypes.BIGINT, autoIncrement: true, primaryKey: true },

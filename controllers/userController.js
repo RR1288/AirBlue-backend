@@ -1,24 +1,28 @@
-const { User } = require('../models/userModel');
+const {User, UserOrganization, Sequelize} = require("../models"); // Import models
 
-// Get all users
-const getUsers = async (req, res) => {
-  try {
-    const users = await User.findAll();
-    res.json(users);
-  } catch (err) {
-    res.status(500).json({ message: 'Error fetching users', error: err });
-  }
+const getAllEventPlanners = async (req, res) => {
+    try {
+        // Get all event planners
+        const eventPlanners = await User.findAll({
+            // Join with UserOrganization
+            attributes: {
+                exclude: ["createdAt", "updatedAt"],
+            },
+            include: [
+                {
+                    model: UserOrganization,
+                    where: {Roles: {[Sequelize.Op.like]: "%E%"}}, // Match users with 'E' in their roles
+                    required: true,
+                    attributes: { exclude: ['createdAt', 'updatedAt'] },
+                },
+            ],
+        });
+
+        return eventPlanners;
+    } catch (err) {
+        console.error(err);
+        throw new Error("Error fetching event planners");
+    }
 };
 
-// Create a new user
-const createUser = async (req, res) => {
-  const { username, email, password } = req.body;
-  try {
-    const user = await User.create({ username, email, password });
-    res.status(201).json(user);
-  } catch (err) {
-    res.status(500).json({ message: 'Error creating user', error: err });
-  }
-};
-
-module.exports = { getUsers, createUser };
+module.exports = {getAllEventPlanners};

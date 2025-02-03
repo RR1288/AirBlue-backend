@@ -3,7 +3,7 @@
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   up: async (queryInterface, Sequelize) => {
-    await queryInterface.createTable('UserOrganization', {
+    await queryInterface.createTable('UserOrganizations', {
       UserID: { type: Sequelize.BIGINT, references: { model: 'Users', key: 'UserID' }, primaryKey: true },
       OrganizationID: { type: Sequelize.BIGINT, references: { model: 'Organizations', key: 'OrganizationID' } },
       Roles: {type: Sequelize.STRING(3)}, //need to do fast research on how to restrict the values
@@ -15,6 +15,6 @@ module.exports = {
   },
 
   down: async (queryInterface, Sequelize) => {
-    await queryInterface.dropTable('UserOrganization');
+    await queryInterface.dropTable('UserOrganizations');
   }
 };

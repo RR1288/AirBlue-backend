@@ -1,7 +1,7 @@
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
     up: async (queryInterface) => {
-      return queryInterface.bulkInsert('UserOrganization', [
+      return queryInterface.bulkInsert('UserOrganizations', [
         {
           UserID: 1, // Replace with actual UserIDs
           OrganizationID: 1, // Replace with actual OrganizationIDs
@@ -51,7 +51,7 @@ module.exports = {
     },
   
     down: async (queryInterface) => {
-      return queryInterface.bulkDelete('UserOrganization', null, {});
+      return queryInterface.bulkDelete('UserOrganizations', null, {});
     }
   };
   
