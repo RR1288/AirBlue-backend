@@ -1,7 +1,7 @@
 
-# AirBlue
+# AirBlue - backend
 
-Decoupled web application with a backend API and a frontend that consumes these APIs. It uses PostgreSQL 17 as the database and Sequelize ORM for interacting with the database.
+Backend project that uses PostgreSQL 17 as the database and Sequelize ORM for interacting with the database.
 
 ## Prerequisites
 
