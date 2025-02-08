@@ -3,6 +3,7 @@ const cors = require('cors');
 const dotenv = require('dotenv');
 const { sequelize } = require('./config/db');  // Import DB connection
 const userRoutes = require('./routes/userRoutes');
+const authRoutes = require('./routes/authRoutes');
 const setupSwagger = require("./swagger"); // Import Swagger setup
 
 dotenv.config();  // Load environment variables
@@ -15,7 +16,15 @@ app.use(express.json());
 setupSwagger(app);
 
 // Set up routes
-app.use('/api/users', userRoutes);  // Example user route
+app.use('/users', userRoutes);
+app.use('/auth', authRoutes);
+
+
+// Root route
+app.get('/', (req, res) => {
+  res.send('Welcome to AirBlue API');
+});
+
 
 // Test Database Connection
 sequelize.authenticate()
