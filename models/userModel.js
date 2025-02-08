@@ -1,21 +1,26 @@
-const { DataTypes } = require('sequelize');
-const { sequelize } = require('../config/db');
+module.exports = (sequelize, DataTypes) => {
+  const User = sequelize.define('User', {
+    UserID: { type: DataTypes.BIGINT, autoIncrement: true, primaryKey: true },
+    UserName: DataTypes.STRING(20),
+    FName: DataTypes.STRING(50),
+    LName: DataTypes.STRING(50),
+    City: DataTypes.STRING(85),
+    State: DataTypes.CHAR(2),
+    Country: DataTypes.STRING(56),
+    Email: { type: DataTypes.STRING(320), unique: true },
+    KTN: DataTypes.STRING(10),
+    CreationDate: DataTypes.DATE,
+    LastEdited: DataTypes.DATE
+  });
 
-const User = sequelize.define('User', {
-  username: {
-    type: DataTypes.STRING,
-    allowNull: false,
-    unique: true,
-  },
-  email: {
-    type: DataTypes.STRING,
-    allowNull: false,
-    unique: true,
-  },
-  password: {
-    type: DataTypes.STRING,
-    allowNull: false,
-  },
-});
+  User.associate = (models) => {
+    User.hasOne(models.UserLogin, { foreignKey: 'UserID' });
+    User.hasMany(models.UserFlightPreference, { foreignKey: 'UserID' });
+    User.hasMany(models.UserOrganization, { foreignKey: 'UserID' });
+    User.hasMany(models.Attendee, { foreignKey: 'UserID' });
+    User.hasMany(models.EventStaff, { foreignKey: 'UserID' });
+    User.hasMany(models.Itinerary, { foreignKey: 'UserID' });
+  };
 
-module.exports = { User };
+  return User;
+};
