@@ -108,7 +108,7 @@ exports.login = async (req, res) => {
 // setup2FA
 exports.setup2FA = async (req, res) => {
     try {
-        const user = req.user;  // UserLogin info
+        const user = req.user; // UserLogin info
         console.log("USER: ", user);
 
         // Generate TOTP secret
@@ -118,7 +118,7 @@ exports.setup2FA = async (req, res) => {
         });
 
         console.log("SECRET: ", secret);
-        
+
         // Update secret
         user.two_fa_secret = secret.base32;
         user.two_fa_enabled = true;
@@ -128,12 +128,11 @@ exports.setup2FA = async (req, res) => {
 
         // Generate QR code
         const otpAuthURL = secret.otpauth_url;
-        console.log("otpAuthURL: ", otpAuthURL);
         const qrCodeDataURL = await qrcode.toDataURL(otpAuthURL);
-        console.log("qrCodeDataURL: ", qrCodeDataURL);
-        
 
-        return sendSuccess(res, "2FA setup successful", {qrCode: qrCodeDataURL});
+        return sendSuccess(res, "2FA setup successful", {
+            qrCode: qrCodeDataURL,
+        });
     } catch (err) {
         console.error(err);
         return sendError(res, "Failed to setup 2FA", 500);
@@ -165,7 +164,9 @@ exports.verify2FA = async (req, res) => {
 
         // Create JWT token
         const jwtToken = generateToken(user);
-        return sendSuccess(res, "2FA verification successful", {token: jwtToken});
+        return sendSuccess(res, "2FA verification successful", {
+            token: jwtToken,
+        });
     } catch (err) {
         console.error(err);
         return sendError(res, "Failed to verify 2FA token", 500);
