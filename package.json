@@ -27,7 +27,8 @@
     "db:clean": "./clean.sh",
     "db:reset": "./clean.sh && npm run db:setup",
     "start:dev": "npm run db:reset && npm start",
-    "start": "node server.js"
+    "start": "node server.js",
+    "heroku-postbuild": "npm run db:setup"
   },
   "name": "backend",
   "version": "1.0.0",
