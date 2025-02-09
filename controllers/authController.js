@@ -9,7 +9,8 @@ const {sendSuccess, sendError} = require("../utils/responseHelpers");
 // Generate token
 const generateToken = (user) => {
     return jwt.sign(
-        {id: user.id, email: user.email, roles: user.roles},
+        // {id: user.UserID, username: user.UserName, user.UserOrganization.roles?},
+        {id: user.UserID, username: user.UserName},
         process.env.JWT_SECRET,
         {expiresIn: process.env.JWT_EXPIRES_IN}
     );
@@ -82,16 +83,13 @@ exports.login = async (req, res) => {
         });
         if (!user) return sendError(res, "Invalid credentials", 400);
 
-        console.log(user);
-        
-
         // Compare passwords
         const userPass = user.UserLogin.dataValues.Password;
         const isMatch = await bcrypt.compare(password, userPass.trim());
         if (!isMatch) return sendError(res, "Invalid credentials", 400);
 
         // If 2FA is enabled
-        if (user.two_fa_enabled) {
+        if (user.UserLogin.dataValues.two_fa_enabled) {
             return sendSuccess(res, "2FA required", {
                 two_fa_required: true,
                 userId: user.id,
@@ -110,14 +108,17 @@ exports.login = async (req, res) => {
 // setup2FA
 exports.setup2FA = async (req, res) => {
     try {
-        const user = req.user;
+        const user = req.user;  // UserLogin info
+        console.log("USER: ", user);
 
         // Generate TOTP secret
         const secret = speakeasy.generateSecret({
-            name: `AirBlue (${user.username})`,
+            name: "AirBlue",
             length: 20, //Common length
         });
 
+        console.log("SECRET: ", secret);
+        
         // Update secret
         user.two_fa_secret = secret.base32;
         user.two_fa_enabled = true;
@@ -127,7 +128,10 @@ exports.setup2FA = async (req, res) => {
 
         // Generate QR code
         const otpAuthURL = secret.otpauth_url;
-        const qrCodeDataURL = qrcode.toDataURL(otpAuthURL);
+        console.log("otpAuthURL: ", otpAuthURL);
+        const qrCodeDataURL = await qrcode.toDataURL(otpAuthURL);
+        console.log("qrCodeDataURL: ", qrCodeDataURL);
+        
 
         return sendSuccess(res, "2FA setup successful", {qrCode: qrCodeDataURL});
     } catch (err) {

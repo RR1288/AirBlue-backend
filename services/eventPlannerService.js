@@ -1,4 +1,4 @@
-const { sendSuccess, sendError } = require('../utils/responseHelpers'); // Adjust path
+const { sendSuccess, sendError } = require('../utils/responseHelpers');
 const { getAllEventPlanners } = require('../controllers/userController');
 
 
