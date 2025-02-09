@@ -5,7 +5,11 @@ module.exports = (sequelize, DataTypes) => {
       Password: DataTypes.CHAR(128),
       MFATarget: DataTypes.STRING(14),
       LastPasswordChange: DataTypes.DATE,
-      LastMFAChange: DataTypes.DATE
+      LastMFAChange: DataTypes.DATE,
+      two_fa_enabled: DataTypes.BOOLEAN,
+      two_fa_secret: DataTypes.CHAR(32),
+      createdAt: DataTypes.DATE,
+      updatedAt: DataTypes.DATE,
     });
   
     UserLogin.associate = (models) => {

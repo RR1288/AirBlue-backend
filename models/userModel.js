@@ -9,8 +9,8 @@ module.exports = (sequelize, DataTypes) => {
     Country: DataTypes.STRING(56),
     Email: { type: DataTypes.STRING(320), unique: true },
     KTN: DataTypes.STRING(10),
-    CreationDate: DataTypes.DATE,
-    LastEdited: DataTypes.DATE
+    createdAt: DataTypes.DATE,
+    updatedAt: DataTypes.DATE
   });
 
   User.associate = (models) => {

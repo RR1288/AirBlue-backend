@@ -1,7 +1,7 @@
 const jwt = require("jsonwebtoken");
 const speakeasy = require("speakeasy");
 const qrcode = require("qrcode");
-const {User} = require("../models");
+const {User, UserLogin} = require("../models");
 const bcrypt = require("bcryptjs");
 
 const {sendSuccess, sendError} = require("../utils/responseHelpers");
@@ -23,13 +23,13 @@ exports.register = async (req, res) => {
 
         // Send an error if no username or password is provided
         if (!username || !password) {
-            sendError(res, "Username and password required", 400);
+            return sendError(res, "Username and password required", 400);
         }
 
         // Throw an error if user already exists
         const existingUser = await User.findOne({where: {username}});
         if (existingUser) {
-            sendError(res, "User already exists", 400);
+            return sendError(res, "User already exists", 400);
         }
 
         //===================START TRANSACTION======================
@@ -63,10 +63,10 @@ exports.register = async (req, res) => {
 
         //===================END TRANSACTION======================
         // automatic rollback if an error occurs?
-        sendSuccess(res, "User registered", {userId: user.id});
+        return sendSuccess(res, "User registered", {userId: user.id});
     } catch (err) {
         console.error(err);
-        sendError(res, "Error registering user", 500);
+        return sendError(res, "Error registering user", 500);
     }
 };
 
@@ -76,16 +76,23 @@ exports.login = async (req, res) => {
         // Get username and password
         const {username, password} = req.body;
         // Find user
-        const user = User.findOne({where: {username}});
-        if (!user) sendError(res, "Invalid credentials", 400);
+        const user = await User.findOne({
+            where: {UserName: username},
+            include: UserLogin,
+        });
+        if (!user) return sendError(res, "Invalid credentials", 400);
+
+        console.log(user);
+        
 
         // Compare passwords
-        const isMatch = await bcrypt.compare(password, user.password);
-        if (!isMatch) sendError(res, "Invalid credentials", 400);
+        const userPass = user.UserLogin.dataValues.Password;
+        const isMatch = await bcrypt.compare(password, userPass.trim());
+        if (!isMatch) return sendError(res, "Invalid credentials", 400);
 
         // If 2FA is enabled
         if (user.two_fa_enabled) {
-            sendSuccess(res, "2FA required", {
+            return sendSuccess(res, "2FA required", {
                 two_fa_required: true,
                 userId: user.id,
             });
@@ -93,10 +100,10 @@ exports.login = async (req, res) => {
 
         // Else just generate jwt token
         const token = generateToken(user);
-        sendSuccess(res, "Login successful", {token: token});
+        return sendSuccess(res, "Login successful", {token: token});
     } catch (err) {
         console.error(err);
-        sendError(res, "Server error", 500);
+        return sendError(res, "Server error", 500);
     }
 };
 
@@ -122,10 +129,10 @@ exports.setup2FA = async (req, res) => {
         const otpAuthURL = secret.otpauth_url;
         const qrCodeDataURL = qrcode.toDataURL(otpAuthURL);
 
-        sendSuccess(res, "2FA setup successful", {qrCode: qrCodeDataURL});
+        return sendSuccess(res, "2FA setup successful", {qrCode: qrCodeDataURL});
     } catch (err) {
         console.error(err);
-        sendError(res, "Failed to setup 2FA", 500);
+        return sendError(res, "Failed to setup 2FA", 500);
     }
 };
 
@@ -139,7 +146,7 @@ exports.verify2FA = async (req, res) => {
 
         // If 2FA is not enabled
         if (!user.two_fa_enabled || !user.two_fa_secret) {
-            sendError(res, "2FA is not enabled for this user", 4);
+            return sendError(res, "2FA is not enabled for this user", 4);
         }
 
         // Verify token using speakeasy
@@ -150,14 +157,14 @@ exports.verify2FA = async (req, res) => {
             window: 1, // 1 minute or more?
         });
 
-        if (!verified) sendError(res, "Invalid 2FA token", 400);
+        if (!verified) return sendError(res, "Invalid 2FA token", 400);
 
         // Create JWT token
         const jwtToken = generateToken(user);
-        sendSuccess(res, "2FA verification successful", {token: jwtToken});
+        return sendSuccess(res, "2FA verification successful", {token: jwtToken});
     } catch (err) {
         console.error(err);
-        sendError(res, "Failed to verify 2FA token", 500);
+        return sendError(res, "Failed to verify 2FA token", 500);
     }
 };
 
@@ -171,9 +178,9 @@ exports.disable2FA = async (req, res) => {
 
         // Save
         await user.save();
-        sendSuccess(res, "2FA disabled successfully");
+        return sendSuccess(res, "2FA disabled successfully");
     } catch (err) {
         console.error(err);
-        sendError(res, "Failed to disable 2FA", 500);
+        return sendError(res, "Failed to disable 2FA", 500);
     }
 };
