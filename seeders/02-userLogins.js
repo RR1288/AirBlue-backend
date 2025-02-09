@@ -9,6 +9,10 @@ module.exports = {
         MFATarget: '123-456-7890',
         LastPasswordChange: new Date(),
         LastMFAChange: new Date(),
+        two_fa_enabled: false,
+        two_fa_secret: null,
+        createdAt: new Date(),
+        updatedAt: new Date()
       },
       {
         UserID: 2,
@@ -16,6 +20,10 @@ module.exports = {
         MFATarget: '987-654-3210',
         LastPasswordChange: new Date(),
         LastMFAChange: new Date(),
+        two_fa_enabled: false,
+        two_fa_secret: null,
+        createdAt: new Date(),
+        updatedAt: new Date()
       },
       {
         UserID: 3,
@@ -23,6 +31,10 @@ module.exports = {
         MFATarget: '112-233-4455',
         LastPasswordChange: new Date(),
         LastMFAChange: new Date(),
+        two_fa_enabled: false,
+        two_fa_secret: null,
+        createdAt: new Date(),
+        updatedAt: new Date()
       },
       {
         UserID: 4,
@@ -30,6 +42,10 @@ module.exports = {
         MFATarget: '223-344-5566',
         LastPasswordChange: new Date(),
         LastMFAChange: new Date(),
+        two_fa_enabled: false,
+        two_fa_secret: null,
+        createdAt: new Date(),
+        updatedAt: new Date()
       },
       {
         UserID: 5,
@@ -37,6 +53,10 @@ module.exports = {
         MFATarget: '334-455-6677',
         LastPasswordChange: new Date(),
         LastMFAChange: new Date(),
+        two_fa_enabled: false,
+        two_fa_secret: null,
+        createdAt: new Date(),
+        updatedAt: new Date()
       },
       {
         UserID: 6,
@@ -44,6 +64,10 @@ module.exports = {
         MFATarget: '445-566-7788',
         LastPasswordChange: new Date(),
         LastMFAChange: new Date(),
+        two_fa_enabled: false,
+        two_fa_secret: null,
+        createdAt: new Date(),
+        updatedAt: new Date()
       },
       {
         UserID: 7,
@@ -51,6 +75,10 @@ module.exports = {
         MFATarget: '556-677-8899',
         LastPasswordChange: new Date(),
         LastMFAChange: new Date(),
+        two_fa_enabled: false,
+        two_fa_secret: null,
+        createdAt: new Date(),
+        updatedAt: new Date()
       },
       {
         UserID: 8,
@@ -58,6 +86,10 @@ module.exports = {
         MFATarget: '667-788-9900',
         LastPasswordChange: new Date(),
         LastMFAChange: new Date(),
+        two_fa_enabled: false,
+        two_fa_secret: null,
+        createdAt: new Date(),
+        updatedAt: new Date()
       },
       {
         UserID: 9,
@@ -65,6 +97,10 @@ module.exports = {
         MFATarget: '778-899-0011',
         LastPasswordChange: new Date(),
         LastMFAChange: new Date(),
+        two_fa_enabled: false,
+        two_fa_secret: null,
+        createdAt: new Date(),
+        updatedAt: new Date()
       },
       {
         UserID: 10,
@@ -72,6 +108,10 @@ module.exports = {
         MFATarget: '889-900-1122',
         LastPasswordChange: new Date(),
         LastMFAChange: new Date(),
+        two_fa_enabled: false,
+        two_fa_secret: null,
+        createdAt: new Date(),
+        updatedAt: new Date()
       }
     ]);
   },

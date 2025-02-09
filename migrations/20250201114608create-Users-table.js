@@ -13,8 +13,8 @@ module.exports = {
       Country: { type: Sequelize.STRING(56), allowNull: false },
       Email: { type: Sequelize.STRING(320), unique: true },
       KTN: { type: Sequelize.STRING(10) },
-      CreationDate: { type: Sequelize.DATE, defaultValue: Sequelize.NOW, allowNull: false},
-      LastEdited: { type: Sequelize.DATE, defaultValue: Sequelize.NOW, allowNull: false}
+      createdAt: { type: Sequelize.DATE, defaultValue: Sequelize.NOW, allowNull: false},
+      updatedAt: { type: Sequelize.DATE, defaultValue: Sequelize.NOW, allowNull: false}
     });
   },
 
