@@ -4,16 +4,11 @@ const getAllEventPlanners = async (req, res) => {
     try {
         // Get all event planners
         const eventPlanners = await User.findAll({
-            // Join with UserOrganization
-            attributes: {
-                exclude: ["createdAt", "updatedAt"],
-            },
             include: [
                 {
                     model: UserOrganization,
                     where: {Roles: {[Sequelize.Op.like]: "%E%"}}, // Match users with 'E' in their roles
                     required: true,
-                    attributes: { exclude: ['createdAt', 'updatedAt'] },
                 },
             ],
         });

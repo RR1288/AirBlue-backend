@@ -8,7 +8,8 @@ module.exports = {
       OrganizationID: { type: Sequelize.BIGINT, references: { model: 'Organizations', key: 'OrganizationID' } },
       Roles: {type: Sequelize.STRING(3)}, //need to do fast research on how to restrict the values
       DateGiven: { type: Sequelize.DATE },
-      LastUpdated: { type: Sequelize.DATE },
+      updatedAt: { type: Sequelize.DATE },
+      createdAt: { type: Sequelize.DATE },
       StillActive: { type: Sequelize.BOOLEAN },
       DateRemoved: { type: Sequelize.DATE }
     });

@@ -4,6 +4,7 @@ const sendError = (res, message, statusCode = 500) => {
         success: false,
         message: message,
     });
+    return;
 };
 
 // Helper function to send success responses
@@ -13,6 +14,7 @@ const sendSuccess = (res, message, data = null) => {
         message: message,
         data: data,
     });
+    return;
 };
 
 module.exports = {
