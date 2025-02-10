@@ -8,6 +8,12 @@ module.exports = {
     host: process.env.DB_HOST,
     port: parseInt(process.env.DB_PORT, 10) || 5432, // Default to 5432 if DB_PORT is not defined
     dialect: 'postgres',
+    dialectOptions: {
+      ssl: {
+        require: true,
+        rejectUnauthorized: false, // Required for Heroku Postgres SSL connections
+      },
+    },
   },
   test: {
     username: process.env.DB_USER,
@@ -24,5 +30,11 @@ module.exports = {
     host: process.env.DB_HOST,
     port: parseInt(process.env.DB_PORT, 10) || 5432,
     dialect: 'postgres',
+    dialectOptions: {
+      ssl: {
+        require: true,
+        rejectUnauthorized: false, // Required for Heroku Postgres SSL connections
+      },
+    },
   },
 };
