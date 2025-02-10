@@ -1,19 +1,23 @@
 const jwt = require("jsonwebtoken");
 const speakeasy = require("speakeasy");
 const qrcode = require("qrcode");
-const {User, UserLogin} = require("../models");
+const {User, UserLogin, UserOrganization} = require("../models");
 const bcrypt = require("bcryptjs");
 
 const {sendSuccess, sendError} = require("../utils/responseHelpers");
 
 // Generate token
 const generateToken = (user) => {
-    return jwt.sign(
-        // {id: user.UserID, username: user.UserName, user.UserOrganization.roles?},
-        {id: user.UserID, username: user.UserName},
-        process.env.JWT_SECRET,
-        {expiresIn: process.env.JWT_EXPIRES_IN}
-    );
+    if (user.UserOrganizations.length > 0) {
+        const roles = user.UserOrganizations[0].Roles;
+        signature = {id: user.UserID, username: user.UserName, roles: roles};
+    } else {
+        signature = {id: user.UserID, username: user.UserName};
+    }
+
+    return jwt.sign(signature, process.env.JWT_SECRET, {
+        expiresIn: process.env.JWT_EXPIRES_IN,
+    });
 };
 
 // Register
@@ -79,17 +83,17 @@ exports.login = async (req, res) => {
         // Find user
         const user = await User.findOne({
             where: {UserName: username},
-            include: UserLogin,
+            include: [UserLogin, UserOrganization],
         });
         if (!user) return sendError(res, "Invalid credentials", 400);
 
         // Compare passwords
-        const userPass = user.UserLogin.dataValues.Password;
+        const userPass = user.UserLogin.Password;
         const isMatch = await bcrypt.compare(password, userPass.trim());
         if (!isMatch) return sendError(res, "Invalid credentials", 400);
 
         // If 2FA is enabled
-        if (user.UserLogin.dataValues.two_fa_enabled) {
+        if (user.UserLogin.two_fa_enabled) {
             return sendSuccess(res, "2FA required", {
                 two_fa_required: true,
                 userId: user.id,
@@ -109,7 +113,6 @@ exports.login = async (req, res) => {
 exports.setup2FA = async (req, res) => {
     try {
         const user = req.user; // UserLogin info
-        console.log("USER: ", user);
 
         // Generate TOTP secret
         const secret = speakeasy.generateSecret({

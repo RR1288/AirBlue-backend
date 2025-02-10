@@ -1,10 +1,13 @@
 const express = require("express");
 const {getAllEventPlanners} = require("../services/eventPlannerService");
+const { protect } = require("../middleware/authMiddleware");
+const { authorizedRoles } = require("../middleware/roleMiddleware");
 const router = express.Router();
+const {Roles} = require('../utils/Roles.js');
 
 /**
  * @swagger
- * /api/users:
+ * /users:
  *   get:
  *     summary: Retrieve a list of users
  *     description: Fetch all users from the database.
@@ -76,7 +79,7 @@ router.get("/", (req, res) => {
 
 /**
  * @swagger
- * /api/users/event-planners:
+ * /users/event-planners:
  *   get:
  *     summary: Retrieve a list of event planners
  *     description: Fetch all event planners from the database.
@@ -94,6 +97,6 @@ router.get("/", (req, res) => {
  *       500:
  *         description: Internal server error
  */
-router.get("/event-planners", getAllEventPlanners);
+router.get("/event-planners", protect, authorizedRoles(Roles.ADMIN), getAllEventPlanners);
 
 module.exports = router;

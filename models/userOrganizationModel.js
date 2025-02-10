@@ -9,8 +9,10 @@ module.exports = (sequelize, DataTypes) => {
             type: DataTypes.BIGINT,
             references: {model: "Organizations", key: "OrganizationID"},
         },
+        Roles: DataTypes.STRING(3),
         DateGiven: DataTypes.DATE,
-        LastUpdated: DataTypes.DATE,
+        updatedAt: DataTypes.DATE,
+        createdAt: DataTypes.DATE,
         StillActive: DataTypes.BOOLEAN,
         DateRemoved: DataTypes.DATE,
     });
