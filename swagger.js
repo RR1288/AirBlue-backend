@@ -11,8 +11,13 @@ const options = {
         },
         servers: [
             {
-                url: "http://localhost:5000", // Change to your deployed URL when necessary
+                url: "http://localhost:5000",
+                description: "Local Server"
             },
+            {
+                url: "https://airblue-backend-staging-eac124cc32ab.herokuapp.com/",
+                description: "Staging Server"
+            }
         ],
         components: {
             securitySchemes: {
