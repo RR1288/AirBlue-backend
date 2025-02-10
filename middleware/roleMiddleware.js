@@ -1,4 +1,6 @@
-const authorizedRoles = (...allowedRoles) => {
+const { sendError } = require('../utils/responseHelpers');
+
+exports.authorizedRoles = (...allowedRoles) => {
     return (req, res, next) => {
         // E: Event Planner, F: Financial Officer, A: Admin
         // Check if user has any roles
@@ -16,8 +18,6 @@ const authorizedRoles = (...allowedRoles) => {
                 return next();
             }
         }
-        throw new Error("Forbidden: insufficient permissions");
+        return sendError(res, "Forbidden: Insufficient permissions", 401);
     };
 };
-
-export {authorizedRoles};
