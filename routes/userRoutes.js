@@ -1,5 +1,6 @@
 const express = require("express");
 const {getAllEventPlanners} = require("../services/eventPlannerService");
+const {registerUser} = require("../services/userService");
 const { protect } = require("../middleware/authMiddleware");
 const { authorizedRoles } = require("../middleware/roleMiddleware");
 const router = express.Router();
@@ -26,9 +27,7 @@ const {Roles} = require('../utils/Roles.js');
  *                   name:
  *                     type: string
  */
-router.get("/", (req, res) => {
-    res.json([{id: 1, name: "John Doe"}]);
-});
+router.get("/", protect, authorizedRoles(Roles.ADMIN), registerUser);
 
 /**
  * @swagger

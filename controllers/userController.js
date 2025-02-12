@@ -1,6 +1,6 @@
 const {User, UserOrganization, Sequelize} = require("../models"); // Import models
 
-const getAllEventPlanners = async (req, res) => {
+exports.getAllEventPlanners = async (req, res) => {
     try {
         // Get all event planners
         const eventPlanners = await User.findAll({
@@ -20,4 +20,6 @@ const getAllEventPlanners = async (req, res) => {
     }
 };
 
-module.exports = {getAllEventPlanners};
+exports.registerUser = async (req, res) => {
+    
+}
