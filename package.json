@@ -16,11 +16,16 @@
     "swagger-ui-express": "^5.0.1"
   },
   "jest": {
+    "transform": {
+      "^.+\\.js$": "babel-jest"
+    },
     "setupFiles": [
       "dotenv/config"
     ],
     "testEnvironment": "node"
+    
   },
+  
   "scripts": {
     "test": "jest",
     "db:setup": "./setup.sh && npx sequelize-cli db:migrate && npx sequelize-cli db:seed:all",
@@ -36,6 +41,9 @@
     "test": "tests"
   },
   "devDependencies": {
+    "@babel/preset-env": "^7.26.9",
+    "@babel/register": "^7.25.9",
+    "babel-jest": "^29.7.0",
     "jest": "^29.7.0"
   },
   "keywords": [],
