@@ -45,7 +45,7 @@ describe('Role Authorization Middleware', () => {
     expect(next).toHaveBeenCalledTimes(3); // Ensure next() is called
   });
 
-  //Secon test is denying a user based on not having the Finace role
+  //Second test is denying a user based on not having the Finance role
   test('Should deny access if user does not have the correct role', () => {
     // Mock the user with E and A
     req.user = { roles: 'AE' }; // Event Planner, Administrator
