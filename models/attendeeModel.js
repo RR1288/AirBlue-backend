@@ -16,6 +16,10 @@ module.exports = (sequelize, DataTypes) => {
         },
         DateAdded: DataTypes.DATE,
         Confirmed: DataTypes.BOOLEAN,
+    },
+    {
+        Sequelize,
+        paranoid: true,
     });
 
     Attendee.associate = function (models) {

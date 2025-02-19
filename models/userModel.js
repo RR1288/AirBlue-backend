@@ -11,7 +11,11 @@ module.exports = (sequelize, DataTypes) => {
     KTN: DataTypes.STRING(10),
     createdAt: DataTypes.DATE,
     updatedAt: DataTypes.DATE
-  });
+  },
+    {
+      Sequelize,
+      paranoid: true,
+    });
 
   User.associate = (models) => {
     User.hasOne(models.UserLogin, { foreignKey: 'UserID' });
