@@ -1,7 +1,7 @@
 const jwt = require("jsonwebtoken");
 const speakeasy = require("speakeasy");
 const qrcode = require("qrcode");
-const {User, UserLogin, UserOrganization} = require("../models");
+const {User, UserLogin, UserOrganization, sequelize} = require("../models");
 const bcrypt = require("bcryptjs");
 
 const {sendSuccess, sendError} = require("../utils/responseHelpers");
@@ -20,60 +20,6 @@ const generateToken = (user) => {
     });
 };
 
-// Register
-exports.register = async (req, res) => {
-    try {
-        // Get username, password and roles
-        const {username, password, roles} = req.body;
-
-        // Send an error if no username or password is provided
-        if (!username || !password) {
-            return sendError(res, "Username and password required", 400);
-        }
-
-        // Throw an error if user already exists
-        const existingUser = await User.findOne({where: {username}});
-        if (existingUser) {
-            return sendError(res, "User already exists", 400);
-        }
-
-        //===================START TRANSACTION======================
-        // Create user
-        const user = User.create({
-            // Get from body
-            UserName: username,
-            FName: firstname,
-            LName: lastname,
-            City: city,
-            State: state,
-            Country: country,
-            Email: email,
-            KTN: ktn,
-            CreationDate: Date.now(),
-            LastEdited: Date.now(),
-        });
-
-        // Create UserLogin entry
-        const userLogin = userLogin.create({
-            UserID: user.id,
-            Password: password,
-            two_fa_enabled: false, //TODO: add to table
-            two_fa_secret: null, //TODO: add to table
-            //MFATarget
-            LastPasswordChange: Date.now(),
-            LastMFAChange: null,
-        });
-
-        // Assign an organization to it
-
-        //===================END TRANSACTION======================
-        // automatic rollback if an error occurs?
-        return sendSuccess(res, "User registered", {userId: user.id});
-    } catch (err) {
-        console.error(err);
-        return sendError(res, "Error registering user", 500);
-    }
-};
 
 // Login
 exports.login = async (req, res) => {

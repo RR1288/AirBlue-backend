@@ -11,7 +11,7 @@ module.exports = {
         unique: true,
       },
       Password: { type: Sequelize.CHAR(128), allowNull: false },
-      MFATarget: { type: Sequelize.STRING(14), allowNull: true }, // Changed to allowNull:true to match model
+      MFATarget: { type: Sequelize.STRING(14), allowNull: true }, 
       LastPasswordChange: { type: Sequelize.DATE, allowNull: true },
       LastMFAChange: { type: Sequelize.DATE, defaultValue: Sequelize.NOW, allowNull: true },
       two_fa_enabled: { type: Sequelize.BOOLEAN, defaultValue: false, allowNull: false },
