@@ -11,7 +11,8 @@ module.exports = {
       Approved: { type: Sequelize.BOOLEAN, defaultValue: false, allowNull: false },
       DateApproved: {type: Sequelize.DATE },
       Active: { type: Sequelize.BOOLEAN, defaultValue: false, allowNull: false },
-      LastUpdate: {type: Sequelize.DATE, defaultValue: Sequelize.NOW, allowNull: false }
+      LastUpdate: {type: Sequelize.DATE, defaultValue: Sequelize.NOW, allowNull: false },
+      deletedAt: {type: Sequelize.DATE}
     });
   },
 

@@ -9,7 +9,8 @@ module.exports = {
       Type: { type: Sequelize.STRING(16), allowNull: false },
       Value: { type: Sequelize.STRING(50), allowNull: false },
       DateAdded: { type: Sequelize.DATE, defaultValue: Sequelize.NOW, allowNull: false },
-      LastEdited: { type: Sequelize.DATE, defaultValue: Sequelize.NOW, allowNull: false }
+      LastEdited: { type: Sequelize.DATE, defaultValue: Sequelize.NOW, allowNull: false },
+      deletedAt: {type: Sequelize.DATE}
     });
   },
 
