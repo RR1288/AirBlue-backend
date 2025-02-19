@@ -13,6 +13,10 @@ module.exports = (sequelize, DataTypes) => {
         Value: DataTypes.STRING(50),
         DateAdded: DataTypes.DATE,
         LastEdited: DataTypes.DATE,
+    },
+    {
+      Sequelize,
+      paranoid: true,
     });
 
     UserFlightPreference.associate = (models) => {

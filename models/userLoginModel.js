@@ -10,6 +10,10 @@ module.exports = (sequelize, DataTypes) => {
       two_fa_secret: DataTypes.CHAR(32),
       createdAt: DataTypes.DATE,
       updatedAt: DataTypes.DATE,
+    },
+    {
+      Sequelize,
+      paranoid: true,
     });
   
     UserLogin.associate = (models) => {

@@ -8,7 +8,8 @@ module.exports = {
       EventID: { type: Sequelize.BIGINT, references: { model: 'Events', key: 'EventID' }, primaryKey: true },
       EventGroupID: { type: Sequelize.BIGINT, references: { model: 'EventGroups', key: 'EventGroupID' }, allowNull: false },
       DateAdded: { type: Sequelize.DATE, defaultValue: Sequelize.NOW, allowNull: false },
-      Confirmed: { type: Sequelize.BOOLEAN, defaultValue: false }
+      Confirmed: { type: Sequelize.BOOLEAN, defaultValue: false },
+      deletedAt: {type: Sequelize.DATE}
     });
   },
 

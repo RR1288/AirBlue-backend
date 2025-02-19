@@ -15,6 +15,10 @@ module.exports = (sequelize, DataTypes) => {
         //     references: {model: "Roles", key: "RoleID"},
         // },
         DateAdded: DataTypes.DATE,
+    },
+    {
+      Sequelize,
+      paranoid: true,
     });
 
     EventStaff.associate = function (models) {
