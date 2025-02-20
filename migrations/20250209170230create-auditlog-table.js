@@ -27,19 +27,19 @@ module.exports = {
   	BEGIN
       	-- Log INSERT operation
       	IF (TG_OP = 'INSERT') THEN
-          	INSERT INTO audit_log (table_name, operation, changed_by, new_data)
+          	INSERT INTO audit_log (tableName, operation, changedBy, newData)
           	VALUES (TG_TABLE_NAME, TG_OP, current_user, row_to_json(NEW)::jsonb);
           	RETURN NEW;
      	 
       	-- Log DELETE operation
       	ELSIF (TG_OP = 'DELETE') THEN
-          	INSERT INTO audit_log (table_name, operation, changed_by, old_data)
+          	INSERT INTO audit_log (tableName, operation, changedBy, oldData)
           	VALUES (TG_TABLE_NAME, TG_OP, current_user, row_to_json(OLD)::jsonb);
           	RETURN OLD;
      	 
       	-- Log UPDATE operation
       	ELSIF (TG_OP = 'UPDATE') THEN
-          	INSERT INTO audit_log (table_name, operation, changed_by, old_data, new_data)
+          	INSERT INTO audit_log (tableName, operation, changedBy, oldData, newData)
           	VALUES (TG_TABLE_NAME, TG_OP, current_user, row_to_json(OLD)::jsonb,
             row_to_json(NEW)::jsonb);
           	RETURN NEW;
