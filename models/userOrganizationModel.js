@@ -15,10 +15,6 @@ module.exports = (sequelize, DataTypes) => {
         createdAt: DataTypes.DATE,
         StillActive: DataTypes.BOOLEAN,
         DateRemoved: DataTypes.DATE,
-    },
-    {
-      Sequelize,
-      paranoid: true,
     });
 
     UserOrganization.associate = (models) => {

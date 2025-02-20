@@ -12,10 +12,6 @@ module.exports = (sequelize, DataTypes) => {
     },
     Class: DataTypes.STRING(25),
     SeatNumber: DataTypes.STRING(5)
-  },
-  {
-    Sequelize,
-    paranoid: true,
   });
 
   FlightItinerary.associate = function(models) {
