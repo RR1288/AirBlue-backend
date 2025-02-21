@@ -8,8 +8,9 @@ module.exports = {
       OrganizationName: { type: Sequelize.STRING(30), allowNull: false },
       Description: { type: Sequelize.STRING(500), defaultValue: '' },
       IsActive: { type: Sequelize.BOOLEAN, defaultValue: true },
-      CreationDateTime: { type: Sequelize.DATE, defaultValue: Sequelize.NOW, allowNull: false },
-      LastEdited: { type: Sequelize.DATE, defaultValue: Sequelize.NOW, allowNull: false },
+      createdAt: { type: Sequelize.DATE, defaultValue: Sequelize.NOW, allowNull: false },
+      updatedAt: { type: Sequelize.DATE, defaultValue: Sequelize.NOW, allowNull: false },
+      deletedAt: { type: Sequelize.DATE, defaultValue: Sequelize.NOW, allowNull: false },
       Owner: { type: Sequelize.BIGINT, references: { model: 'Users', key: 'UserID' }, unique: true, allowNull: false }
     });
   },
