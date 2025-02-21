@@ -10,7 +10,10 @@ module.exports = {
       ArrivalAirport: { type: Sequelize.STRING(50), allowNull: false },
       ArrivalDateTime: { type: Sequelize.DATE, allowNull: false },
       DepartureDateTime: { type: Sequelize.DATE, allowNull: false },
-      Airline: { type: Sequelize.STRING(30), allowNull: false }
+      Airline: { type: Sequelize.STRING(30), allowNull: false },
+      createdAt: { type: Sequelize.DATE, allowNull: false, defaultValue: Sequelize.NOW },
+      updatedAt: { type: Sequelize.DATE, allowNull: false, defaultValue: Sequelize.NOW },
+      deletedAt: { type: Sequelize.DATE }
     });
   },
 
