@@ -11,6 +11,9 @@ module.exports = (sequelize, DataTypes) => {
         },
         Name: DataTypes.STRING(30),
         FlightBudget: DataTypes.INTEGER,
+        createdAt: DataTypes.DATE,
+        updatedAt: DataTypes.DATE,
+        deletedAt: DataTypes.DATE
     });
 
     // Define associations inside the associate method

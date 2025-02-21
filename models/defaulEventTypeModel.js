@@ -6,6 +6,9 @@ module.exports = (sequelize, DataTypes) => {
             primaryKey: true,
         },
         Name: DataTypes.STRING(25),
+        createdAt: DataTypes.DATE,
+        updatedAt: DataTypes.DATE,
+        deletedAt: DataTypes.DATE
     });
 
     DefaultEventType.associate = function (models) {

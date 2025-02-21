@@ -18,8 +18,9 @@ module.exports = (sequelize, DataTypes) => {
             type: DataTypes.BIGINT,
             references: {model: "Organizations", key: "OrganizationID"},
         },
-        DateCreated: DataTypes.DATE,
-        LastEdited: DataTypes.DATE,
+        createdAt: DataTypes.DATE,
+        updatedAt: DataTypes.DATE,
+        deletedAt: DataTypes
     });
 
     Event.associate = function (models) {

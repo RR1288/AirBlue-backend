@@ -6,8 +6,9 @@ module.exports = (sequelize, DataTypes) => {
             primaryKey: true,
         },
         OrganizationType: DataTypes.BOOLEAN,
-        DateCreated: DataTypes.DATE,
-        LastEdited: DataTypes.DATE,
+        createdAt: DataTypes.DATE,
+        updatedAt: DataTypes.DATE,
+        deletedAt: DataTypes.DATE
     });
 
     EventType.associate = function (models) {

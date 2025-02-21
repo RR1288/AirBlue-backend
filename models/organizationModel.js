@@ -8,13 +8,14 @@ module.exports = (sequelize, DataTypes) => {
         OrganizationName: DataTypes.STRING(30),
         Description: DataTypes.STRING(500),
         IsActive: DataTypes.BOOLEAN,
-        CreationDateTime: DataTypes.DATE,
-        LastEdited: DataTypes.DATE,
         Owner: {
             type: DataTypes.BIGINT,
             references: {model: "Users", key: "UserID"},
             unique: true,
         },
+        createdAt: DataTypes.DATE,
+        updatedAt: DataTypes.DATE,
+        deletedAt: DataTypes.DATE
     });
 
     Organization.associate = function (models) {

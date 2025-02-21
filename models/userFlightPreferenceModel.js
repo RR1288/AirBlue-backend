@@ -11,8 +11,9 @@ module.exports = (sequelize, DataTypes) => {
         },
         Type: DataTypes.STRING(16),
         Value: DataTypes.STRING(50),
-        DateAdded: DataTypes.DATE,
-        LastEdited: DataTypes.DATE,
+        createdAt: DataTypes.DATE,
+        updatedAt: DataTypes.DATE,
+        deletedAt: DataTypes.DATE
     });
 
     UserFlightPreference.associate = (models) => {

@@ -14,7 +14,9 @@ module.exports = (sequelize, DataTypes) => {
         Approved: DataTypes.BOOLEAN,
         DateApproved: DataTypes.DATE,
         Active: DataTypes.BOOLEAN,
-        LastUpdate: DataTypes.DATE,
+        createdAt: DataTypes.DATE,
+        updatedAt: DataTypes.DATE,
+        deletedAt: DataTypes.DATE
     });
 
     Itinerary.associate = function (models) {

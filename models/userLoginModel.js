@@ -10,7 +10,8 @@ module.exports = (sequelize, DataTypes) => {
       two_fa_secret: DataTypes.CHAR(32),
       createdAt: DataTypes.DATE,
       updatedAt: DataTypes.DATE,
-    });
+      deletedAt: DataTypes.DATE
+    },);
   
     UserLogin.associate = (models) => {
       UserLogin.belongsTo(models.User, { foreignKey: 'UserID' });
