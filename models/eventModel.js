@@ -7,9 +7,9 @@ module.exports = (sequelize, DataTypes) => {
         },
         EventName: DataTypes.STRING(50),
         EventDescription: DataTypes.STRING(200),
-        EventTotalBudget: DataTypes.INTEGER,
+        EventTotalBudget: DataTypes.DECIMAL(12,2),
         ExpectedAttendees: DataTypes.INTEGER,
-        EventFlightBudget: DataTypes.INTEGER,
+        EventFlightBudget: DataTypes.DECIMAL(12,2),
         TypeID: {
             type: DataTypes.BIGINT,
             references: {model: "EventTypes", key: "TypeID"},
@@ -20,7 +20,7 @@ module.exports = (sequelize, DataTypes) => {
         },
         createdAt: DataTypes.DATE,
         updatedAt: DataTypes.DATE,
-        deletedAt: DataTypes
+        deletedAt: DataTypes.DATE
     });
 
     Event.associate = function (models) {

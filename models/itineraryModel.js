@@ -10,7 +10,7 @@ module.exports = (sequelize, DataTypes) => {
             references: {model: "Users", key: "UserID"},
         },
         Bags: DataTypes.INTEGER,
-        Cost: DataTypes.DECIMAL,
+        Cost: DataTypes.DECIMAL(4,2),
         Approved: DataTypes.BOOLEAN,
         DateApproved: DataTypes.DATE,
         Active: DataTypes.BOOLEAN,
