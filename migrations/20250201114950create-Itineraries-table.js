@@ -7,7 +7,7 @@ module.exports = {
       ItineraryID: { type: Sequelize.BIGINT, autoIncrement: true, primaryKey: true },
       UserID: { type: Sequelize.BIGINT, references: { model: 'Users', key: 'UserID' }, allowNull: false },
       Bags: { type: Sequelize.INTEGER, defaultValue: 1 },
-      Cost: { type: Sequelize.DECIMAL, allowNull: false },
+      Cost: { type: Sequelize.DECIMAL(4,2), allowNull: false },
       Approved: { type: Sequelize.BOOLEAN, defaultValue: false, allowNull: false },
       DateApproved: {type: Sequelize.DATE },
       Active: { type: Sequelize.BOOLEAN, defaultValue: false, allowNull: false },
