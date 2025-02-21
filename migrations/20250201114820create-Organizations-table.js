@@ -10,7 +10,10 @@ module.exports = {
       IsActive: { type: Sequelize.BOOLEAN, defaultValue: true },
       CreationDateTime: { type: Sequelize.DATE, defaultValue: Sequelize.NOW, allowNull: false },
       LastEdited: { type: Sequelize.DATE, defaultValue: Sequelize.NOW, allowNull: false },
-      Owner: { type: Sequelize.BIGINT, references: { model: 'Users', key: 'UserID' }, unique: true, allowNull: false }
+      Owner: { type: Sequelize.BIGINT, references: { model: 'Users', key: 'UserID' }, unique: true, allowNull: false },
+      createdAt: { type: Sequelize.DATE, allowNull: false, defaultValue: Sequelize.NOW },
+      updatedAt: { type: Sequelize.DATE, allowNull: false, defaultValue: Sequelize.NOW },
+      deletedAt: { type: Sequelize.DATE }
     });
   },
 

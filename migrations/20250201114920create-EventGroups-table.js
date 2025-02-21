@@ -7,7 +7,10 @@ module.exports = {
       EventGroupID: { type: Sequelize.BIGINT, autoIncrement: true, primaryKey: true },
       EventID: { type: Sequelize.BIGINT, references: { model: 'Events', key: 'EventID' }, allowNull: false },
       Name: { type: Sequelize.STRING(30), allowNull: false },
-      FlightBudget: { type: Sequelize.INTEGER, allowNull: false }
+      FlightBudget: { type: Sequelize.INTEGER, allowNull: false },
+      createdAt: { type: Sequelize.DATE, allowNull: false, defaultValue: Sequelize.NOW },
+      updatedAt: { type: Sequelize.DATE, allowNull: false, defaultValue: Sequelize.NOW },
+      deletedAt: { type: Sequelize.DATE }
     });
   },
 

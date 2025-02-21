@@ -11,7 +11,11 @@ module.exports = {
       updatedAt: { type: Sequelize.DATE },
       createdAt: { type: Sequelize.DATE },
       StillActive: { type: Sequelize.BOOLEAN },
-      DateRemoved: { type: Sequelize.DATE }
+      DateRemoved: { type: Sequelize.DATE },
+      deletedAt: {type: Sequelize.DATE} ,
+      createdAt: { type: Sequelize.DATE, allowNull: false, defaultValue: Sequelize.NOW },
+      updatedAt: { type: Sequelize.DATE, allowNull: false, defaultValue: Sequelize.NOW },
+      deletedAt: { type: Sequelize.DATE }
     });
   },
 
