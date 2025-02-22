@@ -11,7 +11,7 @@ module.exports = (sequelize, DataTypes) => {
         },
         Bags: DataTypes.INTEGER,
         Cost: DataTypes.DECIMAL(4,2),
-        Approved: DataTypes.BOOLEAN,
+        ApprovalStatus: DataTypes.ENUM('not approved', 'pending', 'denied','approved'),
         DateApproved: DataTypes.DATE,
         Active: DataTypes.BOOLEAN,
         createdAt: DataTypes.DATE,
