@@ -8,7 +8,7 @@ module.exports = {
       Name: { type: Sequelize.STRING(25), allowNull: false },
       createdAt: { type: Sequelize.DATE, allowNull: false, defaultValue: Sequelize.NOW },
       updatedAt: { type: Sequelize.DATE, allowNull: false, defaultValue: Sequelize.NOW },
-      deletedAt: { type: Sequelize.DATE }
+      deletedAt: {type: Sequelize.DATE , defaultValue: null}
     });
   },
 

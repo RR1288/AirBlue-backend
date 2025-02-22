@@ -11,7 +11,7 @@ module.exports = {
       Owner: { type: Sequelize.BIGINT, references: { model: 'Users', key: 'UserID' }, unique: true, allowNull: false },
       createdAt: { type: Sequelize.DATE, allowNull: false, defaultValue: Sequelize.NOW },
       updatedAt: { type: Sequelize.DATE, allowNull: false, defaultValue: Sequelize.NOW },
-      deletedAt: { type: Sequelize.DATE }
+      deletedAt: {type: Sequelize.DATE , defaultValue: null}
     });
   },
 
