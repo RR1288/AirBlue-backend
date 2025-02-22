@@ -10,7 +10,6 @@ module.exports = {
                 updatedAt: new Date(),
                 createdAt: new Date(),
                 StillActive: true,
-                DateRemoved: null,
             },
             {
                 UserID: 2,
@@ -20,7 +19,6 @@ module.exports = {
                 updatedAt: new Date(),
                 createdAt: new Date(),
                 StillActive: true,
-                DateRemoved: null,
             },
             {
                 UserID: 3,
@@ -30,7 +28,6 @@ module.exports = {
                 updatedAt: new Date(),
                 createdAt: new Date(),
                 StillActive: true,
-                DateRemoved: null,
             },
             {
                 UserID: 4,
@@ -40,7 +37,6 @@ module.exports = {
                 updatedAt: new Date(),
                 createdAt: new Date(),
                 StillActive: true,
-                DateRemoved: null,
             },
             {
                 UserID: 5,
@@ -50,7 +46,6 @@ module.exports = {
                 updatedAt: new Date(),
                 createdAt: new Date(),
                 StillActive: true,
-                DateRemoved: null,
             },
         ]);
     },

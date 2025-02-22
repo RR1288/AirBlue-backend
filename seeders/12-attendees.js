@@ -5,14 +5,16 @@ module.exports = {
           UserID: 1,
           EventID: 1,
           EventGroupID: 1,
-          DateAdded: new Date(),
+          createdAt: new Date(),
+        updatedAt: new Date(),
           Confirmed: true,
         },
         {
           UserID: 2,
           EventID: 2,
           EventGroupID: 2,
-          DateAdded: new Date(),
+          createdAt: new Date(),
+        updatedAt: new Date(),
           Confirmed: false,
         }
       ]);

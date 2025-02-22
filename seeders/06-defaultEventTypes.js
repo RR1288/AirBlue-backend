@@ -4,10 +4,14 @@ module.exports = {
             {
                 TypeID: 1,
                 Name: 'Conference',
+                createdAt: new Date(),
+                updatedAt: new Date()
             },
             {
                 TypeID: 2,
                 Name: 'Workshop',
+                createdAt: new Date(),
+                updatedAt: new Date()
             }
         ]);
     },
