@@ -4,7 +4,7 @@ module.exports = {
       {
         EventID: 1,
         Name: 'VIP Group',
-        FlightBudget: 5000.00,
+        FlightBudget: 500.00,
         createdAt: new Date(),
         updatedAt: new Date()
       },
