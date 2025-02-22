@@ -34,6 +34,9 @@ module.exports = (sequelize, DataTypes) => {
             type: DataTypes.BIGINT,
             references: {model: "Organizations", key: "OrganizationID"},
         },
+    },{
+        sequelize,
+        paranoid: true
     });
 
     OrganizationEventType.associate = function (models) {

@@ -18,6 +18,9 @@ module.exports = (sequelize, DataTypes) => {
         createdAt: DataTypes.DATE,
         updatedAt: DataTypes.DATE,
         deletedAt: DataTypes.DATE
+    }{
+        sequelize,
+        paranoid: true
     });
 
     Attendee.associate = function (models) {

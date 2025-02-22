@@ -11,12 +11,15 @@ module.exports = (sequelize, DataTypes) => {
         },
         Bags: DataTypes.INTEGER,
         Cost: DataTypes.DECIMAL(4,2),
-        ApprovalStatus: DataTypes.ENUM('not approved', 'pending', 'denied','approved'),
+        ApprovalStatus: DataTypes.ENUM('not submitted', 'pending', 'denied','approved'),
         DateApproved: DataTypes.DATE,
         Active: DataTypes.BOOLEAN,
         createdAt: DataTypes.DATE,
         updatedAt: DataTypes.DATE,
         deletedAt: DataTypes.DATE
+    },{
+        sequelize,
+        paranoid: true
     });
 
     Itinerary.associate = function (models) {
