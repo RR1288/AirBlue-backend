@@ -27,7 +27,7 @@ const {Roles} = require('../utils/Roles.js');
  *                   name:
  *                     type: string
  */
-router.get("/", protect, authorizedRoles(Roles.ADMIN), registerUser);
+//router.get("/", protect, authorizedRoles(Roles.ADMIN), registerUser);
 
 /**
  * @swagger
