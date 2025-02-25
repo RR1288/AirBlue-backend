@@ -10,11 +10,13 @@ module.exports = (sequelize, DataTypes) => {
             references: {model: "Organizations", key: "OrganizationID"},
         },
         Roles: DataTypes.STRING(3),
-        DateGiven: DataTypes.DATE,
-        updatedAt: DataTypes.DATE,
-        createdAt: DataTypes.DATE,
         StillActive: DataTypes.BOOLEAN,
-        DateRemoved: DataTypes.DATE,
+        createdAt: DataTypes.DATE,
+        updatedAt: DataTypes.DATE,
+        deletedAt: DataTypes.DATE
+    },{
+        sequelize,
+        paranoid: true
     });
 
     UserOrganization.associate = (models) => {

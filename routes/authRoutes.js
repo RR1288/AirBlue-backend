@@ -5,31 +5,6 @@ const { protect } = require('../middleware/authMiddleware');
 
 /**
  * @swagger
- * /auth/register:
- *   post:
- *     summary: Register a new user
- *     tags: [Auth]
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             properties:
- *               email:
- *                 type: string
- *               password:
- *                 type: string
- *               roles:
- *                 type: string
- *     responses:
- *       201:
- *         description: User registered successfully
- */
-router.post('/register', authController.register);
-
-/**
- * @swagger
  * /auth/login:
  *   post:
  *     summary: Login a user

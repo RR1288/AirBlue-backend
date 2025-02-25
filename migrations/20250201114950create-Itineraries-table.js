@@ -7,11 +7,13 @@ module.exports = {
       ItineraryID: { type: Sequelize.BIGINT, autoIncrement: true, primaryKey: true },
       UserID: { type: Sequelize.BIGINT, references: { model: 'Users', key: 'UserID' }, allowNull: false },
       Bags: { type: Sequelize.INTEGER, defaultValue: 1 },
-      Cost: { type: Sequelize.DECIMAL, allowNull: false },
-      Approved: { type: Sequelize.BOOLEAN, defaultValue: false, allowNull: false },
+      Cost: { type: Sequelize.DECIMAL(6,2), allowNull: false },
+      ApprovalStatus: { type: Sequelize.ENUM('not submitted', 'pending', 'denied','approved'), defaultValue: 'not submitted', allowNull: false },
       DateApproved: {type: Sequelize.DATE },
       Active: { type: Sequelize.BOOLEAN, defaultValue: false, allowNull: false },
-      LastUpdate: {type: Sequelize.DATE, defaultValue: Sequelize.NOW, allowNull: false }
+      createdAt: { type: Sequelize.DATE, allowNull: false, defaultValue: Sequelize.NOW },
+      updatedAt: { type: Sequelize.DATE, allowNull: false, defaultValue: Sequelize.NOW },
+      deletedAt: {type: Sequelize.DATE , defaultValue: null}
     });
   },
 

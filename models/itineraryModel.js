@@ -10,11 +10,16 @@ module.exports = (sequelize, DataTypes) => {
             references: {model: "Users", key: "UserID"},
         },
         Bags: DataTypes.INTEGER,
-        Cost: DataTypes.DECIMAL,
-        Approved: DataTypes.BOOLEAN,
+        Cost: DataTypes.DECIMAL(4,2),
+        ApprovalStatus: DataTypes.ENUM('not submitted', 'pending', 'denied','approved'),
         DateApproved: DataTypes.DATE,
         Active: DataTypes.BOOLEAN,
-        LastUpdate: DataTypes.DATE,
+        createdAt: DataTypes.DATE,
+        updatedAt: DataTypes.DATE,
+        deletedAt: DataTypes.DATE
+    },{
+        sequelize,
+        paranoid: true
     });
 
     Itinerary.associate = function (models) {
