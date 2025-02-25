@@ -10,8 +10,12 @@ module.exports = (sequelize, DataTypes) => {
     Email: { type: DataTypes.STRING(320), unique: true },
     KTN: DataTypes.STRING(10),
     createdAt: DataTypes.DATE,
-    updatedAt: DataTypes.DATE
-  });
+    updatedAt: DataTypes.DATE,
+    deletedAt: DataTypes.DATE
+  },{
+    sequelize,
+    paranoid: true
+});
 
   User.associate = (models) => {
     User.hasOne(models.UserLogin, { foreignKey: 'UserID' });

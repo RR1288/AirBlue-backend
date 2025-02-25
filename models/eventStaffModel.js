@@ -14,8 +14,17 @@ module.exports = (sequelize, DataTypes) => {
         //     type: DataTypes.BIGINT,
         //     references: {model: "Roles", key: "RoleID"},
         // },
+<<<<<<< HEAD
         DateAdded: DataTypes.DATE,
         deletedAt: {type: Sequelize.DATE}
+=======
+        createdAt: DataTypes.DATE,
+        updatedAt: DataTypes.DATE,
+        deletedAt: DataTypes.DATE
+    },{
+        sequelize,
+        paranoid: true
+>>>>>>> staging
     });
 
     EventStaff.associate = function (models) {

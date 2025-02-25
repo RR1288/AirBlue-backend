@@ -18,7 +18,7 @@ module.exports = {
       two_fa_secret: { type: Sequelize.CHAR(32), allowNull: true },
       createdAt: { type: Sequelize.DATE, allowNull: false, defaultValue: Sequelize.NOW },
       updatedAt: { type: Sequelize.DATE, allowNull: false, defaultValue: Sequelize.NOW },
-      deletedAt: {type: Sequelize.DATE}
+      deletedAt: {type: Sequelize.DATE , defaultValue: null}
     });
   },
 

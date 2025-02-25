@@ -5,15 +5,15 @@ module.exports = {
           UserID: 1,
           Type: 'Window Seat',
           Value: 'Yes',
-          DateAdded: new Date(),
-          LastEdited: new Date(),
+          createdAt: new Date(),
+          updatedAt: new Date()
         },
         {
           UserID: 2,
           Type: 'Meal Preference',
           Value: 'Vegetarian',
-          DateAdded: new Date(),
-          LastEdited: new Date(),
+          createdAt: new Date(),
+          updatedAt: new Date()
         }
       ]);
     },

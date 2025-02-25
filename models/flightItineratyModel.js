@@ -11,8 +11,14 @@ module.exports = (sequelize, DataTypes) => {
       primaryKey: true 
     },
     Class: DataTypes.STRING(25),
-    SeatNumber: DataTypes.STRING(5)
-  });
+    SeatNumber: DataTypes.STRING(5),
+    createdAt: DataTypes.DATE,
+    updatedAt: DataTypes.DATE,
+    deletedAt: DataTypes.DATE
+  },{
+    sequelize,
+    paranoid: true
+});
 
   FlightItinerary.associate = function(models) {
     FlightItinerary.belongsTo(models.Itinerary, { foreignKey: 'ItineraryID' });

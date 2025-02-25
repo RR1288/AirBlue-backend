@@ -3,32 +3,32 @@ module.exports = {
     return queryInterface.bulkInsert('EventTypes', [
       {
         OrganizationType: true,
-        DateCreated: new Date(),
-        LastEdited: new Date(),
+        createdAt: new Date(),
+        updatedAt: new Date()
       }
       ,
       {
         OrganizationType: false,
-        DateCreated: new Date(),
-        LastEdited: new Date(),
+        createdAt: new Date(),
+        updatedAt: new Date()
       }
       ,
       {
         OrganizationType: false,
-        DateCreated: new Date(),
-        LastEdited: new Date(),
+        createdAt: new Date(),
+        updatedAt: new Date()
       }
       ,
       {
         OrganizationType: false,
-        DateCreated: new Date(),
-        LastEdited: new Date(),
+        createdAt: new Date(),
+        updatedAt: new Date()
       }
       ,
       {
         OrganizationType: true,
-        DateCreated: new Date(),
-        LastEdited: new Date(),
+        createdAt: new Date(),
+        updatedAt: new Date()
       }
     ]);
   },

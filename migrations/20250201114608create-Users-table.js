@@ -27,7 +27,7 @@ module.exports = {
                 defaultValue: Sequelize.NOW,
                 allowNull: false,
             },
-            deletedAt: { type: Sequelize.DATE }
+            deletedAt: {type: Sequelize.DATE , defaultValue: null}
         });
     },
     up: async (queryInterface, Sequelize) => {

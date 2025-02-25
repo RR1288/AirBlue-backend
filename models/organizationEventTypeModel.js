@@ -10,6 +10,9 @@ module.exports = (sequelize, DataTypes) => {
             type: DataTypes.BIGINT,
             references: {model: "Organizations", key: "OrganizationID"},
         },
+        createdAt: DataTypes.DATE,
+        updatedAt: DataTypes.DATE,
+        deletedAt: DataTypes.DATE
     });
 
     OrganizationEventType.belongsTo(models.EventType, {foreignKey: "TypeID"});
@@ -31,6 +34,9 @@ module.exports = (sequelize, DataTypes) => {
             type: DataTypes.BIGINT,
             references: {model: "Organizations", key: "OrganizationID"},
         },
+    },{
+        sequelize,
+        paranoid: true
     });
 
     OrganizationEventType.associate = function (models) {

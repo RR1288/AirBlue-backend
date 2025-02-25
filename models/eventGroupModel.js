@@ -10,7 +10,13 @@ module.exports = (sequelize, DataTypes) => {
             references: {model: "Events", key: "EventID"},
         },
         Name: DataTypes.STRING(30),
-        FlightBudget: DataTypes.INTEGER,
+        FlightBudget: DataTypes.DECIMAL(4,2),
+        createdAt: DataTypes.DATE,
+        updatedAt: DataTypes.DATE,
+        deletedAt: DataTypes.DATE
+    },{
+        sequelize,
+        paranoid: true
     });
 
     // Define associations inside the associate method
