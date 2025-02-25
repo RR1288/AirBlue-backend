@@ -1,5 +1,5 @@
 const {sendSuccess, sendError} = require("../utils/responseHelpers");
-const {registerUser} = require("../controllers/userController");
+const {registerUserFull} = require("../controllers/userController");
 const {User} = require("../models/userModel");
 
 exports.registerUser = async (req, res) => {
@@ -47,8 +47,8 @@ exports.registerUser = async (req, res) => {
 
         req.user = user;
 
-        const registedUser = await registerUser();
-        if (!registedUser || !registedUser.UserID) {
+        const registeredUser = await registerUserFull();
+        if (!registeredUser || !registeredUser.UserID) {
             return sendError(res, "Could not register this user", 404);
         }
         return sendSuccess(res, "User registered successfully", {

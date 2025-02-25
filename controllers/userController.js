@@ -21,7 +21,7 @@ exports.getAllEventPlanners = async (req, res) => {
 };
 
 // Register
-exports.registerFull = async (req, res) => {
+exports.registerUserFull = async (req, res) => {
     try {
         // Get username, password and roles
         const { username, password} = req.body;
@@ -108,7 +108,7 @@ exports.registerBasic = async (req, res) => {
                 LastEdited: Date.now(),
             });
             //need to randomly generate a password for the user
-
+            let password = generateRandomPassword();
             // Create UserLogin entry
             const userLogin = userLogin.create({
                 UserID: user.id,
@@ -130,7 +130,7 @@ exports.registerBasic = async (req, res) => {
 
 };
 //helper funciton to generate a random initial password in the case of automated setup
-function generateRandomPassword(length= 12){
+function generateRandomPassword(length = 12){
  const charset = "ABCDEFGHIJKLMNOPQRSTUVWXYZ!@#$%^&*1234567890abcdefghijklmnopqrstuvwxyz";
  let password = "";
  for (let i = 0; i < length; i++){

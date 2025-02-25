@@ -10,7 +10,8 @@ const {sendSuccess, sendError} = require("../utils/responseHelpers");
 const generateToken = (user) => {
     if (user.UserOrganizations.length > 0) {
         const roles = user.UserOrganizations[0].Roles;
-        signature = {id: user.UserID, username: user.UserName, roles: roles};
+        const organizationID = user.UserOrganizations[0].organizationID;
+        signature = {id: user.UserID, username: user.UserName, roles: roles, organizationID: organizationID};
     } else {
         signature = {id: user.UserID, username: user.UserName};
     }

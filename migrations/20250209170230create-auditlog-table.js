@@ -9,7 +9,7 @@ module.exports = {
       Operation: { type: Sequelize.STRING(10), allowNull: false},
       ChangedAt: { type: Sequelize.DATE, defaultValue: Sequelize.NOW, allowNull: false },
       ChangedBy: { type: Sequelize.String, defaultValue: false, allowNull: false },
-      OldData: {type: Sequelize.JSONB, allowNull: false },
+      OldData: { type: Sequelize.JSONB, allowNull: false },
       NewData: { type: Sequelize.JSONB, allowNull: false }
     });
   },
