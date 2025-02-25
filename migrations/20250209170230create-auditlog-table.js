@@ -8,11 +8,7 @@ module.exports = {
       TableName: { type: Sequelize.STRING(255), allowNull: false },
       Operation: { type: Sequelize.STRING(10), allowNull: false},
       ChangedAt: { type: Sequelize.DATE, defaultValue: Sequelize.NOW, allowNull: false },
-<<<<<<< HEAD
-      ChangedBy: { type: Sequelize.String, defaultValue: false, allowNull: false },
-=======
       ChangedBy: { type: Sequelize.STRING, defaultValue: false, allowNull: false },
->>>>>>> staging
       OldData: { type: Sequelize.JSONB, allowNull: false },
       NewData: { type: Sequelize.JSONB, allowNull: false }
     });
@@ -21,8 +17,4 @@ module.exports = {
   down: async (queryInterface, Sequelize) => {
     await queryInterface.dropTable('audit_log');
   }
-<<<<<<< HEAD
 };
-=======
-};
->>>>>>> staging
