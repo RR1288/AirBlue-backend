@@ -15,7 +15,8 @@
     "sqlite3": "^5.1.7",
     "supertest": "^7.0.0",
     "swagger-jsdoc": "^6.2.8",
-    "swagger-ui-express": "^5.0.1"
+    "swagger-ui-express": "^5.0.1",
+    "validator": "^13.12.0"
   },
   "jest": {
     "transform": {
@@ -25,9 +26,7 @@
       "dotenv/config"
     ],
     "testEnvironment": "node"
-    
   },
-  
   "scripts": {
     "test": "jest",
     "db:setup": "./setup.sh && npx sequelize-cli db:migrate && npx sequelize-cli db:seed:all",

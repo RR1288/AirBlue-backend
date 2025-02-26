@@ -64,6 +64,7 @@ exports.registerUserFull = async (req, res) => {
                 LastPasswordChange: Date.now(),
                 LastMFAChange: null,
             });
+            //TODO: logic for automated email to confirm account creation.
         });
         //===================END TRANSACTION======================
         // automatic rollback if an error occurs?
@@ -82,7 +83,7 @@ exports.registerBasic = async (req, res) => {
 
         // Send an error if no username or password is provided
         if (!username) {
-            return sendError(res, "Username and password required", 400);
+            return sendError(res, "Username required", 400);
         }
 
         // Throw an error if user already exists
@@ -119,6 +120,7 @@ exports.registerBasic = async (req, res) => {
                 LastPasswordChange: Date.now(),
                 LastMFAChange: null,
             });
+            //TODO: add logic to send email to user for their initial sign in
         });
         //===================END TRANSACTION======================
         // automatic rollback if an error occurs?
