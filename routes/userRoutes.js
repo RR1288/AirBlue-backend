@@ -1,10 +1,9 @@
 const express = require("express");
 const {getAllEventPlanners} = require("../services/eventPlannerService");
-const {registerUser} = require("../services/userService");
-const { protect } = require("../middleware/authMiddleware");
-const { authorizedRoles } = require("../middleware/roleMiddleware");
+const {protect} = require("../middleware/authMiddleware");
+const {authorizedRoles} = require("../middleware/roleMiddleware");
 const router = express.Router();
-const {Roles} = require('../utils/Roles.js');
+const {Roles} = require("../utils/Roles.js");
 
 /**
  * @swagger
@@ -96,6 +95,11 @@ const {Roles} = require('../utils/Roles.js');
  *       500:
  *         description: Internal server error
  */
-router.get("/event-planners", protect, authorizedRoles(Roles.ADMIN), getAllEventPlanners);
+router.get(
+    "/event-planners",
+    protect,
+    authorizedRoles(Roles.ADMIN),
+    getAllEventPlanners
+);
 
 module.exports = router;
