@@ -1,0 +1,51 @@
+const flightController = require("../controllers/flightController");
+const {sendSuccess, sendError} = require("../utils/responseHelpers");
+const {validateFlightParams} = require("../utils/validateFlightParams");
+
+exports.createRequest = async (req, res) => {
+    try {
+        // Validate request parameters
+        // Expects { origin, destination, departureDate, cabinClass }
+        validateFlightParams(req.query);
+
+        // Proceed with creating a request
+        const request_id = await flightController.createOfferRequest(req.query);
+        return sendSuccess(res, "Created request successfully", {request_id});
+    } catch (error) {
+        console.error(error);
+        return sendError(res, "Failed to create offer request", 500);
+    }
+};
+
+exports.getOffers = async (req, res) => {
+    try {
+        const {offer_request_id, limit, after, before} = req.query;
+
+        if (!offer_request_id) {
+            return sendError(
+                res,
+                "Missing required parameter: offer_request_id",
+                400
+            );
+        }
+
+        // Validate limit
+        const parsedLimit = limit ? parseInt(limit, 10) : 10;
+        if (isNaN(parsedLimit) || parsedLimit < 1) {
+            return sendError(res, "Invalid limit parameter", 400);
+        }
+
+        // Call the controller with pagination parameters
+        const offers = await flightController.fetchOffers({
+            offerRequestId: offer_request_id,
+            limit: parsedLimit,
+            // TODO: validate after and before
+            after,
+            before,
+        });
+
+        return sendSuccess(res, "Offers fetched successfully", {offers});
+    } catch (error) {
+        return sendError(res, error.message || "Failed to fetch offers", 500);
+    }
+};

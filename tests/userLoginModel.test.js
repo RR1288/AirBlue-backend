@@ -9,7 +9,7 @@ const dbMock = new SequelizeMock();
 const UserLoginMock = dbMock.define('UserLogin', {
   UserID: 1,
   Password: 'password123', //johndoe password 
-  MFATarget: 'SMS',
+  MFATarget: 'Email',
   LastPasswordChange: new Date(),
   LastMFAChange: new Date(),
   two_fa_enabled: true,
@@ -23,7 +23,7 @@ const mockUsers = [
     {
       UserID: 1,
       Password: 'password123', // johndoe password
-      MFATarget: 'SMS',
+      MFATarget: 'Email',
       LastPasswordChange: new Date(),
       LastMFAChange: new Date(),
       two_fa_enabled: true,

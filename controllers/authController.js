@@ -20,7 +20,6 @@ const generateToken = (user) => {
     });
 };
 
-
 // Login
 exports.login = async (req, res) => {
     try {
