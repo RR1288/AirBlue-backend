@@ -18,4 +18,4 @@ function validateOrganizationID(organizationID){
     return true
 }
 
-module.exports = {}
+module.exports = {validateOrganizationID}
