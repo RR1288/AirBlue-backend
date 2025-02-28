@@ -139,11 +139,15 @@ async function setOrganization(roles, organizationID, userID) {
             const uOrganization = UserOrganization.create({
                 UserID: userID,
                 OrganizationID: organizationID,
-                DateGiven: Date.now();
+                DateGiven: Date.now(),
+                Roles: roles,
+                StillAcitve: true,
+                updatedAt: Date.now(),
+                createdAt: Date.now()
             });
 
         });
-        return sendSuccess(res, "User registered", {});
+        return sendSuccess(res, "User registered", true);
     } catch (err) {
         console.error(err);
         return sendError(res, "Error registering user to organization", 500);
