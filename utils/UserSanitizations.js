@@ -97,3 +97,13 @@ function sanitizeState(state){
     // TODO add an option that actually checks if it is a state
     return sanitizedState;
 }
+
+module.exports = {
+    sanitizeCountry,
+    sanitizeCity,
+    sanitizeEmail,
+    sanitizePassword,
+    sanitizeState,
+    sanitizeKTN,
+    sanitizeName
+}

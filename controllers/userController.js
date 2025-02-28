@@ -24,7 +24,7 @@ exports.getAllEventPlanners = async (req, res) => {
 exports.registerUserFull = async (req, res) => {
     try {
         // Get username, password and roles
-        const { username, password} = req.body;
+        const { username, password } = req.body;
 
         // Send an error if no username or password is provided
         if (!username || !password) {
@@ -42,7 +42,7 @@ exports.registerUserFull = async (req, res) => {
         await sequelize.transaction(async t => {
             const user = User.create({
                 // Get from body
-                UserName: username,
+                UserName: email,
                 FName: firstname,
                 LName: lastname,
                 City: city,
@@ -57,7 +57,7 @@ exports.registerUserFull = async (req, res) => {
             // Create UserLogin entry
             const userLogin = userLogin.create({
                 UserID: user.id,
-                Password: password,
+                Password: await bcrypt.hash(password, 10),
                 two_fa_enabled: false,
                 two_fa_secret: null,
                 //MFATarget
@@ -79,15 +79,15 @@ exports.registerUserFull = async (req, res) => {
 exports.registerBasic = async (req, res) => {
     try {
         // Get username, password and roles
-        const { username} = req.body;
+        const { email } = req.body;
 
         // Send an error if no username or password is provided
-        if (!username) {
-            return sendError(res, "Username required", 400);
+        if (!email) {
+            return sendError(res, "email required", 400);
         }
 
         // Throw an error if user already exists
-        const existingUser = await User.findOne({ where: { username } });
+        const existingUser = await User.findOne({ where: { email } });
         if (existingUser) {
             return sendError(res, "User already exists", 400);
         }
@@ -97,7 +97,7 @@ exports.registerBasic = async (req, res) => {
         await sequelize.transaction(async t => {
             const user = User.create({
                 // Get from body
-                UserName: username,
+                UserName: email,
                 FName: firstname,
                 LName: lastname,
                 City: null,
@@ -113,7 +113,7 @@ exports.registerBasic = async (req, res) => {
             // Create UserLogin entry
             const userLogin = userLogin.create({
                 UserID: user.id,
-                Password: password,
+                Password: await bcrypt.hash(password, 10),
                 two_fa_enabled: false,
                 two_fa_secret: null,
                 //MFATarget
@@ -131,15 +131,36 @@ exports.registerBasic = async (req, res) => {
     }
 
 };
-//helper funciton to generate a random initial password in the case of automated setup
-function generateRandomPassword(length = 12){
- const charset = "ABCDEFGHIJKLMNOPQRSTUVWXYZ!@#$%^&*1234567890abcdefghijklmnopqrstuvwxyz";
- let password = "";
- for (let i = 0; i < length; i++){
-    const randomIndex = Math.floor(Math.random() * charset.length);
-    password += charset[randomIndex];
 
- }
- return password;
+
+async function setOrganization(roles, organizationID, userID) {
+    try {
+        await sequelize.transaction(async t => {
+            const uOrganization = UserOrganization.create({
+                UserID: userID,
+                OrganizationID: organizationID,
+                DateGiven: Date.now();
+            });
+
+        });
+        return sendSuccess(res, "User registered", {});
+    } catch (err) {
+        console.error(err);
+        return sendError(res, "Error registering user to organization", 500);
+    }
+
+}
+
+
+//helper funciton to generate a random initial password in the case of automated setup
+function generateRandomPassword(length = 12) {
+    const charset = "ABCDEFGHIJKLMNOPQRSTUVWXYZ!@#$%^&*1234567890abcdefghijklmnopqrstuvwxyz";
+    let password = "";
+    for (let i = 0; i < length; i++) {
+        const randomIndex = Math.floor(Math.random() * charset.length);
+        password += charset[randomIndex];
+
+    }
+    return password;
 
 }

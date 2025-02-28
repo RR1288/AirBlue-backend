@@ -1,53 +1,124 @@
-const {sendSuccess, sendError} = require("../utils/responseHelpers");
-const {registerUserFull} = require("../controllers/userController");
-const {User} = require("../models/userModel");
-
-exports.registerUser = async (req, res) => {
+const { sendSuccess, sendError } = require("../utils/responseHelpers");
+const { registerUserFull, registerUserBasic } = require("../controllers/userController");
+const { User } = require("../models/userModel");
+const { sanitizeEmail, sanitizeName, sanitizeCountry, sanitizeCity, sanitizePassword } = require("../utils/UserSanitizations"); //have to change the file name since right now it does both sanitization and validation
+const { validateOrganizationID } = require("../utils/OrganizationSanitization")
+exports.registerUserEndUser = async (req, res) => {
     try {
-        const {username, fname, lname, city, state, country, email, ktn} =
+        const { password, fname, lname, city, state, country, email } =
             req.body;
         // Validate that all attributes exist
-        if (!username || !fname || !lname || !country || !email) {
+        if (!password || !fname || !lname || !country || !email) {
             return sendError(res, "Arguments missing", 401); //TODO: Check status code
         }
+        //sanitizing and validating all fields
+        email = sanitizeEmail(email);
+        if (email === null) return sendError(res, "Invalid input for email");//TODO:  check error code
+        fname = sanitizeName(fname);
+        if (fname === null) return sendError(res, "Invalid input for first name");//TODO:  check error code
+        lname = sanitizeName(lname);
+        if (lname === null) return sendError(res, "Invalid input for last name");//TODO:  check error code
+        country = sanitizeCountry(country);
+        if (country === null) return sendError(res, "Invalid input for country");//TODO:  check error code
+        password = sanitizePassword(password);
+        if (country === null) return sendError(res, "Invalid input for country");//TODO:  check error code
 
-        // Sanitize attributes
-        // trim ws
-        // truncate state, ktn
-        
-        
-        // TODO: Create validations files
+        if (!city) {
+        } else {
+            city = sanitizeCity(city);
+            if (city === null) return sendError(res, "Invalid input for city");//TODO: make more helpful message and check error code
+        }
 
-        // Validate attributes
-        // username -> alphanumeric
-        // fname, lname, city, country-> alphabeticSpace, alphanumeric?
-        // state -> valid state?
-        // email -> valid email
-        // ktn -> numeric? what is this?
-
-        
-        // Assign to organization at creation? 
-        // If so -> setup roles
-        // Else -> basic permissions?
-                    // check events? -> from Attendees (UserEvent)
-
-        // This should go in the controller
-        const user = await User.create({
-            UserName: username,
-            FName: fname,
-            LName: lname,
-            City: city ? city : null,
-            State: state ? state : null,
-            Country: country,
-            Email: email,
-            KTN: ktn ? ktn : null,
-            createdAt: new Date(),
-            updatedAt: new Date(),
-        });
-
-        req.user = user;
+        if (!state) {
+        } else {
+            state = sanitizeState(state);
+            if (state === null) return sendError(res, "Invalid input State");//TODO: make more helpful message and check error code
+        }
 
         const registeredUser = await registerUserFull();
+        if (!registeredUser || !registeredUser.UserID) {
+            return sendError(res, "Could not register this user", 404);
+        }
+        return sendSuccess(res, "User registered successfully", {
+            registerUser,
+        });
+    } catch (error) {
+        console.error(error);
+        return sendError(
+            res,
+            "Something went wrong while registering user"
+        );
+    }
+};
+
+exports.registerUserCSV = async (req, res) => {
+    try {
+        const { fname, lname, country, email } =
+            req.body;
+        // Validate that all attributes exist
+        if ( !fname || !lname || !country || !email) {
+            return sendError(res, "Arguments missing", 401); //TODO: Check status code
+        }
+        //sanitizing and validating all fields
+        email = sanitizeEmail(email);
+        if (email === null) return sendError(res, "Invalid input for email");//TODO:  check error code
+        fname = sanitizeName(fname);
+        if (fname === null) return sendError(res, "Invalid input for first name");//TODO:  check error code
+        lname = sanitizeName(lname);
+        if (lname === null) return sendError(res, "Invalid input for last name");//TODO:  check error code
+        country = sanitizeCountry(country);
+        if (country === null) return sendError(res, "Invalid input for country");//TODO:  check error code
+
+        const registeredUser = await registerUserBasic();
+        if (!registeredUser || !registeredUser.UserID) {
+            return sendError(res, "Could not register this user", 404);
+        }
+        return sendSuccess(res, "User registered successfully", {
+            registerUser,
+        });
+    } catch (error) {
+        console.error(error);
+        return sendError(
+            res,
+            "Something went wrong while registering user"
+        );
+    }
+};
+
+exports.registerUserOrganization = async (req, res) => {
+    try {
+        const { fname, lname, country, email, organizationID } =
+            req.body;
+        // Validate that all attributes exist
+        if ( !fname || !lname || !country || !email || organizationID) {
+            return sendError(res, "Arguments missing", 401); //TODO: Check status code
+        }
+        //sanitizing and validating all fields
+        email = sanitizeEmail(email);
+        email = sanitizeEmail(email);
+        if (email === null) return sendError(res, "Invalid input for email");//TODO:  check error code
+        fname = sanitizeName(fname);
+        if (fname === null) return sendError(res, "Invalid input for first name");//TODO:  check error code
+        lname = sanitizeName(lname);
+        if (lname === null) return sendError(res, "Invalid input for last name");//TODO:  check error code
+        country = sanitizeCountry(country);
+        if (country === null) return sendError(res, "Invalid input for country");//TODO:  check error code
+        password = sanitizePassword(password);
+        if (country === null) return sendError(res, "Invalid input for country");//TODO:  check error code
+        if (validateOrganizationID(organizationID )) return sendError(res, "Invalid input for organization");
+        if (!city) {
+        } else {
+            city = sanitizeCity(city);
+            if (city === null) return sendError(res, "Invalid input for city");//TODO: make more helpful message and check error code
+        }
+
+        if (!state) {
+        } else {
+            state = sanitizeState(state);
+            if (state === null) return sendError(res, "Invalid input State");//TODO: make more helpful message and check error code
+        }
+
+        const registeredUser = await registerUserBasic();
         if (!registeredUser || !registeredUser.UserID) {
             return sendError(res, "Could not register this user", 404);
         }
