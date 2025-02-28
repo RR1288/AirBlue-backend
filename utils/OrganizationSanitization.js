@@ -12,10 +12,10 @@ function startSanitizeString(input){
 
 //function only returns true and false since its role is to make sure that the organization exists
 function validateOrganizationID(organizationID){
-    if (typeof organizationID !== 'integer') return false;
+    if (typeof organizationID !== 'number') return false;
     if (getOrganization(organizationID) === null) return false;
     
-    return true
+    return true;
 }
 
 module.exports = {validateOrganizationID}
