@@ -2,7 +2,8 @@ const { sendSuccess, sendError } = require("../utils/responseHelpers");
 const { registerUserFull, registerBasic, setOrganization } = require("../controllers/userController");
 const { User } = require("../models/userModel");
 const { sanitizeEmail, sanitizeName, sanitizeCountry, sanitizeCity, sanitizePassword } = require("../utils/UserSanitizations"); //have to change the file name since right now it does both sanitization and validation
-const { validateOrganizationID } = require("../utils/OrganizationSanitization")
+const { validateOrganizationID } = require("../utils/OrganizationSanitization");
+const { sanitizeRoles } = require("../utils/UserOrganizationSanitizations");
 exports.registerUserEndUser = async (req, res) => {
     try {
         const { password, fname, lname, city, state, country, email } =
@@ -34,7 +35,7 @@ exports.registerUserEndUser = async (req, res) => {
             state = sanitizeState(state);
             if (state === null) return sendError(res, "Invalid input State");//TODO: make more helpful message and check error code
         }
-
+        
         const registeredUser = await registerUserFull();
         if (!registeredUser || !registeredUser.UserID) {
             return sendError(res, "Could not register this user", 404);
@@ -87,10 +88,10 @@ exports.registerUserCSV = async (req, res) => {
 
 exports.registerUserOrganization = async (req, res) => {
     try {
-        const { fname, lname, country, email, organizationID } =
+        const { fname, lname, country, email, organizationID, roles } =
             req.body;
         // Validate that all attributes exist
-        if (!fname || !lname || !country || !email || organizationID) {
+        if (!fname || !lname || !country || !email || !organizationID || !roles) {
             return sendError(res, "Arguments missing", 401); //TODO: Check status code
         }
         //sanitizing and validating all fields
@@ -102,16 +103,25 @@ exports.registerUserOrganization = async (req, res) => {
         lname = sanitizeName(lname);
         if (lname === null) return sendError(res, "Invalid input for last name");//TODO:  check error code
         country = sanitizeCountry(country);
-        if (country === null) return sendError(res, "Invalid input for country");//TODO:  check error code
+        if (country === null) {
+            return sendError(res, "Invalid input for country");//TODO:  check error code
+        }
         password = sanitizePassword(password);
-        if (country === null) return sendError(res, "Invalid input for country");//TODO:  check error code
-        if (validateOrganizationID(organizationID)) return sendError(res, "Invalid input for organization");
+        if (country === null) { 
+            return sendError(res, "Invalid input for country");//TODO:  check error code
+        }
+        if (validateOrganizationID(organizationID)) {
+            return sendError(res, "Invalid input for organization");
+        }
+        roles = sanitizeRoles(roles);
+        if (roles === null){
+            return sendError(res, "Invalid input for roles");//TODO:  check error code
+        }
         if (!city) {
         } else {
             city = sanitizeCity(city);
             if (city === null) return sendError(res, "Invalid input for city");//TODO: make more helpful message and check error code
         }
-
         if (!state) {
         } else {
             state = sanitizeState(state);
@@ -127,7 +137,7 @@ exports.registerUserOrganization = async (req, res) => {
         if (!OrganizationUserSuccess) {
             return sendError(res, "Could not register this user in the organization", 404);
         }
-    
+
         return sendSuccess(res, "User registered successfully", {
             registerUser,
         });
