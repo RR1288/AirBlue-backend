@@ -70,13 +70,11 @@ exports.registerUserCSV = async (req, res) => {
         country = sanitizeCountry(country);
         if (country === null) return sendError(res, "Invalid input for country");//TODO:  check error code
 
-        const registeredUser = await registerUserBasic();
-        if (!registeredUser || !registeredUser.UserID) {
+        const registeredUser = await registerUserBasic(email, fname, lname, country);
+        if (!registeredUser || !registeredUser.userId) {
             return sendError(res, "Could not register this user", 404);
         }
-        return sendSuccess(res, "User registered successfully", {
-            registerUser,
-        });
+        return sendSuccess(res, "User registered successfully");
     } catch (error) {
         console.error(error);
         return sendError(
