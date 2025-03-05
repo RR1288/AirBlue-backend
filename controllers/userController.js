@@ -24,15 +24,15 @@ exports.getAllEventPlanners = async (req, res) => {
 exports.registerUserFull = async (req, res) => {
     try {
         // Get username, password and roles
-        const { username, password } = req.body;
+        const { email, password } = req.body;
 
         // Send an error if no username or password is provided
-        if (!username || !password) {
+        if (!email || !password) {
             return sendError(res, "Username and password required", 400);
         }
 
         // Throw an error if user already exists
-        const existingUser = await User.findOne({ where: { username } });
+        const existingUser = await User.findOne({ where: { email } });
         if (existingUser) {
             return sendError(res, "User already exists", 400);
         }
@@ -42,7 +42,6 @@ exports.registerUserFull = async (req, res) => {
         await sequelize.transaction(async t => {
             const user = User.create({
                 // Get from body
-                UserName: email,
                 FName: firstname,
                 LName: lastname,
                 City: city,
@@ -97,7 +96,6 @@ exports.registerBasic = async (req, res) => {
         await sequelize.transaction(async t => {
             const user = User.create({
                 // Get from body
-                UserName: email,
                 FName: firstname,
                 LName: lastname,
                 City: null,
