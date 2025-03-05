@@ -56,6 +56,56 @@ const {Roles} = require('../utils/Roles.js');
  *                 example: SecurePassword123!
 */
 router.post('/create-end-user', registerUserEndUser);
+
+/**
+ * @swagger
+ * /users/create-end-user
+ *   post:
+ *     summary: create new user for end users who are not organization users
+ *     description: endpoint to create new users from the new user screen
+ *     tags
+ *       - Users
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - firstname
+ *               - lastname
+ *               - email
+ *               - country
+ *               - password
+ *             properties:
+ *               firstname:
+ *                 type: string
+ *                 example: John
+ *               lastname:
+ *                 type: string
+ *                 example: Doe
+ *               email:
+ *                 type: string
+ *                 format: email
+ *                 example: test@example.com
+ *               Country:
+ *                 type: string
+ *                 example: USA
+ *               City:
+ *                 type: string
+ *                 example: Keene
+ *                 nullable: true
+ *               State:
+ *                 type: string
+ *                 example: NH
+ *                 nullable: true
+ *               Password:
+ *                 type: string
+ *                 format: password
+ *                 example: SecurePassword123!
+*/
+router.post('/create-end-user', registerUserOrganization); //TODO write middleware
+
 /**
  * @swagger
  * /users/event-planners:
