@@ -4,7 +4,7 @@ const { Organization, Sequelize } = require("../models");
 //if no organization found it will return a null value
 exports.getOrganization = async (req, res) => {
     const organizationID = req.body;
-    const organization = await Organization.FindByPK(organizationID);
+    const organization = await Organization.findByPk(organizationID);
     return organization
 
 }

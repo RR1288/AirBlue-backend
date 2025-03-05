@@ -82,41 +82,47 @@ router.post('/create-end-user', registerUserEndUser);
  *               - email
  *               - country
  *               - password
- *               - OrganizationID
+ *               - organizationID
  *               - roles
  *             properties:
- *               firstname:
+ *               fname:
  *                 type: string
  *                 example: John
- *               lastname:
+ *               lname:
  *                 type: string
  *                 example: Doe
  *               email:
  *                 type: string
  *                 format: email
- *                 example: test@exale.com
- *               Country:
+ *                 example: test2@exale.com
+ *               country:
  *                 type: string
  *                 example: USA
- *               City:
+ *               city:
  *                 type: string
  *                 example: Keene
  *                 nullable: true
- *               State:
+ *               state:
  *                 type: string
  *                 example: NH
  *                 nullable: true
- *               Password:
+ *               password:
  *                 type: string
  *                 format: password
  *                 example: SecurePassword123!
+ *               organizationID:
+ *                 type: integer
+ *                 example: 1
+ *               roles:
+ *                 type: string
+ *                 example: E
  *     responses:
  *       201:
  *         description: user successfully created
  *       400:
  *         description: Bad request invalid input
 */
-router.post('/create-end-user', registerUserOrganization); //TODO write middleware
+router.post('/create-organization-user', registerUserOrganization); //TODO write middleware
 
 /**
  * @swagger

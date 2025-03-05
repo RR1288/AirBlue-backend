@@ -69,26 +69,25 @@ async function registerUserFull(email, password, fname, lname, city, state, coun
 
 };
 
-exports.registerBasic = async (req, res) => {
+async function registerBasic(email, firstname, lastname, country) {
     try {
-        // Get username, password and roles
-        const { email } = req.body;
 
         // Send an error if no username or password is provided
         if (!email) {
-            return sendError(res, "email required", 400);
+            throw new Error("email required");
         }
 
         // Throw an error if user already exists
-        const existingUser = await User.findOne({ where: { email } });
+        const existingUser = await User.findOne({ where: { Email: email } });
         if (existingUser) {
-            return sendError(res, "User already exists", 400);
+            throw new Error("User already exists");
         }
 
+        let user;
         //===================START TRANSACTION======================
         // Create user
         await sequelize.transaction(async t => {
-            const user = User.create({
+            const user = await User.create({
                 // Get from body
                 FName: firstname,
                 LName: lastname,
@@ -102,10 +101,11 @@ exports.registerBasic = async (req, res) => {
             });
             //need to randomly generate a password for the user
             let password = generateRandomPassword();
+            password = await bcrypt.hash(password, 10);
             // Create UserLogin entry
-            const userLogin = userLogin.create({
-                UserID: user.id,
-                Password: await bcrypt.hash(password, 10),
+            const userLogin = await userLogin.create({
+                UserID: user.ID,
+                Password: password,
                 two_fa_enabled: false,
                 two_fa_secret: null,
                 //MFATarget
@@ -116,10 +116,10 @@ exports.registerBasic = async (req, res) => {
         });
         //===================END TRANSACTION======================
         // automatic rollback if an error occurs?
-        return sendSuccess(res, "User registered", { userId: user.id });
+        return { userId: user.id };
     } catch (err) {
         console.error(err);
-        return sendError(res, "Error registering user", 500);
+        throw new Error("Error registering user");
     }
 
 };
@@ -139,10 +139,10 @@ async function setOrganization(roles, organizationID, userID) {
             });
 
         });
-        return sendSuccess(res, "User registered", true);
+        return  true;
     } catch (err) {
         console.error(err);
-        return sendError(res, "Error registering user to organization", 500);
+        throw new Error("Error registering user to organization");
     }
 
 }
