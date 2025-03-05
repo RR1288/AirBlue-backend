@@ -18,7 +18,7 @@ describe('Flight Params Validation', () => {
 
   //Third Test: Throw an error if if a destination is invalid
   it('Should throw an error if the origin or destination is invalid', () => {
-    const params = { origin: 'REDACTED', destination: 'REDACTED', departureDate: '2025-03-01', cabinClass: 'economy'};
+    const params = { origin: 'REDACTED', destination: 'REDACTED', departureDate: '2025-06-01', cabinClass: 'economy'};
     expect(() => validateFlightParams(params)).toThrow('Invalid IATA airport code format (must be 3 uppercase letters)');
   });
 
@@ -30,7 +30,7 @@ describe('Flight Params Validation', () => {
 
   //Fifth Test: Throw an error if cabin class is inccorrect
   it('Should throw an error if the cabin class is invalid', () => {
-    const params = { origin: 'LHR', destination: 'JFK', departureDate: '2025-02-29', cabinClass: 'Super Cool Rich Kid Seating'};
+    const params = { origin: 'LHR', destination: 'JFK', departureDate: '2025-06-01', cabinClass: 'Super Cool Rich Kid Seating'};
     expect(() => validateFlightParams(params)).toThrow('Invalid cabin class. Must be one of: economy, premium_economy, business, first');
   });
 
