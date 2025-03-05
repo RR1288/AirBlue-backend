@@ -21,7 +21,7 @@ fi
 
 # Create the user if it doesn't exist
 echo "Creating user if it doesn't exist..."
-sudo -u postgres psql -tc "SELECT 1 FROM pg_roles WHERE rolname='$DB_USER'" | grep -q 1 || sudo -u postgres psql -c "CREATE USER $DB_USER WITH PASSWORD '$DB_PASSWORD';"
+sudo -u postgres psql -tc "SELECT 1 FROM pg_roles WHERE rolname='$DB_USER_DEVELOPMENT'" | grep -q 1 || sudo -u postgres psql -c "CREATE USER $DB_USER_DEVELOPMENT WITH PASSWORD '$DB_PASSWORD_DEVELOPMENT';"
 
 # Create DBs they don't exist
 echo "Creating DBs if they don't exist..."
@@ -30,7 +30,7 @@ sudo -u postgres psql -tc "SELECT 1 FROM pg_database WHERE datname='$DB_NAME_DEV
 
 # Set the ownership of DBs to the user
 echo "Changing ownership of DBs to user..."
-sudo -u postgres psql -c "ALTER DATABASE $DB_NAME_TEST OWNER TO $DB_USER;"
-sudo -u postgres psql -c "ALTER DATABASE $DB_NAME_DEVELOPMENT OWNER TO $DB_USER;"
+sudo -u postgres psql -c "ALTER DATABASE $DB_NAME_TEST OWNER TO $DB_USER_DEVELOPMENT;"
+sudo -u postgres psql -c "ALTER DATABASE $DB_NAME_DEVELOPMENT OWNER TO $DB_USER_DEVELOPMENT;"
 
 echo "Database setup completed successfully!"

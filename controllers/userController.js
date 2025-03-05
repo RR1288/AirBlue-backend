@@ -1,5 +1,5 @@
-const { User, UserOrganization, Sequelize } = require("../models"); // Import models
-
+const { User, UserLogin, UserOrganization, Sequelize, sequelize } = require("../models"); // Import models
+const bcrypt = require("bcryptjs");
 exports.getAllEventPlanners = async (req, res) => {
     try {
         // Get all event planners
@@ -21,42 +21,35 @@ exports.getAllEventPlanners = async (req, res) => {
 };
 
 // Register
-exports.registerUserFull = async (req, res) => {
+async function registerUserFull(email, password, fname, lname, city, state, country){
     try {
-        // Get username, password and roles
-        const { email, password } = req.body;
-
-        // Send an error if no username or password is provided
-        if (!email || !password) {
-            return sendError(res, "Username and password required", 400);
-        }
+        console.log(password);
+        password = await bcrypt.hash(password, 10);
 
         // Throw an error if user already exists
-        const existingUser = await User.findOne({ where: { email } });
+        const existingUser = await User.findOne({ where: { Email: email } });
         if (existingUser) {
-            return sendError(res, "User already exists", 400);
+            throw new Error("User already exists");
         }
-
+        let user;
         //===================START TRANSACTION======================
         // Create user
         await sequelize.transaction(async t => {
-            const user = User.create({
-                // Get from body
-                FName: firstname,
-                LName: lastname,
+              user = await User.create({
+                FName: fname,
+                LName: lname,
                 City: city,
                 State: state,
                 Country: country,
                 Email: email,
-                KTN: ktn,
                 CreationDate: Date.now(),
                 LastEdited: Date.now(),
             });
 
             // Create UserLogin entry
-            const userLogin = userLogin.create({
-                UserID: user.id,
-                Password: await bcrypt.hash(password, 10),
+            const userLogin = await UserLogin.create({
+                UserID: user.UserID,
+                Password: password,
                 two_fa_enabled: false,
                 two_fa_secret: null,
                 //MFATarget
@@ -67,10 +60,11 @@ exports.registerUserFull = async (req, res) => {
         });
         //===================END TRANSACTION======================
         // automatic rollback if an error occurs?
-        return sendSuccess(res, "User registered", { userId: user.id });
+
+        return { userId: user.UserID};
     } catch (err) {
         console.error(err);
-        return sendError(res, "Error registering user", 500);
+        throw new Error("Error registering user");
     }
 
 };
@@ -152,7 +146,7 @@ async function setOrganization(roles, organizationID, userID) {
     }
 
 }
-module.exports = {setOrganization}
+module.exports = {setOrganization, registerUserFull}
 
 //helper funciton to generate a random initial password in the case of automated setup
 function generateRandomPassword(length = 12) {

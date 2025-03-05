@@ -30,13 +30,13 @@ function sanitizeEmail(email){
 }
 //Name
 //this function will santize both the firstname and lastname
-function sanitizeName(){
+function sanitizeName(name){
     //sanitization
-    let sanitizedName = startSanitize(email);
+    let sanitizedName = startSanitize(name);
     if (sanitizedName === '') return null;
 
     //validation
-    const nameRegex = /^[a-zA-Z\s\-]+$/;
+    const nameRegex = /^[a-zA-Z\s\-]/;
     if (!nameRegex.test(sanitizedName)) return null;
 
     return sanitizedName;
@@ -47,8 +47,9 @@ function sanitizePassword(password){
     let sanitizedPassword = startSanitize(password);
     if (sanitizedPassword === '') return null;
 
+    const passwordRegex = /^[a-zA-Z!@#$%^&*]/;
     //validation
-    if (!validator.isAlphanumeric(sanitizedPassword)) return null;
+    if (!passwordRegex.test(password)) return null;
 
     return sanitizedPassword;
 }

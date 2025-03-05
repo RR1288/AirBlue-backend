@@ -10,11 +10,11 @@ const {Roles} = require('../utils/Roles.js');
 
 /**
  * @swagger
- * /users/create-end-user
+ * /users/create-end-user:
  *   post:
  *     summary: create new user for end users who are not organization users
  *     description: endpoint to create new users from the new user screen
- *     tags
+ *     tags:
  *       - Users
  *     requestBody:
  *       required: true
@@ -23,47 +23,52 @@ const {Roles} = require('../utils/Roles.js');
  *           schema:
  *             type: object
  *             required:
- *               - firstname
- *               - lastname
+ *               - fname
+ *               - lname
  *               - email
  *               - country
  *               - password
  *             properties:
- *               firstname:
+ *               fname:
  *                 type: string
  *                 example: John
- *               lastname:
+ *               lname:
  *                 type: string
  *                 example: Doe
  *               email:
  *                 type: string
  *                 format: email
- *                 example: test@example.com
- *               Country:
+ *                 example: test@exple.com
+ *               country:
  *                 type: string
  *                 example: USA
- *               City:
+ *               city:
  *                 type: string
  *                 example: Keene
  *                 nullable: true
- *               State:
+ *               state:
  *                 type: string
  *                 example: NH
  *                 nullable: true
- *               Password:
+ *               password:
  *                 type: string
  *                 format: password
  *                 example: SecurePassword123!
+ *     responses:
+ *       201:
+ *         description: user successfully created
+ *       400:
+ *         description: Bad request invalid input
 */
 router.post('/create-end-user', registerUserEndUser);
 
 /**
  * @swagger
- * /users/create-end-user
+ * /users/create-organization-user:
  *   post:
- *     summary: create new user for end users who are not organization users
- *     description: endpoint to create new users from the new user screen
- *     tags
+ *     summary: create new user organization user
+ *     description: endpoint for organization admins to create new users
+ *     tags:
  *       - Users
  *     requestBody:
  *       required: true
@@ -77,6 +82,8 @@ router.post('/create-end-user', registerUserEndUser);
  *               - email
  *               - country
  *               - password
+ *               - OrganizationID
+ *               - roles
  *             properties:
  *               firstname:
  *                 type: string
@@ -87,7 +94,7 @@ router.post('/create-end-user', registerUserEndUser);
  *               email:
  *                 type: string
  *                 format: email
- *                 example: test@example.com
+ *                 example: test@exale.com
  *               Country:
  *                 type: string
  *                 example: USA
@@ -103,6 +110,11 @@ router.post('/create-end-user', registerUserEndUser);
  *                 type: string
  *                 format: password
  *                 example: SecurePassword123!
+ *     responses:
+ *       201:
+ *         description: user successfully created
+ *       400:
+ *         description: Bad request invalid input
 */
 router.post('/create-end-user', registerUserOrganization); //TODO write middleware
 
