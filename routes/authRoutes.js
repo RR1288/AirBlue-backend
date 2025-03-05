@@ -57,13 +57,17 @@ router.post("/2fa/setup", protect, authController.setup2FA);
  *           schema:
  *             type: object
  *             properties:
- *               token:
+ *               userId:
+ *                 type: integer
+ *                 example: 1
+ *               twoFactorCode:
  *                 type: string
+ *                 example: "123456"
  *     responses:
  *       200:
  *         description: 2FA verification successful, returns JWT token
  */
-router.post("/2fa/verify", protect, authController.verify2FA);
+router.post("/2fa/verify", authController.verify2FA);
 
 /**
  * @swagger
