@@ -146,7 +146,7 @@ async function setOrganization(roles, organizationID, userID) {
     }
 
 }
-module.exports = {setOrganization, registerUserFull}
+module.exports = {setOrganization, registerUserFull, registerBasic}
 
 //helper funciton to generate a random initial password in the case of automated setup
 function generateRandomPassword(length = 12) {
