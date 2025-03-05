@@ -7,8 +7,6 @@ const { checkOrganizationUser } = require("../middleware/organizationMiddleware.
 const router = express.Router();
 const {Roles} = require('../utils/Roles.js');
 
-
-
 /**
  * @swagger
  * /users/create-end-user:
@@ -145,6 +143,11 @@ router.post('/create-organization-user', protect, checkOrganizationUser, authori
  *       500:
  *         description: Internal server error
  */
-router.get("/event-planners", protect, authorizedRoles(Roles.ADMIN), getAllEventPlanners);
+router.get(
+    "/event-planners",
+    protect,
+    authorizedRoles(Roles.ADMIN),
+    getAllEventPlanners
+);
 
 module.exports = router;
