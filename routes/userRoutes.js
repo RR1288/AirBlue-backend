@@ -3,6 +3,7 @@ const {getAllEventPlanners} = require("../services/eventPlannerService");
 const {registerUserEndUser, registerUserOrganization} = require("../services/userService");
 const { protect } = require("../middleware/authMiddleware");
 const { authorizedRoles } = require("../middleware/roleMiddleware");
+const { checkOrganizationUser } = require("../middleware/organizationMiddleware.js");
 const router = express.Router();
 const {Roles} = require('../utils/Roles.js');
 
@@ -122,7 +123,7 @@ router.post('/create-end-user', registerUserEndUser);
  *       400:
  *         description: Bad request invalid input
 */
-router.post('/create-organization-user', registerUserOrganization); //TODO write middleware
+router.post('/create-organization-user', protect, checkOrganizationUser, authorizedRoles(Roles.ADMIN), registerUserOrganization); //TODO write middleware
 
 /**
  * @swagger
