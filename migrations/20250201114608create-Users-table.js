@@ -9,7 +9,7 @@ module.exports = {
                 autoIncrement: true,
                 primaryKey: true,
             },
-            UserName: { type: Sequelize.STRING(20), allowNull: false },
+            UserName: { type: Sequelize.STRING(20)},
             FName: { type: Sequelize.STRING(50), allowNull: false },
             LName: { type: Sequelize.STRING(50), allowNull: false },
             City: { type: Sequelize.STRING(85) },
