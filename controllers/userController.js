@@ -19,6 +19,10 @@ exports.getAllEventPlanners = async (req, res) => {
         throw new Error("Error fetching event planners");
     }
 };
+async function getUserByID(userID){
+    const user = await User.findByPk(organizationID);
+    return user;
+}
 
 // Register
 async function registerUserFull(email, password, fname, lname, city, state, country){
@@ -179,7 +183,7 @@ async function disableUserNormal(userID) {
     }
 }
 
-module.exports = {setOrganization, registerUserFull, registerBasic, disableUserOrganization, disableUserNormal}
+module.exports = {setOrganization, registerUserFull, registerBasic, disableUserOrganization, disableUserNormal, getUserByID}
 
 //helper funciton to generate a random initial password in the case of automated setup
 function generateRandomPassword(length = 12) {
