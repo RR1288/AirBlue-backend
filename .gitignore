@@ -148,3 +148,4 @@ dist-ssr
 *.sw?
 
 .env
+pgdata/

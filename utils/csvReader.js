@@ -31,7 +31,7 @@ db.connect(err => {
   } else {
     console.log('Connected to the database');
   }
-});
+})
 
 // Function to close the DB connection
 function closeDbConnection() {
