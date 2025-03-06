@@ -12,6 +12,7 @@ module.exports = (sequelize, DataTypes) => {
         Type: DataTypes.STRING(16),
         Value: DataTypes.STRING(50),
 <<<<<<< HEAD
+<<<<<<< HEAD
         DateAdded: DataTypes.DATE,
         LastEdited: DataTypes.DATE,
     },
@@ -19,13 +20,18 @@ module.exports = (sequelize, DataTypes) => {
       Sequelize,
       paranoid: true,
 =======
+=======
+>>>>>>> AIRBLUE-53-Create-users-backend
         createdAt: DataTypes.DATE,
         updatedAt: DataTypes.DATE,
         deletedAt: DataTypes.DATE
     },{
         sequelize,
         paranoid: true
+<<<<<<< HEAD
 >>>>>>> staging
+=======
+>>>>>>> AIRBLUE-53-Create-users-backend
     });
 
     UserFlightPreference.associate = (models) => {

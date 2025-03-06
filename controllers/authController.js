@@ -1,7 +1,7 @@
 const jwt = require("jsonwebtoken");
 const speakeasy = require("speakeasy");
 const qrcode = require("qrcode");
-const {User, UserLogin, UserOrganization, sequelize} = require("../models");
+const {User, UserLogin, UserOrganization} = require("../models");
 const bcrypt = require("bcryptjs");
 
 const {sendSuccess, sendError} = require("../utils/responseHelpers");
@@ -10,7 +10,8 @@ const {sendSuccess, sendError} = require("../utils/responseHelpers");
 const generateToken = (user) => {
     if (user.UserOrganizations.length > 0) {
         const roles = user.UserOrganizations[0].Roles;
-        signature = {id: user.UserID, username: user.UserName, roles: roles};
+        const organizationID = user.UserOrganizations[0].OrganizationID;
+        signature = {id: user.UserID, username: user.UserName, roles: roles, organizationID: organizationID};
     } else {
         signature = {id: user.UserID, username: user.UserName};
     }

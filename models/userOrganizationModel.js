@@ -12,19 +12,25 @@ module.exports = (sequelize, DataTypes) => {
         Roles: DataTypes.STRING(3),
         StillActive: DataTypes.BOOLEAN,
 <<<<<<< HEAD
+<<<<<<< HEAD
         DateRemoved: DataTypes.DATE,
     },
     {
       Sequelize,
       paranoid: true,
 =======
+=======
+>>>>>>> AIRBLUE-53-Create-users-backend
         createdAt: DataTypes.DATE,
         updatedAt: DataTypes.DATE,
         deletedAt: DataTypes.DATE
     },{
         sequelize,
         paranoid: true
+<<<<<<< HEAD
 >>>>>>> staging
+=======
+>>>>>>> AIRBLUE-53-Create-users-backend
     });
 
     UserOrganization.associate = (models) => {

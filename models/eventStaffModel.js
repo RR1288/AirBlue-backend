@@ -15,19 +15,25 @@ module.exports = (sequelize, DataTypes) => {
         //     references: {model: "Roles", key: "RoleID"},
         // },
 <<<<<<< HEAD
+<<<<<<< HEAD
         DateAdded: DataTypes.DATE,
     },
     {
       Sequelize,
       paranoid: true,
 =======
+=======
+>>>>>>> AIRBLUE-53-Create-users-backend
         createdAt: DataTypes.DATE,
         updatedAt: DataTypes.DATE,
         deletedAt: DataTypes.DATE
     },{
         sequelize,
         paranoid: true
+<<<<<<< HEAD
 >>>>>>> staging
+=======
+>>>>>>> AIRBLUE-53-Create-users-backend
     });
 
     EventStaff.associate = function (models) {

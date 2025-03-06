@@ -12,6 +12,7 @@ module.exports = {
       DateApproved: {type: Sequelize.DATE },
       Active: { type: Sequelize.BOOLEAN, defaultValue: false, allowNull: false },
 <<<<<<< HEAD
+<<<<<<< HEAD
       LastUpdate: {type: Sequelize.DATE, defaultValue: Sequelize.NOW, allowNull: false },
       deletedAt: {type: Sequelize.DATE}
 =======
@@ -19,6 +20,11 @@ module.exports = {
       updatedAt: { type: Sequelize.DATE, allowNull: false, defaultValue: Sequelize.NOW },
       deletedAt: {type: Sequelize.DATE , defaultValue: null}
 >>>>>>> staging
+=======
+      createdAt: { type: Sequelize.DATE, allowNull: false, defaultValue: Sequelize.NOW },
+      updatedAt: { type: Sequelize.DATE, allowNull: false, defaultValue: Sequelize.NOW },
+      deletedAt: {type: Sequelize.DATE , defaultValue: null}
+>>>>>>> AIRBLUE-53-Create-users-backend
     });
   },
 
