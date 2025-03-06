@@ -2,17 +2,26 @@
 
 // Make functions for reading a CSV and checking the DB/creating a base account for them
 
+//Set up db constants
+const DB_HOST_PRODUCTION = process.env.DB_HOST_PRODUCTION;
+const DB_USER_PRODUCTION = process.env.DB_USER_PRODUCTION;
+const DB_PASSWORD_PRODUCTION = process.env.DB_PASSWORD_PRODUCTION;
+const DB_NAME_PRODUCTION = process.env.DB_NAME_PRODUCTION;
+
 const Papa = require('papaparse');
 const fs = require('fs');
 const { Client } = require('pg');
 
 // Setup DB connection
 const db = new Client({
-  host: '127.0.0.1',
-  port: 5432,  // Default PostgreSQL port
-  user: 'airblue',
-  password: 'AirBlue@2025',
-  database: 'development_db'
+  host: DB_HOST_PRODUCTION,
+  port: 5432,
+  user: DB_USER_PRODUCTION,
+  password: DB_PASSWORD_PRODUCTION,
+  database: DB_NAME_PRODUCTION,
+  ssl: {
+    rejectUnauthorized: false,
+  }
 });
 
 // Connect to DB
@@ -23,6 +32,21 @@ db.connect(err => {
     console.log('Connected to the database');
   }
 });
+
+// Function to close the DB connection
+function closeDbConnection() {
+  return new Promise((resolve, reject) => {
+    db.end(err => {
+      if (err) {
+        console.error('Error closing the database connection:', err.stack);
+        reject(err);  // Reject the promise if there's an error
+      } else {
+        console.log('Database connection closed');
+        resolve();  // Resolve the promise when the connection is closed
+      }
+    });
+  });
+}
 
 // Function to check if an account exists by email
 function checkIfAccountExists(email, callback) {
@@ -62,88 +86,45 @@ function generateUsername(email) {
   return email.split('@')[0]; // Extracts part before '@'
 }
 
-
-// Main function to process the CSV file and handle account creation (Call this when needed)
-function processCSV(filePath, callback) {
+async function processCSV(filePath, callback) {
   const file = fs.createReadStream(filePath);
 
   Papa.parse(file, {
-    header: true, // assumes the CSV has headers (email, first_name, last_name, country)
+    header: true,
     skipEmptyLines: true,
-    complete: function(results) {
+    complete: async function(results) {
       let processedCount = 0;
-      results.data.forEach(row => {
-        const { email, first_name, last_name, country } = row;
+      let totalRows = results.data.length;
 
-        // Generate a username based on the email
+      for (let row of results.data) {
+        const { email, first_name, last_name, country } = row;
         const username = generateUsername(email);
 
-        // Check if the account exists
-        checkIfAccountExists(email, (exists) => {
-          if (!exists) {
-            // If account doesn't exist, check if the username is unique
-            checkIfUsernameExists(username, (usernameExists) => {
-              if (usernameExists) {
-                console.log(`Username ${username} already exists for ${email}. Modifying username...`);
-                
-                // Generate a unique username by appending numbers
-                let uniqueUsername = username;
-                let counter = 1;
+        const exists = await checkIfAccountExists(email);
+        if (!exists) {
+          const usernameExists = await checkIfUsernameExists(username);
+          if (usernameExists) {
+            let uniqueUsername = username;
+            let counter = 1;
 
-                // Keep checking until we find a unique username
-                const checkAndCreateAccount = () => {
-                  checkIfUsernameExists(uniqueUsername, (exists) => {
-                    if (exists) {
-                      uniqueUsername = `${username}${counter}`;
-                      counter++;
-                      checkAndCreateAccount();
-                    } else {
-                      // Username is unique, now create the account
-                      createAccount(first_name, last_name, email, country, uniqueUsername, () => {
-                        console.log(`Account successfully created for ${email} with username: ${uniqueUsername}`);
-                        processedCount++;
-                        if (processedCount === results.data.length) {
-                          callback(); // Call the callback when all rows are processed
-                        }
-                      });
-                    }
-                  });
-                };
-
-                // Start the check for a unique username
-                checkAndCreateAccount();
-              } else {
-                // If the username is unique, create the account
-                createAccount(first_name, last_name, email, country, username, () => {
-                  console.log(`Account successfully created for ${email} with username: ${username}`);
-                  processedCount++;
-                  if (processedCount === results.data.length) {
-                    callback(); // Call the callback when all rows are processed
-                  }
-                });
-              }
-            });
-          } else {
-            console.log(`Account already exists for ${email}`);
-            processedCount++;
-            if (processedCount === results.data.length) {
-              callback(); // Call the callback when all rows are processed
+            while (await checkIfUsernameExists(uniqueUsername)) {
+              uniqueUsername = `${username}${counter}`;
+              counter++;
             }
+
+            await createAccount(first_name, last_name, email, country, uniqueUsername);
+          } else {
+            await createAccount(first_name, last_name, email, country, username);
           }
-        });
-      });
+        }
+        processedCount++;
+        if (processedCount === totalRows) {
+          callback();
+        }
+      }
     }
   });
-}
-
-
-//TESTING FUNCTION (Commenting out for now)
-
-// Call the processCSV function with the path to your CSV file
-processCSV('../tests/userTest.csv', () => {
-  console.log('All records processed, closing database connection...');
-  db.end(); // Close the DB connection after processing
-});
+};
 
 // Export the processCSV function
 module.exports = {
@@ -151,7 +132,8 @@ module.exports = {
   checkIfAccountExists,
   checkIfUsernameExists,
   createAccount,
-  generateUsername
+  generateUsername,
+  closeDbConnection
 };
 
 
