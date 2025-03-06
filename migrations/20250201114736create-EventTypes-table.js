@@ -6,8 +6,9 @@ module.exports = {
     await queryInterface.createTable('EventTypes', {
       TypeID: { type: Sequelize.BIGINT, autoIncrement: true, primaryKey: true },
       OrganizationType: { type: Sequelize.BOOLEAN, defaultValue: false },
-      DateCreated: { type: Sequelize.DATE, defaultValue: Sequelize.NOW, allowNull: false},
-      LastEdited: { type: Sequelize.DATE, defaultValue: Sequelize.NOW, allowNull: false}
+      createdAt: { type: Sequelize.DATE, allowNull: false, defaultValue: Sequelize.NOW },
+      updatedAt: { type: Sequelize.DATE, allowNull: false, defaultValue: Sequelize.NOW },
+      deletedAt: {type: Sequelize.DATE , defaultValue: null}
     });
   },
 

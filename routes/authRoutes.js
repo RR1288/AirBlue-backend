@@ -1,32 +1,7 @@
-const express = require('express');
+const express = require("express");
 const router = express.Router();
-const authController = require('../controllers/authController');
-const { protect } = require('../middleware/authMiddleware');
-
-/**
- * @swagger
- * /auth/register:
- *   post:
- *     summary: Register a new user
- *     tags: [Auth]
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             properties:
- *               email:
- *                 type: string
- *               password:
- *                 type: string
- *               roles:
- *                 type: string
- *     responses:
- *       201:
- *         description: User registered successfully
- */
-router.post('/register', authController.register);
+const authController = require("../controllers/authController");
+const {protect} = require("../middleware/authMiddleware");
 
 /**
  * @swagger
@@ -43,13 +18,15 @@ router.post('/register', authController.register);
  *             properties:
  *               username:
  *                 type: string
+ *                 example: "johndoe"
  *               password:
  *                 type: string
+ *                 example: "password123"
  *     responses:
  *       200:
  *         description: Login successful or 2FA required
  */
-router.post('/login', authController.login);
+router.post("/login", authController.login);
 
 /**
  * @swagger
@@ -63,7 +40,7 @@ router.post('/login', authController.login);
  *       200:
  *         description: 2FA setup successful, returns QR code
  */
-router.post('/2fa/setup', protect, authController.setup2FA);
+router.post("/2fa/setup", protect, authController.setup2FA);
 
 /**
  * @swagger
@@ -80,13 +57,17 @@ router.post('/2fa/setup', protect, authController.setup2FA);
  *           schema:
  *             type: object
  *             properties:
- *               token:
+ *               userId:
+ *                 type: integer
+ *                 example: 1
+ *               twoFactorCode:
  *                 type: string
+ *                 example: "123456"
  *     responses:
  *       200:
  *         description: 2FA verification successful, returns JWT token
  */
-router.post('/2fa/verify', protect, authController.verify2FA);
+router.post("/2fa/verify", authController.verify2FA);
 
 /**
  * @swagger
@@ -100,6 +81,6 @@ router.post('/2fa/verify', protect, authController.verify2FA);
  *       200:
  *         description: 2FA disabled successfully
  */
-router.post('/2fa/disable', protect, authController.disable2FA);
+router.post("/2fa/disable", protect, authController.disable2FA);
 
 module.exports = router;

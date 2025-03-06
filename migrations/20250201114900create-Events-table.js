@@ -9,13 +9,14 @@ module.exports = {
       EventDescription: { type: Sequelize.STRING(200) },
       EventStartDate: {type: Sequelize.DATE, allowNull: false},
       EventEndDate: {type: Sequelize.DATE, allowNull: false},
-      EventTotalBudget: { type: Sequelize.INTEGER, defaultValue: 0 },
+      EventTotalBudget: { type: Sequelize.DECIMAL(14,2), defaultValue: 0 },
       ExpectedAttendees: { type: Sequelize.INTEGER, defaultValue: 0 },
-      EventFlightBudget: { type: Sequelize.INTEGER, defaultValue: 0 },
+      EventFlightBudget: { type: Sequelize.DECIMAL(14,2), defaultValue: 0 },
       TypeID: { type: Sequelize.BIGINT, references: { model: 'EventTypes', key: 'TypeID' }, allowNull: false },
       OrganizationID: { type: Sequelize.BIGINT, references: { model: 'Organizations', key: 'OrganizationID' }, allowNull: false },
-      DateCreated: { type: Sequelize.DATE, defaultValue: Sequelize.NOW, allowNull: false },
-      LastEdited: { type: Sequelize.DATE, defaultValue: Sequelize.NOW, allowNull: false }
+      createdAt: { type: Sequelize.DATE, allowNull: false, defaultValue: Sequelize.NOW },
+      updatedAt: { type: Sequelize.DATE, allowNull: false, defaultValue: Sequelize.NOW },
+      deletedAt: {type: Sequelize.DATE , defaultValue: null}
     });
   },
 

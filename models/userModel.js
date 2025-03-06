@@ -10,12 +10,21 @@ module.exports = (sequelize, DataTypes) => {
     Email: { type: DataTypes.STRING(320), unique: true },
     KTN: DataTypes.STRING(10),
     createdAt: DataTypes.DATE,
+<<<<<<< HEAD
     updatedAt: DataTypes.DATE
   },
     {
       Sequelize,
       paranoid: true,
     });
+=======
+    updatedAt: DataTypes.DATE,
+    deletedAt: DataTypes.DATE
+  },{
+    sequelize,
+    paranoid: true
+});
+>>>>>>> staging
 
   User.associate = (models) => {
     User.hasOne(models.UserLogin, { foreignKey: 'UserID' });

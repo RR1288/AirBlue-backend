@@ -11,12 +11,21 @@ module.exports = (sequelize, DataTypes) => {
         },
         Type: DataTypes.STRING(16),
         Value: DataTypes.STRING(50),
+<<<<<<< HEAD
         DateAdded: DataTypes.DATE,
         LastEdited: DataTypes.DATE,
     },
     {
       Sequelize,
       paranoid: true,
+=======
+        createdAt: DataTypes.DATE,
+        updatedAt: DataTypes.DATE,
+        deletedAt: DataTypes.DATE
+    },{
+        sequelize,
+        paranoid: true
+>>>>>>> staging
     });
 
     UserFlightPreference.associate = (models) => {

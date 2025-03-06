@@ -11,6 +11,12 @@ module.exports = (sequelize, DataTypes) => {
         ArrivalDateTime: DataTypes.DATE,
         DepartureDateTime: DataTypes.DATE,
         Airline: DataTypes.STRING(30),
+        createdAt: DataTypes.DATE,
+        updatedAt: DataTypes.DATE,
+        deletedAt: DataTypes.DATE
+    },{
+        sequelize,
+        paranoid: true
     });
 
     return Flight;

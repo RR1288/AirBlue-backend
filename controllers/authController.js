@@ -20,7 +20,6 @@ const generateToken = (user) => {
     });
 };
 
-
 // Login
 exports.login = async (req, res) => {
     try {
@@ -91,21 +90,37 @@ exports.setup2FA = async (req, res) => {
 // verify2FA
 exports.verify2FA = async (req, res) => {
     try {
-        // Get token from body
-        const {token} = req.body;
-        // Get user
-        const user = req.user;
+        const {userId, twoFactorCode} = req.body;
+
+        // Fetch user by userId
+        const user = await User.findByPk(userId, {
+            include: [
+                {
+                    model: UserLogin,
+                    required: true,
+                    attributes: ["two_fa_enabled", "two_fa_secret"],
+                },
+                {
+                    model: UserOrganization,
+                    required: false,
+                },
+            ],
+        });
+
+        if (!user) {
+            return sendError(res, "User not found", 404);
+        }
 
         // If 2FA is not enabled
-        if (!user.two_fa_enabled || !user.two_fa_secret) {
-            return sendError(res, "2FA is not enabled for this user", 4);
+        if (!user.UserLogin.two_fa_enabled || !user.UserLogin.two_fa_secret) {
+            return sendError(res, "2FA is not enabled for this user", 404);
         }
 
         // Verify token using speakeasy
         const verified = speakeasy.totp.verify({
-            secret: user.two_fa_secret,
+            secret: user.UserLogin.two_fa_secret,
             encoding: "base32",
-            token: token,
+            token: twoFactorCode,
             window: 1, // 1 minute or more?
         });
 

@@ -27,7 +27,11 @@ module.exports = {
                 defaultValue: Sequelize.NOW,
                 allowNull: false,
             },
+<<<<<<< HEAD
             deletedAt: {type: Sequelize.DATE}
+=======
+            deletedAt: {type: Sequelize.DATE , defaultValue: null}
+>>>>>>> staging
         });
     },
 

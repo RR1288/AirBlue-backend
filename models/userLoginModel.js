@@ -10,11 +10,19 @@ module.exports = (sequelize, DataTypes) => {
       two_fa_secret: DataTypes.CHAR(32),
       createdAt: DataTypes.DATE,
       updatedAt: DataTypes.DATE,
+<<<<<<< HEAD
     },
     {
       Sequelize,
       paranoid: true,
     });
+=======
+      deletedAt: DataTypes.DATE
+    },{
+      sequelize,
+      paranoid: true
+  });
+>>>>>>> staging
   
     UserLogin.associate = (models) => {
       UserLogin.belongsTo(models.User, { foreignKey: 'UserID' });

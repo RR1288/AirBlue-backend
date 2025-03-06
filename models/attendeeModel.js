@@ -14,12 +14,20 @@ module.exports = (sequelize, DataTypes) => {
             type: DataTypes.BIGINT,
             references: {model: "EventGroups", key: "EventGroupID"},
         },
-        DateAdded: DataTypes.DATE,
         Confirmed: DataTypes.BOOLEAN,
+<<<<<<< HEAD
     },
     {
         Sequelize,
         paranoid: true,
+=======
+        createdAt: DataTypes.DATE,
+        updatedAt: DataTypes.DATE,
+        deletedAt: DataTypes.DATE
+    },{
+        sequelize,
+        paranoid: true
+>>>>>>> staging
     });
 
     Attendee.associate = function (models) {
