@@ -113,5 +113,6 @@ module.exports = {
     sanitizePassword,
     sanitizeState,
     sanitizeKTN,
-    sanitizeName
+    sanitizeName,
+    validateUserID
 }

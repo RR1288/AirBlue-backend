@@ -1,7 +1,7 @@
 const { sendSuccess, sendError } = require("../utils/responseHelpers");
 const { registerUserFull, registerBasic, setOrganization } = require("../controllers/userController");
 const { User } = require("../models/userModel");
-const { sanitizeEmail, sanitizeName, sanitizeCountry, sanitizeState, sanitizeCity, sanitizePassword } = require("../utils/UserSanitizations"); //have to change the file name since right now it does both sanitization and validation
+const { sanitizeEmail, sanitizeName, sanitizeCountry, sanitizeState, sanitizeCity, sanitizePassword, validateUserID } = require("../utils/UserSanitizations"); //have to change the file name since right now it does both sanitization and validation
 const { validateOrganizationID } = require("../utils/OrganizationSanitization");
 const { sanitizeRoles } = require("../utils/UserOrganizationSanitizations");
 exports.registerUserEndUser = async (req, res) => {
@@ -37,7 +37,7 @@ exports.registerUserEndUser = async (req, res) => {
             state = sanitizeState(state);
             if (state === null) return sendError(res, "Invalid input State");//TODO: make more helpful message and check error code
         }
-        
+
         const registeredUser = await registerUserFull(email, password, fname, lname, city, state, country);
         if (!registeredUser || !registeredUser.userId) {
             return sendError(res, "Could not register this user", 404);
@@ -52,48 +52,6 @@ exports.registerUserEndUser = async (req, res) => {
     }
 };
 
-<<<<<<< HEAD
-
-exports.disableUserOrganization = async (req, res) => {
-try{
-    const {UserID, OrganizationID} = req.body;
-    // put validations here
-    if (!validateUserID(UserID)) return sendError(res, "User does not exist", 400);
-    if (!validateOrganizationID(OrganizationID)) return sendError(res, "Organization does not exist", 400);
-    //run function
-    const success = await disableUserOrganization(UserID, OrganizationID);
-    if (!success) return sendError(res, "user removal failed", 404); //todo set error code
-    //if successful returns a success message
-    return sendSuccess(res, "user successfully removed", 200);
-}catch(error){
-    console.error(error);
-    return sendError(
-        res,
-        "Something went wrong while removing user user"
-    );
-
-}}
-
-exports.disableUserNormal = async (req, res) => {
-    try{
-        const {UserID, OrganizationID} = req.body;
-        // put validations here
-        if (!validateUserID(UserID)) return sendError(res, "User does not exist", 400);
-        //run function
-        const success = await disableUserNormal(UserID);
-        if (!success) return sendError(res, "user removal failed", 404); //todo set error code
-        //if successful returns a success message
-        return sendSuccess(res, "user successfully removed", 200);
-    }catch(error){
-        console.error(error);
-        return sendError(
-            res,
-            "Something went wrong while removing user user"
-        );
-    
-    }
-}
-=======
 exports.registerUserCSV = async (req, res) => {
     try {
         const { fname, lname, country, email } =
@@ -146,14 +104,14 @@ exports.registerUserOrganization = async (req, res) => {
             return sendError(res, "Invalid input for country", 400);
         }
         password = sanitizePassword(password);
-        if (password === null) { 
+        if (password === null) {
             return sendError(res, "Invalid input for password", 400);
         }
         if (!validateOrganizationID(organizationID)) {
             return sendError(res, "Invalid input for organization", 400);
         }
         roles = sanitizeRoles(roles);
-        if (roles === null){
+        if (roles === null) {
             return sendError(res, "Invalid input for roles", 400);
         }
         if (!city) {
@@ -169,7 +127,7 @@ exports.registerUserOrganization = async (req, res) => {
             state = sanitizeState(state);
             if (state === null) return sendError(res, "Invalid input State");//TODO: make more helpful message and check error code
         }
-        
+
         const registeredUser = await registerUserFull(email, password, fname, lname, city, state, country);
         if (!registeredUser || !registeredUser.userId) {
             return sendError(res, "Could not register this user", 404);
@@ -192,4 +150,45 @@ exports.registerUserOrganization = async (req, res) => {
         );
     }
 };
->>>>>>> AIRBLUE-53-Create-users-backend
+
+
+exports.disableUserOrganization = async (req, res) => {
+    try {
+        const { UserID, OrganizationID } = req.body;
+        // put validations here
+        if (!validateUserID(UserID)) return sendError(res, "User does not exist", 400);
+        if (!validateOrganizationID(OrganizationID)) return sendError(res, "Organization does not exist", 400);
+        //run function
+        const success = await disableUserOrganization(UserID, OrganizationID);
+        if (!success) return sendError(res, "user removal failed", 404); //todo set error code
+        //if successful returns a success message
+        return sendSuccess(res, "user successfully removed", 200);
+    } catch (error) {
+        console.error(error);
+        return sendError(
+            res,
+            "Something went wrong while removing user user"
+        );
+
+    }
+}
+
+exports.disableUserNormal = async (req, res) => {
+    try {
+        const { UserID, OrganizationID } = req.body;
+        // put validations here
+        if (!validateUserID(UserID)) return sendError(res, "User does not exist", 400);
+        //run function
+        const success = await disableUserNormal(UserID);
+        if (!success) return sendError(res, "user removal failed", 404); //todo set error code
+        //if successful returns a success message
+        return sendSuccess(res, "user successfully removed", 200);
+    } catch (error) {
+        console.error(error);
+        return sendError(
+            res,
+            "Something went wrong while removing user user"
+        );
+
+    }
+}
