@@ -49,3 +49,39 @@ exports.getOffers = async (req, res) => {
         return sendError(res, error.message || "Failed to fetch offers", 500);
     }
 };
+
+exports.fetchFlight = async (req, res) => {
+    try {
+        const { offer_id } = req.params;
+        const flight = await flightController.fetchFlight(offer_id);
+        if (flight) {
+            return sendSuccess(res, "Fetched flight successfully", {flight});
+        } else {
+            return sendError(res, "Flight not found", 404);
+        }
+    } catch (error) {
+        console.error(error);
+        return sendError(res, "Failed to fetch flight", 500);
+    }
+};
+
+exports.bookOfferOrHold = async (req, res) => {
+    try {
+        const { offer_id } = req.params;
+        const { passengers, payments } = req.body;
+
+        if (!offer_id || !passengers || !payments) {
+            return sendError(res, 'Missing required fields', 400);
+        }
+
+        const order = await flightController.bookOfferOrHold(offer_id, passengers, payments );
+        if (order) {
+            return sendSuccess(res, "Booked flight successfully", {order});
+        } else {
+            return sendError(res, "Couldn't book flight", 400);
+        }
+    } catch (error) {
+        console.error(error);
+        return sendError(res, "Failed to book flight", 500);
+    }
+};

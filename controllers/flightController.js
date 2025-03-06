@@ -74,3 +74,82 @@ exports.fetchOffers = async ({offerRequestId, limit, after, before}) => {
         throw new Error("Error fetching offers");
     }
 };
+
+exports.fetchFlight = async (offer_id) => {
+    try {
+        // Fetch flight details from Duffel API
+        const response = await fetch(
+            `https://api.duffel.com/air/offers/${offer_id}`,
+            {
+                method: "GET",
+                headers: {
+                    Authorization: `Bearer ${DUFFEL_API_KEY}`,
+                    Accept: "application/json",
+                    "Duffel-Version": "v1",
+                },
+            }
+        );
+
+        if (response.ok) {
+            const offer = await response.json();
+            // Check expires_at
+            // Check live_mode
+            // Check total_amount unchanged
+            // Check available_services
+            // const now = new Date();
+            // const expiresAt = new Date(offer.expires_at);
+            // if (
+            //     offer.live_mode === true &&
+            //     expiresAt > now &&
+            //     offer.available_services.length > 0
+            // ) {
+            //     return offer.data;
+            // }
+            return offer.data;
+            // throw new Error("Flight no longer available");
+        } else {
+            throw new Error("Error fetching offer. Response not OK");
+        }
+    } catch (error) {
+        console.error(error);
+        throw new Error("Error fetching offer");
+    }
+};
+
+exports.bookOfferOrHold = async (offer_id, passengers, payments) => {
+    try {
+        let body = {
+            data: {
+                selected_offers: [offer_id],
+                passengers: passengers,
+                payments: payments,
+            },
+        };
+        body = JSON.stringify(body);
+        console.log(body);
+
+        // Fetch flight details from Duffel API
+        const response = await fetch("https://api.duffel.com/air/orders", {
+            method: "POST",
+            headers: {
+                Authorization: `Bearer ${DUFFEL_API_KEY}`,
+                "Content-Type": "application/json",
+                Accept: "application/json",
+                "Duffel-Version": "v1",
+            },
+            body: body,
+        });
+        console.log(response);
+
+        if (response.ok) {
+            const order = await response.json();
+            console.log(order);
+            return order.data;
+        } else {
+            throw new Error("Error booking flight. Response not OK");
+        }
+    } catch (error) {
+        console.error(error);
+        throw new Error("Error booking flight");
+    }
+};

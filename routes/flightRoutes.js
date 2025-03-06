@@ -106,6 +106,120 @@ router.get(
  *       500:
  *         description: Failed to fetch offers.
  */
-router.get("/offers", flightService.getOffers);
+router.get("/offers", protect, flightService.getOffers);
+
+/**
+ * @swagger
+ * /flights/{offer_id}:
+ *   get:
+ *     summary: Retrieve specific flight details
+ *     description: Fetch detailed information about a specific flight offer from Duffel.
+ *     tags:
+ *       - Flights
+ *     parameters:
+ *       - in: path
+ *         name: offer_id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: The ID of the flight offer to retrieve.
+ *     responses:
+ *       200:
+ *         description: Flight offer details retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 offer:
+ *                   type: object
+ *                   description: The detailed flight offer information.
+ *       400:
+ *         description: Invalid request parameters
+ *       404:
+ *         description: Flight offer not found
+ *       500:
+ *         description: Internal server error
+ */
+
+router.get("/:offer_id", protect, flightService.fetchFlight);
+
+/**
+ * @swagger
+ * /flights/{offer_id}/book:
+ *   post:
+ *     description: Book or hold a specific flight offer.
+ *     tags:
+ *       - Flights
+ *     parameters:
+ *       - in: path
+ *         name: offer_id
+ *         required: true
+ *         description: The ID of the offer to book or hold
+ *         schema:
+ *           type: string
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               passengers:
+ *                 type: array
+ *                 description: List of passengers
+ *                 items:
+ *                   type: object
+ *                   properties:
+ *                     phone_number:
+ *                       type: string
+ *                       example: "+442080160508"
+ *                     email:
+ *                       type: string
+ *                       example: "tony@exmple.com"
+ *                     born_on:
+ *                       type: string
+ *                       format: date
+ *                       example: "1980-07-24"
+ *                     title:
+ *                       type: string
+ *                       example: "mr"
+ *                     gender:
+ *                       type: string
+ *                       example: "m"
+ *                     family_name:
+ *                       type: string
+ *                       example: "Stark"
+ *                     given_name:
+ *                       type: string
+ *                       example: "Tony"
+ *                     id:
+ *                       type: string
+ *                       example: "pas_0000ArlFyquQxuoVMa7UZE"
+ *               payments:
+ *                 type: array
+ *                 description: Payment details
+ *                 items:
+ *                   type: object
+ *                   properties:
+ *                     type:
+ *                       type: string
+ *                       example: "balance"
+ *                     currency:
+ *                       type: string
+ *                       example: "USD"
+ *                     amount:
+ *                       type: string
+ *                       example: "335.54"
+ *     responses:
+ *       200:
+ *         description: Successfully booked or held the offer
+ *       400:
+ *         description: Invalid request or failed to book/hold offer
+ *       500:
+ *         description: Internal server error
+ */
+router.post('/:offer_id/book', protect, flightService.bookOfferOrHold);
+
 
 module.exports = router;
