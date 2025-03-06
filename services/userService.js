@@ -62,13 +62,13 @@ exports.registerUserCSV = async (req, res) => {
         }
         //sanitizing and validating all fields
         email = sanitizeEmail(email);
-        if (email === null) return sendError(res, "Invalid input for email");//TODO:  check error code
+        if (email === null) return sendError(res, "Invalid input for email", 400);//TODO:  check error code
         fname = sanitizeName(fname);
-        if (fname === null) return sendError(res, "Invalid input for first name");//TODO:  check error code
+        if (fname === null) return sendError(res, "Invalid input for first name", 400);//TODO:  check error code
         lname = sanitizeName(lname);
-        if (lname === null) return sendError(res, "Invalid input for last name");//TODO:  check error code
+        if (lname === null) return sendError(res, "Invalid input for last name", 400);//TODO:  check error code
         country = sanitizeCountry(country);
-        if (country === null) return sendError(res, "Invalid input for country");//TODO:  check error code
+        if (country === null) return sendError(res, "Invalid input for country", 400);//TODO:  check error code
 
         const registeredUser = await registerUserBasic(email, fname, lname, country);
         if (!registeredUser || !registeredUser.userId) {

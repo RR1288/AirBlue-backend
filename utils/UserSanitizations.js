@@ -19,7 +19,8 @@ function startSanitize(input){
 //email
 function sanitizeEmail(email){
     let sanitizedEmail = startSanitize(email);
-    if (sanitizedEmail === '') return null;
+    if (sanitizedEmail === '' || sanitizedEmail === null) return null;
+    if (!sanitizedEmail.includes("@")) return null;
 
     sanitizedEmail = validator.normalizeEmail(sanitizedEmail, { gmail_remove_dots: false});
 
