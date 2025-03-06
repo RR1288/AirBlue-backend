@@ -62,3 +62,44 @@ exports.registerUser = async (req, res) => {
         );
     }
 };
+
+
+exports.disableUserOrganization = async (req, res) => {
+try{
+    const {UserID, OrganizationID} = req.body;
+    // put validations here
+    if (!validateUserID(UserID)) return sendError(res, "User does not exist", 400);
+    if (!validateOrganizationID(OrganizationID)) return sendError(res, "Organization does not exist", 400);
+    //run function
+    const success = await disableUserOrganization(UserID, OrganizationID);
+    if (!success) return sendError(res, "user removal failed", 404); //todo set error code
+    //if successful returns a success message
+    return sendSuccess(res, "user successfully removed", 200);
+}catch(error){
+    console.error(error);
+    return sendError(
+        res,
+        "Something went wrong while removing user user"
+    );
+
+}}
+
+exports.disableUserNormal = async (req, res) => {
+    try{
+        const {UserID, OrganizationID} = req.body;
+        // put validations here
+        if (!validateUserID(UserID)) return sendError(res, "User does not exist", 400);
+        //run function
+        const success = await disableUserNormal(UserID);
+        if (!success) return sendError(res, "user removal failed", 404); //todo set error code
+        //if successful returns a success message
+        return sendSuccess(res, "user successfully removed", 200);
+    }catch(error){
+        console.error(error);
+        return sendError(
+            res,
+            "Something went wrong while removing user user"
+        );
+    
+    }
+}

@@ -75,3 +75,40 @@ exports.register = async (req, res) => {
         return sendError(res, "Error registering user", 500);
     }
 };
+
+
+async function disableUserOrganization(userID, organizationID) {
+    try {
+        await sequelize.transaction(async t => {
+            await User.destroy({
+                where: { UserID: userID },
+
+            })
+            await UserOrganization.destroy({
+                where: { UserID: userID, OrganizationID: organizationID },
+            })
+        }) //end of transaction
+    } catch (err) {
+        console.error(err);
+        throw new Error("Error deleting user");
+
+    }
+}
+
+async function disableUserNormal(userID, organizationID) {
+    try {
+        await sequelize.transaction(async t => {
+            await User.destroy({
+                where: { UserID: userID },
+            })
+        }) //end of transaction
+    } catch (err) {
+        console.error(err);
+        throw new Error("Error deleting user");
+
+    }
+}
+
+module.exports = {
+
+}
