@@ -2,7 +2,7 @@ module.exports = {
     up: async (queryInterface) => {
       return queryInterface.bulkInsert('Users', [
         {
-          UserName: 'johndoe',
+          UserName: 'johndoe@example.com',
           FName: 'John',
           LName: 'Doe',
           City: 'New York',
@@ -14,7 +14,7 @@ module.exports = {
           updatedAt: new Date(),
         },
         {
-          UserName: 'janedoe',
+          UserName: 'janedoe@example.com',
           FName: 'Jane',
           LName: 'Doe',
           City: 'Los Angeles',
@@ -26,7 +26,7 @@ module.exports = {
           updatedAt: new Date(),
         },
         {
-          UserName: 'bobsmith',
+          UserName: 'bobsmith@example.com',
           FName: 'Bob',
           LName: 'Smith',
           City: 'Chicago',
@@ -38,7 +38,7 @@ module.exports = {
           updatedAt: new Date(),
         },
         {
-          UserName: 'alicejones',
+          UserName: 'alicejones@example.com',
           FName: 'Alice',
           LName: 'Jones',
           City: 'Miami',
@@ -50,7 +50,7 @@ module.exports = {
           updatedAt: new Date(),
         },
         {
-          UserName: 'charliebrown',
+          UserName: 'charliebrown@example.com',
           FName: 'Charlie',
           LName: 'Brown',
           City: 'Dallas',
@@ -62,7 +62,7 @@ module.exports = {
           updatedAt: new Date(),
         },
         {
-          UserName: 'emilydavis',
+          UserName: 'emilydavis@example.com',
           FName: 'Emily',
           LName: 'Davis',
           City: 'Boston',
@@ -74,7 +74,7 @@ module.exports = {
           updatedAt: new Date(),
         },
         {
-          UserName: 'danielmiller',
+          UserName: 'danielmiller@example.com',
           FName: 'Daniel',
           LName: 'Miller',
           City: 'San Francisco',
@@ -86,7 +86,7 @@ module.exports = {
           updatedAt: new Date(),
         },
         {
-          UserName: 'sarahwilson',
+          UserName: 'sarahwilson@example.com',
           FName: 'Sarah',
           LName: 'Wilson',
           City: 'Seattle',
@@ -98,7 +98,7 @@ module.exports = {
           updatedAt: new Date(),
         },
         {
-          UserName: 'michaelclark',
+          UserName: 'michaelclark@example.com',
           FName: 'Michael',
           LName: 'Clark',
           City: 'Austin',
@@ -110,7 +110,7 @@ module.exports = {
           updatedAt: new Date(),
         },
         {
-          UserName: 'olivialewis',
+          UserName: 'olivialewis@example.com',
           FName: 'Olivia',
           LName: 'Lewis',
           City: 'Denver',
