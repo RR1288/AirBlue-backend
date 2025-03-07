@@ -25,9 +25,13 @@ exports.checkOrganizationUser = async (req, res, next) => {
 //checks a passed in userID and organization and make sure that the user exists in the organization
 exports.checkUserInOrganization = async (req, res, next) => {
     try {
-        const { userID, organizationID } = req.body;
-        user = UserOrganization.findOne({ where: { UserID: userID, OrganizationID: organizationID } });
-        if (!user) return sendError(res, "User not found in organization", 404);
+        const { userID } = req.body;
+        const token = req.headers.authorization?.split(' ')[1];
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        const organizationID = parseInt(decoded.OrganizationID); //getting org ID from token
+
+        user = await UserOrganization.findOne({ where: { UserID: userID, OrganizationID: organizationID } });
+        if (!user) return sendError(res, "User not found in organization", 400);
         next();
     } catch (error) {
         console.error(err);

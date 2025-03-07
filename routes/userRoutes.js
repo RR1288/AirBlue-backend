@@ -169,12 +169,8 @@ router.get(
  *             type: object
  *             required:
  *               - userID
- *               - organizationID
  *             properties:
  *               userID:
- *                 type: integer
- *                 example: 1
- *               organizationID:
  *                 type: integer
  *                 example: 1
  *     responses:
