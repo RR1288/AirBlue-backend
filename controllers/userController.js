@@ -36,6 +36,7 @@ async function registerUserFull(email, password, fname, lname, city, state, coun
         // Create user
         await sequelize.transaction(async t => {
               user = await User.create({
+                Username: email,
                 FName: fname,
                 LName: lname,
                 City: city,
@@ -88,7 +89,7 @@ async function registerBasic(email, firstname, lastname, country) {
         // Create user
         await sequelize.transaction(async t => {
             const user = await User.create({
-                // Get from body
+                Username: email,
                 FName: firstname,
                 LName: lastname,
                 City: null,
