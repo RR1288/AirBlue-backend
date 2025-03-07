@@ -18,10 +18,10 @@ const {protect} = require("../middleware/authMiddleware");
  *             properties:
  *               username:
  *                 type: string
- *                 example: "johndoe"
+ *                 example: "emilydavis"
  *               password:
  *                 type: string
- *                 example: "password123"
+ *                 example: "emilypassword"
  *     responses:
  *       200:
  *         description: Login successful or 2FA required

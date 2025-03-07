@@ -10,25 +10,11 @@ module.exports = (sequelize, DataTypes) => {
       two_fa_secret: DataTypes.CHAR(32),
       createdAt: DataTypes.DATE,
       updatedAt: DataTypes.DATE,
-<<<<<<< HEAD
-<<<<<<< HEAD
-    },
-    {
-      Sequelize,
-      paranoid: true,
-    });
-=======
-=======
->>>>>>> AIRBLUE-53-Create-users-backend
       deletedAt: DataTypes.DATE
     },{
       sequelize,
       paranoid: true
   });
-<<<<<<< HEAD
->>>>>>> staging
-=======
->>>>>>> AIRBLUE-53-Create-users-backend
   
     UserLogin.associate = (models) => {
       UserLogin.belongsTo(models.User, { foreignKey: 'UserID' });

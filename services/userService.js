@@ -1,9 +1,10 @@
 const { sendSuccess, sendError } = require("../utils/responseHelpers");
-const { registerUserFull, registerBasic, setOrganization } = require("../controllers/userController");
+const { registerUserFull, registerBasic, setOrganization, disableUserNormal, disableUserOrganization } = require("../controllers/userController");
 const { User } = require("../models/userModel");
 const { sanitizeEmail, sanitizeName, sanitizeCountry, sanitizeState, sanitizeCity, sanitizePassword, validateUserID } = require("../utils/UserSanitizations"); //have to change the file name since right now it does both sanitization and validation
 const { validateOrganizationID } = require("../utils/OrganizationSanitization");
 const { sanitizeRoles } = require("../utils/UserOrganizationSanitizations");
+const jwt = require('jsonwebtoken');
 exports.registerUserEndUser = async (req, res) => {
     try {
         let { password, fname, lname, city, state, country, email } =
@@ -154,7 +155,7 @@ exports.registerUserOrganization = async (req, res) => {
 
 exports.disableUserOrganization = async (req, res) => {
     try {
-        const { UserID, OrganizationID } = req.body;
+        const { userID, organizationID } = req.body;
         // put validations here
         if (!validateUserID(UserID)) return sendError(res, "User does not exist", 400);
         if (!validateOrganizationID(OrganizationID)) return sendError(res, "Organization does not exist", 400);
@@ -173,14 +174,17 @@ exports.disableUserOrganization = async (req, res) => {
     }
 }
 
-exports.disableUserNormal = async (req, res) => {
+exports.disableUserNormalService = async (req, res) => {
     try {
-        const { UserID, OrganizationID } = req.body;
+        const token = req.headers.authorization?.split(' ')[1];
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        const userID = parseInt(decoded.id);
         // put validations here
-        if (!validateUserID(UserID)) return sendError(res, "User does not exist", 400);
+        if (!validateUserID(userID )) return sendError(res, "User does not exist", 400);
         //run function
-        const success = await disableUserNormal(UserID);
-        if (!success) return sendError(res, "user removal failed", 404); //todo set error code
+        console.log('running function');
+        const successful = await disableUserNormal(userID );
+        if (!successful) return sendError(res, "user removal failed", 404); //todo set error code
         //if successful returns a success message
         return sendSuccess(res, "user successfully removed", 200);
     } catch (error) {

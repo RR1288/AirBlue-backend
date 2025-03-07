@@ -18,15 +18,7 @@ module.exports = {
       two_fa_secret: { type: Sequelize.CHAR(32), allowNull: true },
       createdAt: { type: Sequelize.DATE, allowNull: false, defaultValue: Sequelize.NOW },
       updatedAt: { type: Sequelize.DATE, allowNull: false, defaultValue: Sequelize.NOW },
-<<<<<<< HEAD
-<<<<<<< HEAD
-      deletedAt: {type: Sequelize.DATE}
-=======
       deletedAt: {type: Sequelize.DATE , defaultValue: null}
->>>>>>> staging
-=======
-      deletedAt: {type: Sequelize.DATE , defaultValue: null}
->>>>>>> AIRBLUE-53-Create-users-backend
     });
   },
 

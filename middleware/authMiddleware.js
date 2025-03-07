@@ -10,7 +10,7 @@ exports.protect = async (req, res, next) => {
 
         // Verify token
         const decoded = jwt.verify(token, process.env.JWT_SECRET);
-        
+        console.log(decoded);
         // Fetch user login info from UserLogin table
         const user = await UserLogin.findByPk(decoded.id);
         if (!user) return sendError(res, "User not found", 404);

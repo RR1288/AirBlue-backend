@@ -20,7 +20,7 @@ exports.getAllEventPlanners = async (req, res) => {
     }
 };
 async function getUserByID(userID){
-    const user = await User.findByPk(organizationID);
+    const user = await User.findByPk(userID);
     return user;
 }
 
@@ -162,6 +162,7 @@ async function disableUserOrganization(userID, organizationID) {
                 where: { UserID: userID, OrganizationID: organizationID },
             })
         }) //end of transaction
+        return true;
     } catch (err) {
         console.error(err);
         throw new Error("Error deleting user");
@@ -171,11 +172,12 @@ async function disableUserOrganization(userID, organizationID) {
 
 async function disableUserNormal(userID) {
     try {
-        await sequelize.transaction(async t => {
+        await sequelize.transaction(async t => {;
             await User.destroy({
                 where: { UserID: userID },
             })
         }) //end of transaction
+        return true;
     } catch (err) {
         console.error(err);
         throw new Error("Error deleting user");

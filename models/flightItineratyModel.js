@@ -11,17 +11,7 @@ module.exports = (sequelize, DataTypes) => {
       primaryKey: true 
     },
     Class: DataTypes.STRING(25),
-<<<<<<< HEAD
-<<<<<<< HEAD
-    SeatNumber: DataTypes.STRING(5)
-  },
-  {
-    Sequelize,
-    paranoid: true,
-  });
-=======
-=======
->>>>>>> AIRBLUE-53-Create-users-backend
+
     SeatNumber: DataTypes.STRING(5),
     createdAt: DataTypes.DATE,
     updatedAt: DataTypes.DATE,
@@ -30,10 +20,6 @@ module.exports = (sequelize, DataTypes) => {
     sequelize,
     paranoid: true
 });
-<<<<<<< HEAD
->>>>>>> staging
-=======
->>>>>>> AIRBLUE-53-Create-users-backend
 
   FlightItinerary.associate = function(models) {
     FlightItinerary.belongsTo(models.Itinerary, { foreignKey: 'ItineraryID' });

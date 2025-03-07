@@ -27,15 +27,7 @@ module.exports = {
                 defaultValue: Sequelize.NOW,
                 allowNull: false,
             },
-<<<<<<< HEAD
-<<<<<<< HEAD
-            deletedAt: {type: Sequelize.DATE}
-=======
             deletedAt: {type: Sequelize.DATE , defaultValue: null}
->>>>>>> staging
-=======
-            deletedAt: {type: Sequelize.DATE , defaultValue: null}
->>>>>>> AIRBLUE-53-Create-users-backend
         });
     },
   }

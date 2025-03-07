@@ -15,25 +15,12 @@ module.exports = (sequelize, DataTypes) => {
             references: {model: "EventGroups", key: "EventGroupID"},
         },
         Confirmed: DataTypes.BOOLEAN,
-<<<<<<< HEAD
-<<<<<<< HEAD
-    },
-    {
-        Sequelize,
-        paranoid: true,
-=======
-=======
->>>>>>> AIRBLUE-53-Create-users-backend
         createdAt: DataTypes.DATE,
         updatedAt: DataTypes.DATE,
         deletedAt: DataTypes.DATE
     },{
         sequelize,
         paranoid: true
-<<<<<<< HEAD
->>>>>>> staging
-=======
->>>>>>> AIRBLUE-53-Create-users-backend
     });
 
     Attendee.associate = function (models) {

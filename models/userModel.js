@@ -10,27 +10,12 @@ module.exports = (sequelize, DataTypes) => {
     Email: { type: DataTypes.STRING(320), unique: true },
     KTN: DataTypes.STRING(10),
     createdAt: DataTypes.DATE,
-<<<<<<< HEAD
-<<<<<<< HEAD
-    updatedAt: DataTypes.DATE
-  },
-    {
-      Sequelize,
-      paranoid: true,
-    });
-=======
-=======
->>>>>>> AIRBLUE-53-Create-users-backend
     updatedAt: DataTypes.DATE,
     deletedAt: DataTypes.DATE
   },{
     sequelize,
     paranoid: true
 });
-<<<<<<< HEAD
->>>>>>> staging
-=======
->>>>>>> AIRBLUE-53-Create-users-backend
 
   User.associate = (models) => {
     User.hasOne(models.UserLogin, { foreignKey: 'UserID' });

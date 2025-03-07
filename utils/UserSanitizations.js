@@ -1,4 +1,5 @@
 const validator = require("validator");
+const { getUserByID } = require("../controllers/userController");
 
 //universal starting point
 function startSanitize(input) {
@@ -11,6 +12,7 @@ function startSanitize(input) {
 }
 function validateUserID(userID) {
     if (typeof userID !== 'number') return false;
+    console.log("User: " + getUserByID(userID));
     if (getUserByID(userID) === null) return false;
 
     return true;
