@@ -3,8 +3,7 @@ const Roles = Object.freeze({
         FINANCE: 'F',
         PLANNER: 'E'
     });
-
-module.exports = {
-        Roles
-    }
     
+module.exports = {
+    Roles
+}
