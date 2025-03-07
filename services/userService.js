@@ -55,7 +55,7 @@ exports.registerUserEndUser = async (req, res) => {
 
 exports.registerUserCSV = async (req, res) => {
     try {
-        const { fname, lname, country, email } =
+        let { fname, lname, country, email } =
             req.body;
         // Validate that all attributes exist
         if (!fname || !lname || !country || !email) {
@@ -71,7 +71,7 @@ exports.registerUserCSV = async (req, res) => {
         country = sanitizeCountry(country);
         if (country === null) return sendError(res, "Invalid input for country", 400);//TODO:  check error code
 
-        const registeredUser = await registerUserBasic(email, fname, lname, country);
+        const registeredUser = await registerBasic(email, fname, lname, country);
         if (!registeredUser || !registeredUser.userId) {
             return sendError(res, "Could not register this user", 404);
         }
