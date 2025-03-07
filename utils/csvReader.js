@@ -1,139 +1,60 @@
-// csvReader.js
-
-// Make functions for reading a CSV and checking the DB/creating a base account for them
-
-//Set up db constants
-const DB_HOST_PRODUCTION = process.env.DB_HOST_PRODUCTION;
-const DB_USER_PRODUCTION = process.env.DB_USER_PRODUCTION;
-const DB_PASSWORD_PRODUCTION = process.env.DB_PASSWORD_PRODUCTION;
-const DB_NAME_PRODUCTION = process.env.DB_NAME_PRODUCTION;
-
-const Papa = require('papaparse');
 const fs = require('fs');
-const { Client } = require('pg');
+const Papa = require('papaparse');
+const { User } = require('../models/userModel'); 
+const addUserFunction = require('./addUserFunction'); // ADD DUNCAN FUNCTION
+const addUserToEventFunction = require('./addUserToEventFunction'); // ADD DUNCAN FUNCTION
 
-// Setup DB connection
-const db = new Client({
-  host: DB_HOST_PRODUCTION,
-  port: 5432,
-  user: DB_USER_PRODUCTION,
-  password: DB_PASSWORD_PRODUCTION,
-  database: DB_NAME_PRODUCTION,
-  ssl: {
-    rejectUnauthorized: false,
-  }
-});
+// Function to process CSV and check users in the database
+async function processCSVAndAddUsers(filePath, eventId) {
+  // Read the CSV file asynchronously using PapaParse
+  fs.readFile(filePath, 'utf8', async (err, data) => {
+    if (err) {
+      console.error('Error reading the file:', err);
+      return;
+    };
 
-// Connect to DB
-db.connect(err => {
-  if (err) {
-    console.error('Error connecting to the database:', err.stack);
-  } else {
-    console.log('Connected to the database');
-  }
-})
+    // Parse the CSV data
+    Papa.parse(data, {
+      header: true,  // Assumes the first row contains headers
+      skipEmptyLines: true,
+      complete: async (result) => {
+        // Process each row of data
+        for (const row of result.data) {
+          // Assuming the CSV has these columns: Email, FirstName, LastName, Counntry
+          const { Email, FirstName, LastName, Country } = row;
 
-// Function to close the DB connection
-function closeDbConnection() {
-  return new Promise((resolve, reject) => {
-    db.end(err => {
-      if (err) {
-        console.error('Error closing the database connection:', err.stack);
-        reject(err);  // Reject the promise if there's an error
-      } else {
-        console.log('Database connection closed');
-        resolve();  // Resolve the promise when the connection is closed
-      }
-    });
-  });
-}
+          // Check if user already exists by Email
+          const user = await User.findOne({
+            where: { Email }
+          });;
 
-// Function to check if an account exists by email
-function checkIfAccountExists(email, callback) {
-  const query = 'SELECT COUNT(*) as count FROM "Users" WHERE "Email" = $1';
-  db.query(query, [email], (err, result) => {
-    if (err) throw err;
-    callback(result.rows[0].count > 0);
-  });
-}
+          if (!user) {
+            // User does not exist, call your function to add the user
+            await addUserFunction(FirstName, LastName, Email, Country);
 
-// Function to check if a username already exists
-function checkIfUsernameExists(username, callback) {
-  const query = 'SELECT COUNT(*) as count FROM "Users" WHERE "UserName" = $1';
-  db.query(query, [username], (err, result) => {
-    if (err) throw err;
-    callback(result.rows[0].count > 0);
-  });
-}
-
-// Function to create a light account for the user
-function createAccount(firstName, lastName, email, country, username, callback) {
-  const currentTime = 'CURRENT_TIMESTAMP'; // Use CURRENT_TIMESTAMP for both createdAt and updatedAt
-  const query = `
-    INSERT INTO "Users" ("FName", "LName", "Email", "Country", "UserName", "createdAt", "updatedAt")
-    VALUES ($1, $2, $3, $4, $5, ${currentTime}, ${currentTime})
-  `;
-  db.query(query, [firstName, lastName, email, country, username], (err, result) => {
-    if (err) throw err;
-    console.log(`Account created for: ${email} with username: ${username}`);
-    callback(result);
-  });
-}
-
-// Function to generate a username from the email
-// Username can't be null, so for now the username is everything in their email before the @
-function generateUsername(email) {
-  return email.split('@')[0]; // Extracts part before '@'
-}
-
-async function processCSV(filePath, callback) {
-  const file = fs.createReadStream(filePath);
-
-  Papa.parse(file, {
-    header: true,
-    skipEmptyLines: true,
-    complete: async function(results) {
-      let processedCount = 0;
-      let totalRows = results.data.length;
-
-      for (let row of results.data) {
-        const { email, first_name, last_name, country } = row;
-        const username = generateUsername(email);
-
-        const exists = await checkIfAccountExists(email);
-        if (!exists) {
-          const usernameExists = await checkIfUsernameExists(username);
-          if (usernameExists) {
-            let uniqueUsername = username;
-            let counter = 1;
-
-            while (await checkIfUsernameExists(uniqueUsername)) {
-              uniqueUsername = `${username}${counter}`;
-              counter++;
-            }
-
-            await createAccount(first_name, last_name, email, country, uniqueUsername);
+            // After adding the user, we need to add them to the event
+            await addUserToEventFunction(Email, eventId); // Assuming `Email` is enough to identify the user
           } else {
-            await createAccount(first_name, last_name, email, country, username);
+            await addUserToEventFunction(Email, eventID)
+            console.log(`User ${Email} already exists. No accounnt created, but adding to event.`);
           }
         }
-        processedCount++;
-        if (processedCount === totalRows) {
-          callback();
-        }
+        console.log('CSV file processed successfully.');
+      },
+      error: (error) => {
+        console.error('Error parsing CSV:', error);
       }
-    }
+    });
+  });;
+};
+
+// Call the function with the path to your CSV and the event ID
+processCSVAndAddUsers('userTest.csv', 1) // Replace with actual CSV file path and event ID
+  .catch((err) => {
+    console.error('Error processing CSV:', err);
   });
-};
 
-// Export the processCSV function
+//Export
 module.exports = {
-  processCSV,
-  checkIfAccountExists,
-  checkIfUsernameExists,
-  createAccount,
-  generateUsername,
-  closeDbConnection
-};
-
-
+  processCSVAndAddUsers
+}
