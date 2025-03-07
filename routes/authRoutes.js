@@ -18,7 +18,7 @@ const {protect} = require("../middleware/authMiddleware");
  *             properties:
  *               username:
  *                 type: string
- *                 example: "johndoe"
+ *                 example: "johndoe@example.com"
  *               password:
  *                 type: string
  *                 example: "password123"
