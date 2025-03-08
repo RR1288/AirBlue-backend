@@ -185,7 +185,7 @@ exports.disableUserNormalService = async (req, res) => {
         // put validations here
         if (!validateUserID(userID )) return sendError(res, "User does not exist", 400);
         //run function
-        console.log('running function');
+        //console.log('running function');
         const successful = await disableUserNormal(userID );
         if (!successful) return sendError(res, "user removal failed", 404); //todo set error code
         //if successful returns a success message
