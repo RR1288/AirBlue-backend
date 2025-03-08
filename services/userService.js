@@ -1,59 +1,147 @@
-const {sendSuccess, sendError} = require("../utils/responseHelpers");
-const {registerUser} = require("../controllers/userController");
-const {User} = require("../models/userModel");
-
-exports.registerUser = async (req, res) => {
+const { sendSuccess, sendError } = require("../utils/responseHelpers");
+const { registerUserFull, registerBasic, setOrganization } = require("../controllers/userController");
+const { User } = require("../models/userModel");
+const { sanitizeEmail, sanitizeName, sanitizeCountry, sanitizeState, sanitizeCity, sanitizePassword } = require("../utils/UserSanitizations"); //have to change the file name since right now it does both sanitization and validation
+const { validateOrganizationID } = require("../utils/OrganizationSanitization");
+const { sanitizeRoles } = require("../utils/UserOrganizationSanitizations");
+exports.registerUserEndUser = async (req, res) => {
     try {
-        const {username, fname, lname, city, state, country, email, ktn} =
+        let { password, fname, lname, city, state, country, email } =
             req.body;
         // Validate that all attributes exist
-        if (!username || !fname || !lname || !country || !email) {
+        if (!password || !fname || !lname || !country || !email) {
             return sendError(res, "Arguments missing", 401); //TODO: Check status code
         }
+        //sanitizing and validating all fields
+        email = sanitizeEmail(email);
+        if (email === null) return sendError(res, "Invalid input for email", 400);
+        fname = sanitizeName(fname);
+        if (fname === null) return sendError(res, "Invalid input for first name", 400);
+        lname = sanitizeName(lname);
+        if (lname === null) return sendError(res, "Invalid input for last name", 400);
+        country = sanitizeCountry(country);
+        if (country === null) return sendError(res, "Invalid input for country", 400);
+        password = sanitizePassword(password);
+        if (password === null) return sendError(res, "Invalid input for password", 400);
 
-        // Sanitize attributes
-        // trim ws
-        // truncate state, ktn
+        if (!city) {
+            city = null;
+        } else {
+            city = sanitizeCity(city);
+            if (city === null) return sendError(res, "Invalid input for city");//TODO: make more helpful message and check error code
+        }
+
+        if (!state) {
+            state = null;
+        } else {
+            state = sanitizeState(state);
+            if (state === null) return sendError(res, "Invalid input State");//TODO: make more helpful message and check error code
+        }
         
-        
-        // TODO: Create validations files
-
-        // Validate attributes
-        // username -> alphanumeric
-        // fname, lname, city, country-> alphabeticSpace, alphanumeric?
-        // state -> valid state?
-        // email -> valid email
-        // ktn -> numeric? what is this?
-
-        
-        // Assign to organization at creation? 
-        // If so -> setup roles
-        // Else -> basic permissions?
-                    // check events? -> from Attendees (UserEvent)
-
-        // This should go in the controller
-        const user = await User.create({
-            UserName: username,
-            FName: fname,
-            LName: lname,
-            City: city ? city : null,
-            State: state ? state : null,
-            Country: country,
-            Email: email,
-            KTN: ktn ? ktn : null,
-            createdAt: new Date(),
-            updatedAt: new Date(),
-        });
-
-        req.user = user;
-
-        const registedUser = await registerUser();
-        if (!registedUser || !registedUser.UserID) {
+        const registeredUser = await registerUserFull(email, password, fname, lname, city, state, country);
+        if (!registeredUser || !registeredUser.userId) {
             return sendError(res, "Could not register this user", 404);
         }
-        return sendSuccess(res, "User registered successfully", {
-            registerUser,
+        return sendSuccess(res, "User registered successfully");
+    } catch (error) {
+        console.error(error);
+        return sendError(
+            res,
+            "Something went wrong while registering user"
+        );
+    }
+};
+
+exports.registerUserCSV = async (req, res) => {
+    try {
+        let { fname, lname, country, email } =
+            req.body;
+        // Validate that all attributes exist
+        if (!fname || !lname || !country || !email) {
+            return sendError(res, "Arguments missing", 401); //TODO: Check status code
+        }
+        //sanitizing and validating all fields
+        email = sanitizeEmail(email);
+        if (email === null) return sendError(res, "Invalid input for email", 400);//TODO:  check error code
+        fname = sanitizeName(fname);
+        if (fname === null) return sendError(res, "Invalid input for first name", 400);//TODO:  check error code
+        lname = sanitizeName(lname);
+        if (lname === null) return sendError(res, "Invalid input for last name", 400);//TODO:  check error code
+        country = sanitizeCountry(country);
+        if (country === null) return sendError(res, "Invalid input for country", 400);//TODO:  check error code
+
+        const registeredUser = await registerBasic(email, fname, lname, country);
+        if (!registeredUser || !registeredUser.userId) {
+            return sendError(res, "Could not register this user", 404);
+        }
+        return sendSuccess(res, "User registered successfully");
+    } catch (error) {
+        console.error(error);
+        return sendError(
+            res,
+            "Something went wrong while registering user"
+        );
+    }
+};
+
+exports.registerUserOrganization = async (req, res) => {
+    try {
+        let { fname, lname, password, city, country, state, email, organizationID, roles } = req.body;
+        // Validate that all attributes exist
+        if (!fname || !lname || !country || !email || !organizationID || !roles) {
+            return sendError(res, "Arguments missing", 401); //TODO: Check status code
+        }
+        //sanitizing and validating all fields
+        email = sanitizeEmail(email);
+        email = sanitizeEmail(email);
+        if (email === null) return sendError(res, "Invalid input for email", 400);
+        fname = sanitizeName(fname);
+        if (fname === null) return sendError(res, "Invalid input for first name", 400);
+        lname = sanitizeName(lname);
+        if (lname === null) return sendError(res, "Invalid input for last name", 400);
+        country = sanitizeCountry(country);
+        if (country === null) {
+            return sendError(res, "Invalid input for country", 400);
+        }
+        password = sanitizePassword(password);
+        if (password === null) { 
+            return sendError(res, "Invalid input for password", 400);
+        }
+        if (!validateOrganizationID(organizationID)) {
+            return sendError(res, "Invalid input for organization", 400);
+        }
+        roles = sanitizeRoles(roles);
+        if (roles === null){
+            return sendError(res, "Invalid input for roles", 400);
+        }
+        if (!city) {
+            city = null;
+        } else {
+            city = sanitizeCity(city);
+            if (city === null) return sendError(res, "Invalid input for city");//TODO: make more helpful message and check error code
+        }
+
+        if (!state) {
+            state = null;
+        } else {
+            state = sanitizeState(state);
+            if (state === null) return sendError(res, "Invalid input State");//TODO: make more helpful message and check error code
+        }
+        
+        const registeredUser = await registerUserFull(email, password, fname, lname, city, state, country);
+        if (!registeredUser || !registeredUser.userId) {
+            return sendError(res, "Could not register this user", 404);
+        }
+        //add user to organization
+        OrganizationUserSuccess = setOrganization(roles, organizationID, registeredUser.userId);
+        if (!OrganizationUserSuccess) {
+            return sendError(res, "Could not register this user in the organization", 404);
+        }
+
+        return sendSuccess(res, "User registered successfully to organization", {
+            registeredUser,
         });
+
     } catch (error) {
         console.error(error);
         return sendError(
