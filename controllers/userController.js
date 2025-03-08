@@ -147,6 +147,28 @@ async function setOrganization(roles, organizationID, userID) {
     }
 
 }
+
+async function updateUser(userId, firstname, lastname, state, city, ktn){
+    try {
+        const user = await User.findByPK(userId);
+        if (!user) {
+            throw new Error("user not found");
+        }
+        await user.udpate({
+            FName: firstname,
+            LName: lastname,
+            City: city,
+            State: state,
+            KTN: ktn,
+        });
+
+        return true
+    } catch (error) {
+        throw new Error("failed to update user");
+    }
+
+}
+
 module.exports = {setOrganization, registerUserFull, registerBasic}
 
 //helper funciton to generate a random initial password in the case of automated setup
