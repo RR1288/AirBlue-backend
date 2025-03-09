@@ -143,6 +143,61 @@ router.post('/create-organization-user', protect, checkOrganizationUser, authori
  *       500:
  *         description: Internal server error
  */
+
+//update functions
+/**
+ * @swagger
+ * /users/updateUserInfo:
+ *   post:
+ *     summary: takes in input for user info that aren't core to the account or login and updates them
+ *     description: endpoint is for basic user update
+ *     tags:
+ *       - Users
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - fname
+ *               - lname
+ *               - city
+ *               - state
+ *               - country
+ *               - ktn
+ *             properties:
+ *               fname:
+ *                 type: string
+ *                 example: John
+ *               lname:
+ *                 type: string
+ *                 example: Doe
+ *               country:
+ *                 type: string
+ *                 example: USA
+ *               city:
+ *                 type: string
+ *                 example: Keene
+ *                 nullable: true
+ *               state:
+ *                 type: string
+ *                 example: NH
+ *                 nullable: true
+ *               ktn:
+ *                 type: string
+ *                 example: TT1234567
+ *                 nullable: true
+ *              
+ *     responses:
+ *       201:
+ *         description: user successfully updated
+ *       400:
+ *         description: Bad request invalid input
+*/
+
+
+//get functions
 router.get(
     "/event-planners",
     protect,
