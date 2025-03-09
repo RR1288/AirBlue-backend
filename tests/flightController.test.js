@@ -22,7 +22,7 @@ const mockOfferResponse = {
 };
 
 describe("Flight Controller", () => {
-    // Mock console.error to suppress error logs. The tests pass but the cosnole would spit out the error logs so this is just to hide that
+    // Mock console.error to suppress error logs. The tests pass but the console would spit out a bunch of stuff
     beforeAll(() => {
         jest.spyOn(console, 'error').mockImplementation(() => {});
     });
