@@ -150,11 +150,11 @@ async function setOrganization(roles, organizationID, userID) {
 
 async function updateUser(userId, firstname, lastname, state, city, ktn){
     try {
-        const user = await User.findByPK(userId);
+        const user = await User.findByPk(userId);
         if (!user) {
             throw new Error("user not found");
         }
-        await user.udpate({
+        await user.update({
             FName: firstname,
             LName: lastname,
             City: city,
@@ -164,6 +164,7 @@ async function updateUser(userId, firstname, lastname, state, city, ktn){
 
         return true
     } catch (error) {
+        console.log(error);
         throw new Error("failed to update user");
     }
 

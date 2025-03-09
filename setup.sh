@@ -1,36 +1,36 @@
 #!/bin/bash
 
-# Check if .env file exists
-if [ ! -f .env ]; then
-  echo ".env file not found. Please create a .env file with the required variables."
-  exit 1
-fi
+export PGPASSWORD="${POSTGRES_PASSWORD}"
 
-# Load environment variables from .env file
-set -a  # Automatically export all variables defined in .env
-source .env
-set +a
+# Function to check if PostgreSQL is ready
+check_postgres() {
+  pg_isready -h localhost -U "${POSTGRES_USER}"
+}
 
-# Check if PostgreSQL is running
-echo "Checking if PostgreSQL is running..."
-pg_isready -p $DB_PORT
-if [ $? -ne 0 ]; then
-  echo "PostgreSQL is not running. Please start PostgreSQL and try again."
-  exit 1
-fi
+# Wait until PostgreSQL is ready
+until check_postgres; do
+  echo "Waiting for PostgreSQL to be ready..."
+  sleep 5
+done
 
-# Create the user if it doesn't exist
-echo "Creating user if it doesn't exist..."
-sudo -u postgres psql -tc "SELECT 1 FROM pg_roles WHERE rolname='$DB_USER_DEVELOPMENT'" | grep -q 1 || sudo -u postgres psql -c "CREATE USER $DB_USER_DEVELOPMENT WITH PASSWORD '$DB_PASSWORD_DEVELOPMENT';"
+echo "PostgreSQL is ready!"
 
-# Create DBs they don't exist
-echo "Creating DBs if they don't exist..."
-sudo -u postgres psql -tc "SELECT 1 FROM pg_database WHERE datname='$DB_NAME_TEST'" | grep -q 1 || sudo -u postgres psql -c "CREATE DATABASE $DB_NAME_TEST;"
-sudo -u postgres psql -tc "SELECT 1 FROM pg_database WHERE datname='$DB_NAME_DEVELOPMENT'" | grep -q 1 || sudo -u postgres psql -c "CREATE DATABASE $DB_NAME_DEVELOPMENT;"
+# Load environment variables
+set -o allexport
+. /home/student/Documents/AirBlue-backend/.env
+set +o allexport
 
-# Set the ownership of DBs to the user
-echo "Changing ownership of DBs to user..."
-sudo -u postgres psql -c "ALTER DATABASE $DB_NAME_TEST OWNER TO $DB_USER_DEVELOPMENT;"
-sudo -u postgres psql -c "ALTER DATABASE $DB_NAME_DEVELOPMENT OWNER TO $DB_USER_DEVELOPMENT;"
 
-echo "Database setup completed successfully!"
+# Create databases
+psql -h localhost -U "${POSTGRES_USER}" -c "CREATE DATABASE ${DB_NAME_DEVELOPMENT};"
+psql -h localhost -U "${POSTGRES_USER}" -c "CREATE DATABASE ${DB_NAME_TEST};"
+
+# Create user and assign ownership
+psql -h localhost -U "${POSTGRES_USER}" -c "CREATE USER $DB_USER_DEVELOPMENT WITH PASSWORD '$DB_PASSWORD_DEVELOPMENT';"
+psql -h localhost -U "${POSTGRES_USER}" -c "ALTER DATABASE $DB_NAME_DEVELOPMENT OWNER TO $DB_USER_DEVELOPMENT;"
+psql -h localhost -U "${POSTGRES_USER}" -c "ALTER DATABASE $DB_NAME_TEST OWNER TO $DB_USER_DEVELOPMENT;"
+
+unset PGPASSWORD  # Remove password from env for security
+
+
+echo "Database setup complete!"

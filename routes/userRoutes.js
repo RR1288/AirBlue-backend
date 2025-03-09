@@ -1,6 +1,6 @@
 const express = require("express");
 const {getAllEventPlanners} = require("../services/eventPlannerService");
-const {registerUserEndUser, registerUserOrganization} = require("../services/userService");
+const {registerUserEndUser, registerUserOrganization, updateUserInfo} = require("../services/userService");
 const { protect } = require("../middleware/authMiddleware");
 const { authorizedRoles } = require("../middleware/roleMiddleware");
 const { checkOrganizationUser } = require("../middleware/organizationMiddleware.js");
@@ -195,7 +195,7 @@ router.post('/create-organization-user', protect, checkOrganizationUser, authori
  *       400:
  *         description: Bad request invalid input
 */
-
+router.post("/updateUserInfo", protect, updateUserInfo);
 
 //get functions
 router.get(
