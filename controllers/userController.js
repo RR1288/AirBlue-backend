@@ -169,7 +169,7 @@ async function updateUser(userId, firstname, lastname, state, city, ktn){
 
 }
 
-module.exports = {setOrganization, registerUserFull, registerBasic}
+module.exports = {setOrganization, registerUserFull, registerBasic, updateUser}
 
 //helper funciton to generate a random initial password in the case of automated setup
 function generateRandomPassword(length = 12) {
