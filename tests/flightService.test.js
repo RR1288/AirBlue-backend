@@ -1,32 +1,18 @@
-// flightController.test.js
+// flightService.test.js
 
-//Set up constants
-const { createRequest, getOffers } = require("../services/flightService");
-const { sendSuccess, sendError } = require("../utils/responseHelpers");
-const { validateFlightParams } = require("../utils/validateFlightParams");
-const flightController = require("../controllers/flightController");
+//Set up Constants
+const flightService = require('../services/flightService');
+const flightController = require('../controllers/flightController');
+const { sendSuccess, sendError } = require('../utils/responseHelpers');
+const { validateFlightParams } = require('../utils/validateFlightParams');
 
-//There is a lot of mocking in this test, it just had to be done
+//Mock functions
+jest.mock('../controllers/flightController');
+jest.mock('../utils/responseHelpers');
+jest.mock('../utils/validateFlightParams');
 
-//Mock up the response helpers
-jest.mock("../utils/responseHelpers", () => ({
-  sendSuccess: jest.fn(),
-  sendError: jest.fn(),
-}));
-
-//Mock up flight params
-jest.mock("../utils/validateFlightParams", () => ({
-  validateFlightParams: jest.fn(),
-}));
-
-//Mock up flight controller
-jest.mock("../controllers/flightController", () => ({
-  createOfferRequest: jest.fn(),
-  fetchOffers: jest.fn(),
-}));
-
-//Describe the flight service funcitons
-describe("Flight Service", () => {
+//Time to test flightService.js
+describe('flightService', () => {
 
     // Suppress console logs. I dont wanna see all that stuff in the terminal when running the tests
     beforeAll(() => {
@@ -34,175 +20,202 @@ describe("Flight Service", () => {
         console.error = jest.fn();
     });
 
-  afterEach(() => {
-    jest.clearAllMocks();
-  });
+    //Tests for createRequest function
+    describe('createRequest', () => {
 
-  describe("createRequest", () => {
-    it("should create a request and return a success message", async () => {
-      const mockRequest = {
-        query: {
-          origin: "LHR",
-          destination: "JFK",
-          departureDate: "2025-04-01",
-          cabinClass: "economy",
-        },
-      };
-      const mockResponse = {};
-      const mockRequestId = "mockRequestId";
-      flightController.createOfferRequest.mockResolvedValue(mockRequestId);
-      validateFlightParams.mockImplementation(() => {});
+        //Test 1: Show success when request is made
+        it('Should return success when request is created successfully', async () => {
+            const req = {
+                query: {
+                    origin: 'LGA',
+                    destination: 'LAX',
+                    departureDate: '2030-03-10',
+                    cabinClass: 'economy',
+                },
+            };
+            const res = { status: jest.fn().mockReturnThis(), json: jest.fn() };
 
-      // Act
-      await createRequest(mockRequest, mockResponse);
+            // Mocking the controller method to resolve a request_id
+            flightController.createOfferRequest.mockResolvedValue('12345');
 
-      // Assert
-      expect(validateFlightParams).toHaveBeenCalledWith(mockRequest.query);
-      expect(flightController.createOfferRequest).toHaveBeenCalledWith(mockRequest.query);
-      expect(sendSuccess).toHaveBeenCalledWith(
-        mockResponse,
-        "Created request successfully",
-        { request_id: mockRequestId }
-      );
+            await flightService.createRequest(req, res);
+
+            expect(validateFlightParams).toHaveBeenCalledWith(req.query);
+            expect(flightController.createOfferRequest).toHaveBeenCalledWith(req.query);
+            expect(sendSuccess).toHaveBeenCalledWith(res, 'Created request successfully', { request_id: '12345' });
+        });
+
+        //Test 2: Error if validation fails
+        it('Should return error if validation fails', async () => {
+            const req = {
+                query: {
+                    origin: '',
+                    destination: 'LAX',
+                    departureDate: '2030-03-10',
+                    cabinClass: 'economy',
+                },
+            };
+            const res = { status: jest.fn().mockReturnThis(), json: jest.fn() };
+
+            // Mocking validation failure
+            validateFlightParams.mockImplementation(() => {
+                throw new Error('Validation failed');
+            });
+
+            await flightService.createRequest(req, res);
+
+            expect(sendError).toHaveBeenCalledWith(res, 'Failed to create offer request', 500);
+        });
     });
 
-    //First Test: Return error is validation fails
-    it("Should return an error if validation fails", async () => {
-      const mockRequest = {
-        query: {
-          origin: "LHR",
-          destination: "JFK",
-          departureDate: "2025-04-01",
-          cabinClass: "economy",
-        },
-      };
-      const mockResponse = {};
-      validateFlightParams.mockImplementation(() => {
-        throw new Error("Invalid cabin class");
-      });
+    //Tests for getOffers function
+    describe('getOffers', () => {
 
-      // Act
-      await createRequest(mockRequest, mockResponse);
+        //Test 3: Success whe we get actual offers
+        it('Should return success when offers are fetched successfully', async () => {
+            const req = {
+                query: {
+                    offer_request_id: '12345',
+                    limit: '10',
+                },
+            };
+            const res = { status: jest.fn().mockReturnThis(), json: jest.fn() };
 
-      // Assert
-      expect(validateFlightParams).toHaveBeenCalledWith(mockRequest.query);
-      expect(sendError).toHaveBeenCalledWith(mockResponse, "Failed to create offer request", 500);
+            // Mocking controller method to resolve offers
+            flightController.fetchOffers.mockResolvedValue([{ offer_id: 'offer1' }]);
+
+            await flightService.getOffers(req, res);
+
+            expect(flightController.fetchOffers).toHaveBeenCalledWith({
+                offerRequestId: '12345',
+                limit: 10,
+                after: undefined,
+                before: undefined,
+            });
+            expect(sendSuccess).toHaveBeenCalledWith(res, 'Offers fetched successfully', { offers: [{ offer_id: 'offer1' }] });
+        });
+
+        //Test 4: Error if no offer request id is there
+        it('Should return error if offer_request_id is missing', async () => {
+            const req = {
+                query: {},
+            };
+            const res = { status: jest.fn().mockReturnThis(), json: jest.fn() };
+
+            await flightService.getOffers(req, res);
+
+            expect(sendError).toHaveBeenCalledWith(res, 'Missing required parameter: offer_request_id', 400);
+        });
+
+        //Test 5: Error if limit is invalid
+        it('Should return error if limit is invalid', async () => {
+            const req = {
+                query: {
+                    offer_request_id: '12345',
+                    limit: 'ohboyIloveflyingonplanes',
+                },
+            };
+            const res = { status: jest.fn().mockReturnThis(), json: jest.fn() };
+
+            await flightService.getOffers(req, res);
+
+            expect(sendError).toHaveBeenCalledWith(res, 'Invalid limit parameter', 400);
+        });
     });
 
-    //Second Test: Return error is the create offer request fails
-    it("Should return an error if createOfferRequest fails", async () => {
-      const mockRequest = {
-        query: {
-          origin: "LHR",
-          destination: "JFK",
-          departureDate: "2025-04-01",
-          cabinClass: "economy",
-        },
-      };
-      const mockResponse = {};
-      flightController.createOfferRequest.mockRejectedValue(new Error("Request creation failed"));
-      validateFlightParams.mockImplementation(() => {});
+    //Tests for fetchFlight function
+    describe('fetchFlight', () => {
 
-      // Act
-      await createRequest(mockRequest, mockResponse);
+        //Test 6: Success when flight is fetched
+        it('Should return success when flight is fetched successfully', async () => {
+            const req = { params: { offer_id: '12345' } };
+            const res = { status: jest.fn().mockReturnThis(), json: jest.fn() };
 
-      // Assert
-      expect(validateFlightParams).toHaveBeenCalledWith(mockRequest.query);
-      expect(flightController.createOfferRequest).toHaveBeenCalledWith(mockRequest.query);
-      expect(sendError).toHaveBeenCalledWith(mockResponse, "Failed to create offer request", 500);
-    });
-  });
+            // Mocking controller method to resolve a flight
+            flightController.fetchFlight.mockResolvedValue({ flight_id: 'flight1' });
 
-  describe("getOffers", () => {
-    //Third Test: Fetch the offers sucessfully
-    it("Should fetch offers successfully", async () => {
-      const mockRequest = {
-        query: {
-          offer_request_id: "mockOfferRequestId",
-          limit: 10,
-        },
-      };
-      const mockResponse = {};
-      const mockOffers = [
-        { id: "offer1", price: 100 },
-        { id: "offer2", price: 200 },
-      ];
-      flightController.fetchOffers.mockResolvedValue(mockOffers);
+            await flightService.fetchFlight(req, res);
 
-      // Act
-      await getOffers(mockRequest, mockResponse);
+            expect(flightController.fetchFlight).toHaveBeenCalledWith('12345');
+            expect(sendSuccess).toHaveBeenCalledWith(res, 'Fetched flight successfully', { flight: { flight_id: 'flight1' } });
+        });
 
-      // Assert
-      expect(flightController.fetchOffers).toHaveBeenCalledWith({
-        offerRequestId: "mockOfferRequestId",
-        limit: 10,
-        after: undefined,
-        before: undefined,
-      });
-      expect(sendSuccess).toHaveBeenCalledWith(
-        mockResponse,
-        "Offers fetched successfully",
-        { offers: mockOffers }
-      );
+        //Test 7: Error if no flight is found
+        it('Should return error if flight is not found', async () => {
+            const req = { params: { offer_id: '12345' } };
+            const res = { status: jest.fn().mockReturnThis(), json: jest.fn() };
+
+            // Mocking controller method to resolve null (not found)
+            flightController.fetchFlight.mockResolvedValue(null);
+
+            await flightService.fetchFlight(req, res);
+
+            expect(sendError).toHaveBeenCalledWith(res, 'Flight not found', 404);
+        });
+
+        //Test 8: Error if fetching flights fails
+        it('Should return error if fetching flight fails', async () => {
+            const req = { params: { offer_id: '12345' } };
+            const res = { status: jest.fn().mockReturnThis(), json: jest.fn() };
+
+            // Mocking controller method to throw error
+            flightController.fetchFlight.mockRejectedValue(new Error('Failed'));
+
+            await flightService.fetchFlight(req, res);
+
+            expect(sendError).toHaveBeenCalledWith(res, 'Failed to fetch flight', 500);
+        });
     });
 
-    //Fifth Test: Return error if offer request id isn't there
-    it("should return an error if offer_request_id is missing", async () => {
-      const mockRequest = {
-        query: {
-          limit: 10,
-        },
-      };
-      const mockResponse = {};
+    //Tests for bookOfferOrHold fucntion
+    describe('bookOfferOrHold', () => {
 
-      // Act
-      await getOffers(mockRequest, mockResponse);
+        //Test 9: Success if bookinng is sucessful
+        it('Should return success when booking is successful', async () => {
+            const req = {
+                params: { offer_id: '12345' },
+                body: { passengers: 2, payments: { cardNumber: '1234' } },
+            };
+            const res = { status: jest.fn().mockReturnThis(), json: jest.fn() };
 
-      // Assert
-      expect(sendError).toHaveBeenCalledWith(
-        mockResponse,
-        "Missing required parameter: offer_request_id",
-        400
-      );
+            // Mocking controller method to resolve an order
+            flightController.bookOfferOrHold.mockResolvedValue({ order_id: 'order123' });
+
+            await flightService.bookOfferOrHold(req, res);
+
+            expect(flightController.bookOfferOrHold).toHaveBeenCalledWith('12345', 2, { cardNumber: '1234' });
+            expect(sendSuccess).toHaveBeenCalledWith(res, 'Booked flight successfully', { order: { order_id: 'order123' } });
+        });
+
+        //Test 10: Return error if missign required fields
+        it('Should return error if required fields are missing', async () => {
+            const req = {
+                params: { offer_id: '12345' },
+                body: {},
+            };
+            const res = { status: jest.fn().mockReturnThis(), json: jest.fn() };
+
+            await flightService.bookOfferOrHold(req, res);
+
+            expect(sendError).toHaveBeenCalledWith(res, 'Missing required fields', 400);
+        });
+
+        //Test 11; Error if booking fails
+        it('should return error if booking fails', async () => {
+            const req = {
+                params: { offer_id: '12345' },
+                body: { passengers: 2, payments: { cardNumber: '1234' } },
+            };
+            const res = { status: jest.fn().mockReturnThis(), json: jest.fn() };
+
+            // Mocking controller method to throw an error (which should trigger the catch block)
+            flightController.bookOfferOrHold.mockRejectedValue(new Error('Failed'));
+
+            await flightService.bookOfferOrHold(req, res);
+
+            // This should now match the error message and status from the catch block
+            expect(sendError).toHaveBeenCalledWith(res, 'Failed to book flight', 500);
+        });
+
     });
-
-    //Sixth Test: Return an error if the limit isn't valid
-    it("should return an error if limit is invalid", async () => {
-      const mockRequest = {
-        query: {
-          offer_request_id: "mockOfferRequestId",
-          limit: "invalid",
-        },
-      };
-      const mockResponse = {};
-
-      // Act
-      await getOffers(mockRequest, mockResponse);
-
-      // Assert
-      expect(sendError).toHaveBeenCalledWith(mockResponse, "Invalid limit parameter", 400);
-    });
-
-    //Eighth Test: Return an error is fetch offers doesn't work
-    it("should return an error if fetchOffers fails", async () => {
-      const mockRequest = {
-        query: {
-          offer_request_id: "mockOfferRequestId",
-          limit: 10,
-        },
-      };
-      const mockResponse = {};
-      flightController.fetchOffers.mockRejectedValue(new Error("Failed to fetch offers"));
-
-      // Act
-      await getOffers(mockRequest, mockResponse);
-
-      // Assert
-      expect(sendError).toHaveBeenCalledWith(
-        mockResponse,
-        "Failed to fetch offers",
-        500
-      );
-    });
-  });
 });
