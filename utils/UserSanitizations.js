@@ -1,7 +1,8 @@
 const validator = require("validator");
+const { getUserByID } = require("../controllers/userController");
 
 //universal starting point
-function startSanitize(input){
+function startSanitize(input) {
     if (typeof input !== 'string') return null;
     let sanitizedInput = input.trim();
     sanitizedInput = validator.escape(sanitizedInput);
@@ -9,7 +10,14 @@ function startSanitize(input){
     sanitizedInput = validator.stripLow(sanitizedInput, true);
     return sanitizedInput;
 }
+function validateUserID(userID) {
+    if (typeof userID !== 'number') return false;
+    console.log("User: " + getUserByID(userID));
+    if (getUserByID(userID) === null) return false;
 
+    return true;
+
+}
 //username
 /*function sanitizeUsername (uname){
     let sanitizedUsername = startSanitize(uname);
@@ -17,12 +25,12 @@ function startSanitize(input){
 
 }*/
 //email
-function sanitizeEmail(email){
+function sanitizeEmail(email) {
     let sanitizedEmail = startSanitize(email);
     if (sanitizedEmail === '' || sanitizedEmail === null) return null;
     if (!sanitizedEmail.includes("@")) return null;
 
-    sanitizedEmail = validator.normalizeEmail(sanitizedEmail, { gmail_remove_dots: false});
+    sanitizedEmail = validator.normalizeEmail(sanitizedEmail, { gmail_remove_dots: false });
 
     //validation
     if (!validator.isEmail(sanitizedEmail)) return null;
@@ -31,7 +39,7 @@ function sanitizeEmail(email){
 }
 //Name
 //this function will santize both the firstname and lastname
-function sanitizeName(name){
+function sanitizeName(name) {
     //sanitization
     let sanitizedName = startSanitize(name);
     if (sanitizedName === '') return null;
@@ -43,7 +51,7 @@ function sanitizeName(name){
     return sanitizedName;
 }
 //password
-function sanitizePassword(password){
+function sanitizePassword(password) {
     //santiize
     let sanitizedPassword = startSanitize(password);
     if (sanitizedPassword === '') return null;
@@ -55,40 +63,40 @@ function sanitizePassword(password){
     return sanitizedPassword;
 }
 //ktn
-function sanitizeKTN(ktn){
+function sanitizeKTN(ktn) {
     //sanitization
     let sanitizedKTN = startSanitize(ktn);
     if (sanitizedKTN === '') return null;
 
     //validation
-    if (!validator.isAlphanumeric(sanitizedKTN) ) return null;
+    if (!validator.isAlphanumeric(sanitizedKTN)) return null;
     if (sanitizedKTN.length < 9 || sanitizedKTN.length > 10) return null; //checks length
-    if (['TT','TE','AC'].includes(sanitizedKTN.substring(0,2))) return null; //checks the prefix
-    
+    if (['TT', 'TE', 'AC'].includes(sanitizedKTN.substring(0, 2))) return null; //checks the prefix
+
     return sanitizedKTN;
 }
 //country
-function sanitizeCountry(country){
+function sanitizeCountry(country) {
     //sanitization
     let sanitizedCountry = startSanitize(country);
-    if (sanitizedCountry== '') return null;
+    if (sanitizedCountry == '') return null;
 
     //validation
-    if(!validator.isAlpha(sanitizedCountry)) return null;
+    if (!validator.isAlpha(sanitizedCountry)) return null;
 
     return sanitizedCountry;
 }
 //city
-function sanitizeCity(city){
+function sanitizeCity(city) {
     //sanitization
     let sanitizedCity = startSanitize(city);
     if (sanitizedCity == '') return null;
 
     //validation
-    if(!validator.isAlpha(sanitizedCity)) return null;
+    if (!validator.isAlpha(sanitizedCity)) return null;
 }
 //state
-function sanitizeState(state){
+function sanitizeState(state) {
     //sanitization
     let sanitizedState = startSanitize(state);
     if (sanitizedState == '') return null;
@@ -107,5 +115,6 @@ module.exports = {
     sanitizePassword,
     sanitizeState,
     sanitizeKTN,
-    sanitizeName
+    sanitizeName,
+    validateUserID
 }

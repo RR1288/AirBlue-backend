@@ -1,9 +1,9 @@
 const express = require("express");
 const {getAllEventPlanners} = require("../services/eventPlannerService");
-const {registerUserEndUser, registerUserOrganization, updateUserInfo} = require("../services/userService");
+const {registerUserEndUser, registerUserOrganization, disableUserOrganization, disableUserNormalService, updateUserInfo} = require("../services/userService");
 const { protect } = require("../middleware/authMiddleware");
 const { authorizedRoles } = require("../middleware/roleMiddleware");
-const { checkOrganizationUser } = require("../middleware/organizationMiddleware.js");
+const { checkOrganizationUser, checkUserInOrganization, checkUserNotInOrganizaiton } = require("../middleware/organizationMiddleware.js");
 const router = express.Router();
 const {Roles} = require('../utils/Roles.js');
 
@@ -204,5 +204,56 @@ router.get(
     authorizedRoles(Roles.ADMIN),
     getAllEventPlanners
 );
+
+
+//user disable functions
+
+/**
+ * @swagger
+ * /users/disable-user-organization:
+ *   post:
+ *     summary: disables an organization user
+ *     description: endpoint for organization admins to remove users from their organization
+ *     tags:
+ *       - Users
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - userID
+ *             properties:
+ *               userID:
+ *                 type: integer
+ *                 example: 1
+ *     responses:
+ *       201:
+ *         description: user successfully created
+ *       400:
+ *         description: Bad request invalid input
+ *       404:
+ *         description: User not found
+*/
+router.post('/disable-user-organization', protect, checkOrganizationUser, authorizedRoles(Roles.ADMIN), checkUserInOrganization, disableUserOrganization);
+
+/**
+ * @swagger
+ * /users/disable-user-normal:
+ *   post:
+ *     summary: disables an Attendee user
+ *     description: endpoint for attendees
+ *     tags:
+ *       - Users
+ *     responses:
+ *       201:
+ *         description: user successfully created
+ *       400:
+ *         description: Bad request invalid input
+ *       404:
+ *         description: User not found
+*/
+router.post('/disable-user-normal', protect, checkUserNotInOrganizaiton, disableUserNormalService);
 
 module.exports = router;

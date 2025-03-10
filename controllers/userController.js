@@ -19,6 +19,10 @@ exports.getAllEventPlanners = async (req, res) => {
         throw new Error("Error fetching event planners");
     }
 };
+async function getUserByID(userID){
+    const user = await User.findByPk(userID);
+    return user;
+}
 
 // Register
 async function registerUserFull(email, password, fname, lname, city, state, country){
@@ -67,7 +71,6 @@ async function registerUserFull(email, password, fname, lname, city, state, coun
         console.error(err);
         throw new Error("Error registering user");
     }
-
 };
 
 async function registerBasic(email, firstname, lastname, country) {
@@ -170,7 +173,41 @@ async function updateUser(userId, firstname, lastname, state, city, ktn){
 
 }
 
-module.exports = {setOrganization, registerUserFull, registerBasic, updateUser}
+async function disableUserOrganization(userID, organizationID) {
+    try {
+        await sequelize.transaction(async t => {
+            await User.destroy({
+                where: { UserID: userID },
+
+            })
+            await UserOrganization.destroy({
+                where: { UserID: userID, OrganizationID: organizationID },
+            })
+        }) //end of transaction
+        return true;
+    } catch (err) {
+        console.error(err);
+        throw new Error("Error deleting user");
+
+    }
+}
+
+async function disableUserNormal(userID) {
+    try {
+        await sequelize.transaction(async t => {;
+            await User.destroy({
+                where: { UserID: userID },
+            })
+        }) //end of transaction
+        return true;
+    } catch (err) {
+        console.error(err);
+        throw new Error("Error deleting user");
+
+    }
+}
+
+module.exports = {setOrganization, registerUserFull, registerBasic, disableUserOrganization, disableUserNormal, getUserByID, updateUser}
 
 //helper funciton to generate a random initial password in the case of automated setup
 function generateRandomPassword(length = 12) {
