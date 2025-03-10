@@ -24,3 +24,5 @@ function sanitizeTypeName(name){
     if (sanitizedName.length > 25) return null;
     return sanitizedName;
 }
+
+module.exports = {sanitizeTypeName, validateEventType}

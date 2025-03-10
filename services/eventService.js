@@ -1,7 +1,8 @@
 const { sendSuccess, sendError } = require('../utils/responseHelpers');
 const { validateOrganizationID } = require("../utils/OrganizationSanitization");
 const [ createEvent ] = require("../controllers/eventController");
-const { sanitizeEventName, sanitizeEventDescription, sanitizeDate, sanitizeTotalBudget, sanitizeFlightBudget} = require("../utils/eventSanitization")
+const { sanitizeEventName, sanitizeEventDescription, sanitizeDate, sanitizeTotalBudget, sanitizeFlightBudget} = require("../utils/eventSanitization");
+const { validateEventType} = require("../utils/EvenTypeSantization");
 
 exports.createEvent = async (req, res) => {
     try {
@@ -15,16 +16,16 @@ exports.createEvent = async (req, res) => {
         const organizationID = parseInt(decoded.OrganizationID);
 
         //sanitization and validation
-        if (!validateUserID(userID)) {return sendError(res, "User does not exist", 400);}
-        if (!validateOrganizationID(organizationID)) return sendError(res, "Organization does not exist", 400);
-        if (!sanitizeEventName(name) === null) return sendError(res, "eventName invalid", 400);
+        if (!validateUserID(userID)) {return sendError(res, "User does not exist", 404);}
+        if (!validateOrganizationID(organizationID)) return sendError(res, "Organization does not exist", 404);
+        if (!sanitizeEventName(name) === null) return sendError(res, "event Name is invalid", 400);
         if (!sanitizeDate(startDate) === null) return sendError(res, "invalid start date", 400);
         if (!sanitizeDate(endDate) === null) return sendError(res, "invalid start date", 400);
         
         if(!description){
             description = '';
         }else if (!sanitizeEventDescription(description) === null) return sendError(res, "invalid description", 400);
-
+        if (!validateEventType(typeID, organizationID)) return sendError(res, "event type not found", 404)
         //run function to create user
         const eventID = await createEvent(userID, name, startDate, endDate, description, typeID, organizationID );
         if (!eventID) return sendError(req, "failed to create event", 404);
