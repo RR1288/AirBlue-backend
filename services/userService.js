@@ -160,7 +160,7 @@ exports.updateUserInfo = async (req, res) =>{
         //getting UserId
         const token = req.headers.authorization?.split(' ')[1];
         const decoded = jwt.verify(token, process.env.JWT_SECRET);
-        userID = parseInt(decoded.id);
+        let userID = parseInt(decoded.id);
         // sanitizations and validations
         fname = sanitizeName(fname);
         if (fname === null) return sendError(res, "Invalid input for first name", 400);
@@ -178,7 +178,7 @@ exports.updateUserInfo = async (req, res) =>{
         const succesull = await updateUser(userID, fname, lname, city, state, country, ktn);
         if (!succesull) return sendError(res, 'update failed', 404);
 
-        return sendSuccess(res, "User registered successfully to organization");
+        return sendSuccess(res, "User was successfully updated");
     } catch (err) {
         console.error(err);
         return sendError(
