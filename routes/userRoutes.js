@@ -1,6 +1,6 @@
 const express = require("express");
 const {getAllEventPlanners} = require("../services/eventPlannerService");
-const {registerUserEndUser, registerUserOrganization, disableUserOrganization, disableUserNormalService, updateUserInfo} = require("../services/userService");
+const {registerUserEndUser, registerUserOrganization, disableUserOrganization, disableUserNormalService, updateUserInfo, getAttendees} = require("../services/userService");
 const { protect } = require("../middleware/authMiddleware");
 const { authorizedRoles } = require("../middleware/roleMiddleware");
 const { checkOrganizationUser, checkUserInOrganization, checkUserNotInOrganizaiton } = require("../middleware/organizationMiddleware.js");
@@ -255,5 +255,66 @@ router.post('/disable-user-organization', protect, checkOrganizationUser, author
  *         description: User not found
 */
 router.post('/disable-user-normal', protect, checkUserNotInOrganizaiton, disableUserNormalService);
+
+/**
+ * @swagger
+ * /users/attendees/{eventId}:
+ *   get:
+ *     summary: Get a list of attendees for an event.
+ *     description: Retrieve all attendees for a given event.
+ *     tags:
+ *       - Users
+ *     parameters:
+ *       - in: path
+ *         name: eventId
+ *         required: true
+ *         description: The ID of the event
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Successfully retrieved the attendees list
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 message:
+ *                   type: string
+ *                   example: Attendees fetched successfully
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       id:
+ *                         type: string
+ *                         example: "usr_00001"
+ *                       name:
+ *                         type: string
+ *                         example: "John Doe"
+ *                       email:
+ *                         type: string
+ *                         example: "johndoe@exmple.com"
+ *                       event:
+ *                         type: object
+ *                         properties:
+ *                           id:
+ *                             type: string
+ *                             example: "evt_00001"
+ *                           title:
+ *                             type: string
+ *                             example: "Tech Conference 2025"
+ *       400:
+ *         description: Bad request - Event ID is required
+ *       500:
+ *         description: Internal server error
+ */
+router.get("/attendees/:eventId", protect, getAttendees);
+
+
 
 module.exports = router;

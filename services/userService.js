@@ -1,10 +1,11 @@
 const { sendSuccess, sendError } = require("../utils/responseHelpers");
-const { registerUserFull, registerBasic, setOrganization, disableUserNormal, disableUserOrganization, updateUser } = require("../controllers/userController");
+const { registerUserFull, registerBasic, setOrganization, disableUserNormal, disableUserOrganization, updateUser, getAttendees } = require("../controllers/userController");
 const { User } = require("../models/userModel");
 const { sanitizeEmail, sanitizeName, sanitizeCountry, sanitizeState, sanitizeCity, sanitizePassword, validateUserID, sanitizeKTN } = require("../utils/UserSanitizations"); //have to change the file name since right now it does both sanitization and validation
 const { validateOrganizationID } = require("../utils/OrganizationSanitization");
 const { sanitizeRoles } = require("../utils/UserOrganizationSanitizations");
 const jwt = require('jsonwebtoken');
+
 exports.registerUserEndUser = async (req, res) => {
     try {
         let { password, fname, lname, city, state, country, email } =
@@ -152,7 +153,6 @@ exports.registerUserOrganization = async (req, res) => {
     }
 };
 
-
 //user updates
 exports.updateUserInfo = async (req, res) =>{
     try {
@@ -186,7 +186,7 @@ exports.updateUserInfo = async (req, res) =>{
             "Something went wrong while registering user"
         );
     }}
-    
+
 exports.disableUserOrganization = async (req, res) => {
     try {
         const { userID } = req.body;
@@ -231,5 +231,19 @@ exports.disableUserNormalService = async (req, res) => {
             "Something went wrong while removing user user"
         );
 
+    }
+}
+
+exports.getAttendees = async (req, res) => {
+    try {
+        const { eventId } = req.params;
+        if (!eventId) {
+            return sendError(res, "Event ID is required", 400);
+        }
+
+        const attendees = await getAttendees(eventId);
+        return sendSuccess(res, attendees, "Attendees fetched successfully");
+    } catch (error) {
+        return sendError(res, error.message, 500);
     }
 }
