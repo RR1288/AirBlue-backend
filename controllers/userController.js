@@ -151,6 +151,27 @@ async function setOrganization(roles, organizationID, userID) {
 
 }
 
+async function updateUser(userId, firstname, lastname, state, city, ktn){
+    try {
+        const user = await User.findByPk(userId);
+        if (!user) {
+            throw new Error("user not found");
+        }
+        await user.update({
+            FName: firstname,
+            LName: lastname,
+            City: city,
+            State: state,
+            KTN: ktn,
+        });
+
+        return true
+    } catch (error) {
+        console.log(error);
+        throw new Error("failed to update user");
+    }
+
+}
 
 async function disableUserOrganization(userID, organizationID) {
     try {
@@ -186,7 +207,7 @@ async function disableUserNormal(userID) {
     }
 }
 
-module.exports = {setOrganization, registerUserFull, registerBasic, disableUserOrganization, disableUserNormal, getUserByID}
+module.exports = {setOrganization, registerUserFull, registerBasic, disableUserOrganization, disableUserNormal, getUserByID, updateUser}
 
 //helper funciton to generate a random initial password in the case of automated setup
 function generateRandomPassword(length = 12) {

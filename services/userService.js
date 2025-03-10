@@ -1,7 +1,7 @@
 const { sendSuccess, sendError } = require("../utils/responseHelpers");
-const { registerUserFull, registerBasic, setOrganization, disableUserNormal, disableUserOrganization } = require("../controllers/userController");
+const { registerUserFull, registerBasic, setOrganization, disableUserNormal, disableUserOrganization, updateUser } = require("../controllers/userController");
 const { User } = require("../models/userModel");
-const { sanitizeEmail, sanitizeName, sanitizeCountry, sanitizeState, sanitizeCity, sanitizePassword, validateUserID } = require("../utils/UserSanitizations"); //have to change the file name since right now it does both sanitization and validation
+const { sanitizeEmail, sanitizeName, sanitizeCountry, sanitizeState, sanitizeCity, sanitizePassword, validateUserID, sanitizeKTN } = require("../utils/UserSanitizations"); //have to change the file name since right now it does both sanitization and validation
 const { validateOrganizationID } = require("../utils/OrganizationSanitization");
 const { sanitizeRoles } = require("../utils/UserOrganizationSanitizations");
 const jwt = require('jsonwebtoken');
@@ -153,6 +153,40 @@ exports.registerUserOrganization = async (req, res) => {
 };
 
 
+//user updates
+exports.updateUserInfo = async (req, res) =>{
+    try {
+        let {fname, lname, city, state, country, ktn} = req.body;
+        //getting UserId
+        const token = req.headers.authorization?.split(' ')[1];
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        let userID = parseInt(decoded.id);
+        // sanitizations and validations
+        fname = sanitizeName(fname);
+        if (fname === null) return sendError(res, "Invalid input for first name", 400);
+        lname = sanitizeName(lname);
+        if (lname === null) return sendError(res, "Invalid input for last name", 400);
+        country = sanitizeCountry(country);
+        if (country === null) return sendError(res, "Invalid input for country", 400);
+        city = sanitizeCity(city);
+        if (city === null) return sendError(res, "Invalid input for city", 400);
+        state = sanitizeState(state);
+        if (state === null) return sendError(res, "Invalid input State", 400);
+        ktn = sanitizePassword(ktn);
+        if (ktn === null) return sendError(res, "Invalid input ktn", 400);
+
+        const succesull = await updateUser(userID, fname, lname, city, state, country, ktn);
+        if (!succesull) return sendError(res, 'update failed', 404);
+
+        return sendSuccess(res, "User was successfully updated");
+    } catch (err) {
+        console.error(err);
+        return sendError(
+            res,
+            "Something went wrong while registering user"
+        );
+    }}
+    
 exports.disableUserOrganization = async (req, res) => {
     try {
         const { userID } = req.body;
