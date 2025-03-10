@@ -21,12 +21,14 @@ async function createEvent(userId, name, startDate, endDate, description, typeID
             //add the creating user to the event staff as an eventplanner
             const eventStaff = await EventStaff.create({
                 UserID: userId,
+                EventID: event.EventID,
+                Role: 'E' // hard coded that the first addition to the events eventstaff is an eventplanner
             });
         });
         //returns the event Id on success
-        return event.EventID
+        return event.EventID;
     } catch (error) {
-
+        throw new Error("Event creation failed");
     }
 }
 
@@ -48,3 +50,5 @@ async function getEventTypes(organizationID) {
     }
 
 }
+
+module.exports = {createEvent}
