@@ -5,6 +5,7 @@ const {sequelize} = require("./config/db"); // Import DB connection
 const userRoutes = require("./routes/userRoutes");
 const authRoutes = require("./routes/authRoutes");
 const flightRoutes = require("./routes/flightRoutes");
+const eventRoutes = require("./routes/eventRoutes");
 const setupSwagger = require("./swagger"); // Import Swagger setup
 
 dotenv.config(); // Load environment variables
@@ -20,7 +21,7 @@ setupSwagger(app);
 app.use("/users", userRoutes);
 app.use("/auth", authRoutes);
 app.use("/flights", flightRoutes);
-
+app.use("/events", eventRoutes);
 // Root route
 app.get("/", (req, res) => {
     res.send("Welcome to AirBlue API");
