@@ -1,4 +1,10 @@
-const { User, UserLogin, UserOrganization, Sequelize, sequelize, Attendee, Event } = require("../models");
+const {
+    User,
+    UserLogin,
+    UserOrganization,
+    Sequelize,
+    sequelize,
+} = require("../models");
 const bcrypt = require("bcryptjs");
 
 exports.getAllEventPlanners = async (req, res) => {
@@ -7,7 +13,7 @@ exports.getAllEventPlanners = async (req, res) => {
             include: [
                 {
                     model: UserOrganization,
-                    where: { Roles: { [Sequelize.Op.like]: "%E%" } },
+                    where: {Roles: {[Sequelize.Op.like]: "%E%"}},
                     required: true,
                 },
             ],
@@ -23,11 +29,19 @@ exports.getUserByID = async (userID) => {
     return await User.findByPk(userID);
 };
 
-exports.registerUserFull = async (email, password, fname, lname, city, state, country) => {
+exports.registerUserFull = async (
+    email,
+    password,
+    fname,
+    lname,
+    city,
+    state,
+    country
+) => {
     try {
         password = await bcrypt.hash(password, 10);
 
-        const existingUser = await User.findOne({ where: { Email: email } });
+        const existingUser = await User.findOne({where: {Email: email}});
         if (existingUser) {
             throw new Error("User already exists");
         }
@@ -55,7 +69,7 @@ exports.registerUserFull = async (email, password, fname, lname, city, state, co
                 LastMFAChange: null,
             });
         });
-        return { userId: user.UserID };
+        return {userId: user.UserID};
     } catch (err) {
         console.error(err);
         throw new Error("Error registering user");
@@ -68,7 +82,7 @@ exports.registerBasic = async (email, firstname, lastname, country) => {
             throw new Error("Email required");
         }
 
-        const existingUser = await User.findOne({ where: { Email: email } });
+        const existingUser = await User.findOne({where: {Email: email}});
         if (existingUser) {
             throw new Error("User already exists");
         }
@@ -100,7 +114,7 @@ exports.registerBasic = async (email, firstname, lastname, country) => {
                 LastMFAChange: null,
             });
         });
-        return { userId: user.id };
+        return {userId: user.id};
     } catch (err) {
         console.error(err);
         throw new Error("Error registering user");
@@ -133,7 +147,13 @@ exports.updateUser = async (userId, firstname, lastname, state, city, ktn) => {
         if (!user) {
             throw new Error("User not found");
         }
-        await user.update({ FName: firstname, LName: lastname, City: city, State: state, KTN: ktn });
+        await user.update({
+            FName: firstname,
+            LName: lastname,
+            City: city,
+            State: state,
+            KTN: ktn,
+        });
         return true;
     } catch (error) {
         console.log(error);
@@ -144,8 +164,10 @@ exports.updateUser = async (userId, firstname, lastname, state, city, ktn) => {
 exports.disableUserOrganization = async (userID, organizationID) => {
     try {
         await sequelize.transaction(async (t) => {
-            await User.destroy({ where: { UserID: userID } });
-            await UserOrganization.destroy({ where: { UserID: userID, OrganizationID: organizationID } });
+            await User.destroy({where: {UserID: userID}});
+            await UserOrganization.destroy({
+                where: {UserID: userID, OrganizationID: organizationID},
+            });
         });
         return true;
     } catch (err) {
@@ -157,7 +179,7 @@ exports.disableUserOrganization = async (userID, organizationID) => {
 exports.disableUserNormal = async (userID) => {
     try {
         await sequelize.transaction(async (t) => {
-            await User.destroy({ where: { UserID: userID } });
+            await User.destroy({where: {UserID: userID}});
         });
         return true;
     } catch (err) {
@@ -166,18 +188,9 @@ exports.disableUserNormal = async (userID) => {
     }
 };
 
-exports.getAttendees = async (eventId) => {
-    return await Attendee.findAll({
-        where: { EventID: eventId },
-        include: [
-            { model: User, attributes: ["UserID", "FName", "LName", "Email"] },
-            { model: Event, attributes: ["EventID", "EventName"] },
-        ],
-    });
-};
-
 exports.generateRandomPassword = (length = 12) => {
-    const charset = "ABCDEFGHIJKLMNOPQRSTUVWXYZ!@#$%^&*1234567890abcdefghijklmnopqrstuvwxyz";
+    const charset =
+        "ABCDEFGHIJKLMNOPQRSTUVWXYZ!@#$%^&*1234567890abcdefghijklmnopqrstuvwxyz";
     let password = "";
     for (let i = 0; i < length; i++) {
         const randomIndex = Math.floor(Math.random() * charset.length);
