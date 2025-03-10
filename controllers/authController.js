@@ -11,7 +11,7 @@ const generateToken = (user) => {
     if (user.UserOrganizations.length > 0) {
         const roles = user.UserOrganizations[0].Roles;
         const organizationID = user.UserOrganizations[0].OrganizationID;
-        signature = {id: user.UserID, username: user.UserName, roles: roles, organizationID: organizationID};
+        signature = {id: user.UserID, username: user.UserName, roles: roles, OrganizationID: organizationID};
     } else {
         signature = {id: user.UserID, username: user.UserName};
     }

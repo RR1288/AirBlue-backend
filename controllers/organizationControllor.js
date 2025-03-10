@@ -2,9 +2,11 @@ const { Organization, Sequelize } = require("../models");
 
 //searches for an organization by primary key
 //if no organization found it will return a null value
-exports.getOrganization = async (req, res) => {
-    const organizationID = req.body;
+async function getOrganization(organizationID) {
     const organization = await Organization.findByPk(organizationID);
-    return organization
+    return organization;
+}
 
+module.exports = {
+    getOrganization
 }

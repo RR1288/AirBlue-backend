@@ -11,6 +11,7 @@ module.exports = (sequelize, DataTypes) => {
       primaryKey: true 
     },
     Class: DataTypes.STRING(25),
+
     SeatNumber: DataTypes.STRING(5),
     createdAt: DataTypes.DATE,
     updatedAt: DataTypes.DATE,
