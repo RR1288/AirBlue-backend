@@ -1,6 +1,6 @@
 const { sendSuccess, sendError } = require('../utils/responseHelpers');
 const { validateOrganizationID } = require("../utils/OrganizationSanitization");
-const [ createEvent ] = require("../controllers/eventController");
+const [ createEvent, getEventTypes ] = require("../controllers/eventController");
 const { sanitizeEventName, sanitizeEventDescription, sanitizeDate, sanitizeTotalBudget, sanitizeFlightBudget} = require("../utils/eventSanitization");
 const { validateEventType} = require("../utils/EvenTypeSantization");
 
@@ -34,4 +34,23 @@ exports.createEvent = async (req, res) => {
     } catch (err) {
         return sendError(res, "server error");
     }
+}
+
+//this function returns to a user every event type that is available to their organization
+exports.getAvailableEventTypes = async (req, res) =>{
+    try {
+        const token = req.headers.authorization?.split(' ')[1];
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        const organizationID = parseInt(decoded.OrganizationID);
+        //validation
+        if (!validateOrganizationID(organizationID)) return sendError(res, "Organization does not exist", 404);
+
+        const eventTypes = await getEventTypes(organizationID);
+        if (!eventTypes) return sendError(res, "failed to get event types", 400);
+
+        return sendSuccess(res, "successfully got event types", eventTypes);
+    } catch (error) {
+        return sendError(res, "server error");
+    }
+
 }
