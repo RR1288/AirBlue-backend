@@ -12,6 +12,7 @@ function startSanitizeString(input){
 
 function sanitizeEventName(name){
     sanitizedName = startSanitizeString(name);
+    if (sanitizedName === null) return null;
     //validation
     if (santizedName.length > 50 ) return null;
     return santizedName;
@@ -19,6 +20,7 @@ function sanitizeEventName(name){
 
 function sanitizeEventDescription(description){
     sanitizedDescription = startSanitizeString(description);
+    if (sanitizedDescription === null) return null;
     //validation
     if (sanitizedDescription.length > 200) return null;
     return sanitizedDescription;
