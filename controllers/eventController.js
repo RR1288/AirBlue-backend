@@ -60,4 +60,4 @@ async function getEventTypes(organizationID) {
 
 }
 
-module.exports = {createEvent}
+module.exports = {createEvent, getEventTypes}
