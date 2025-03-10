@@ -61,3 +61,5 @@ function sanitizeFlightBudget(budget){
 
     return sanitizedBudget;
 }
+
+module.exports = {sanitizeDate, sanitizeEventName, sanitizeEventDescription, sanitizeFlightBudget, sanitizeTotalBudget}

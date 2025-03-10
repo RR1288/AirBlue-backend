@@ -1,6 +1,7 @@
 const { sendSuccess, sendError } = require('../utils/responseHelpers');
 const { validateOrganizationID } = require("../utils/OrganizationSanitization");
 const [ createEvent ] = require("../controllers/eventController");
+const { sanitizeEventName, sanitizeEventDescription, sanitizeDate, sanitizeTotalBudget, sanitizeFlightBudget} = require("../utils/eventSanitization")
 
 exports.createEvent = async (req, res) => {
     try {
@@ -16,7 +17,13 @@ exports.createEvent = async (req, res) => {
         //sanitization and validation
         if (!validateUserID(userID)) {return sendError(res, "User does not exist", 400);}
         if (!validateOrganizationID(organizationID)) return sendError(res, "Organization does not exist", 400);
+        if (!sanitizeEventName(name) === null) return sendError(res, "eventName invalid", 400);
+        if (!sanitizeDate(startDate) === null) return sendError(res, "invalid start date", 400);
+        if (!sanitizeDate(endDate) === null) return sendError(res, "invalid start date", 400);
         
+        if(!description){
+            description = '';
+        }else if (!sanitizeEventDescription(description) === null) return sendError(res, "invalid description", 400);
 
         //run function to create user
         const eventID = await createEvent(userID, name, startDate, endDate, description, typeID, organizationID );
