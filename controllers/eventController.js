@@ -1,4 +1,4 @@
-const { Organization, Event, EventGroup, EventStaff, Attendee, EventTypes, OrganizationEventTypes, DefaultEventTypes, sequelize } = require("../models");
+const { Organization, Event, EventGroup, EventStaff, Attendee, EventTypes, OrganizationEventType, DefaultEventType, sequelize, Sequelize } = require("../models");
 
 /*
 CREATE EVENT
@@ -38,24 +38,30 @@ returns a list of event types that the user can assign to a event
 */
 async function getEventTypes(organizationID) {
     try {
-        let typeList;
+        let typeList = [];
         await sequelize.transaction(async t => {
             //get a list of all default eventTypes
-            const defaultEventTypes = await DefaultEventTypes.findAll({
-                attributes: ['TypeID', 'Name']
-            });
-            // get a list of all organization eventTypes that belong to the current organization and append it to the prior list
-            const organizationEventTypes = await OrganizationEventTypes.findAll({
+            let defaultEventTypes = await DefaultEventType.findAll({
                 attributes: ['TypeID', 'Name'],
-                where: { OrganizationID: organizationID}
+            });
+            console.log(defaultEventTypes);
+            // get a list of all organization eventTypes that belong to the current organization and append it to the prior list
+            let organizationEventTypes = await OrganizationEventType.findAll({
+                attributes: ['TypeID', 'Name'],
+                where: { OrganizationID: organizationID},
             });
             //combine the results of each query into one list
-            typeList = [...defaultEventTypes, ...organizationEventTypes];
+            for (let i = 0; i < defaultEventTypes.length; i++){
+                typeList.push({TypeID: defaultEventTypes[i].dataValues.TypeID, Name: defaultEventTypes[i].dataValues.Name});
+            }
+            for (let i = 0; i < organizationEventTypes.length; i++){
+                typeList.push({TypeID: defaultEventTypes[i].dataValues.TypeID, Name: defaultEventTypes[i].dataValues.Name});
+            }
         });
         //return the list generated
         return typeList;
     } catch (error) {
-
+        console.log(error);
     }
 
 }

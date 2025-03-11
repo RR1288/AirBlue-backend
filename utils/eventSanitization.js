@@ -14,8 +14,8 @@ function sanitizeEventName(name){
     sanitizedName = startSanitizeString(name);
     if (sanitizedName === null) return null;
     //validation
-    if (santizedName.length > 50 ) return null;
-    return santizedName;
+    if (sanitizedName.length > 50 ) return null;
+    return sanitizedName;
 }
 
 function sanitizeEventDescription(description){
@@ -28,7 +28,7 @@ function sanitizeEventDescription(description){
 
 function sanitizeDate(date){
     if (typeof date !== 'string') return null;
-    let sanitizedDate = input.trim();
+    let sanitizedDate = date.trim();
     //validation
     if (!validator.isDate(sanitizedDate, {format: 'YYYY-MM-DD', strictMode: true})) return null;
     return sanitizedDate;

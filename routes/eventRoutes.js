@@ -2,9 +2,9 @@ const express = require("express");
 const { protect } = require("../middleware/authMiddleware");
 const router = express.Router();
 const { Roles } = require('../utils/Roles.js');
+const { authorizedRoles } = require("../middleware/roleMiddleware.js");
 const { checkOrganizationUser } = require("../middleware/organizationMiddleware.js");
 const {  createEvent, getAvailableEventTypes } = require("../services/eventService.js");
-
 /**
  * @swagger
  * /events/create-event:
@@ -12,7 +12,7 @@ const {  createEvent, getAvailableEventTypes } = require("../services/eventServi
  *     summary: create a new event for your organization
  *     description: endpoint to create new event in your organization
  *     tags:
- *       - Users
+ *       - Events
  *     requestBody:
  *       required: true
  *       content:
@@ -47,4 +47,7 @@ const {  createEvent, getAvailableEventTypes } = require("../services/eventServi
  *       400:
  *         description: Bad request invalid input
 */
-router.post('/create-organization-user', protect, checkOrganizationUser, authorizedRoles(Roles.PLANNER), createEvent);
+router.post('/create-event', protect, authorizedRoles(Roles.PLANNER), checkOrganizationUser,  createEvent);
+
+
+module.exports = router;

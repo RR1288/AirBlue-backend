@@ -1,8 +1,10 @@
 const { sendSuccess, sendError } = require('../utils/responseHelpers');
 const { validateOrganizationID } = require("../utils/OrganizationSanitization");
-const [ createEvent, getEventTypes ] = require("../controllers/eventController");
+const { createEvent, getEventTypes } = require("../controllers/eventController");
 const { sanitizeEventName, sanitizeEventDescription, sanitizeDate, sanitizeTotalBudget, sanitizeFlightBudget} = require("../utils/eventSanitization");
-const { validateEventType} = require("../utils/EvenTypeSantization");
+const { validateUserID } = require("../utils/UserSanitizations");
+const { validateEventType} = require("../utils/eventTypeSantization");
+const jwt = require('jsonwebtoken');
 
 exports.createEvent = async (req, res) => {
     try {
@@ -25,13 +27,14 @@ exports.createEvent = async (req, res) => {
         if(!description){
             description = '';
         }else if (!sanitizeEventDescription(description) === null) return sendError(res, "invalid description", 400);
-        if (!validateEventType(typeID, organizationID)) return sendError(res, "event type not found", 404)
+        if (!(await validateEventType(typeID, organizationID))) return sendError(res, "event type not found", 404)
         //run function to create user
         const eventID = await createEvent(userID, name, startDate, endDate, description, typeID, organizationID );
         if (!eventID) return sendError(req, "failed to create event", 404);
         // return eventID to user on success
         return sendSuccess(res, "User registered successfully", eventID);
     } catch (err) {
+        console.log(err);
         return sendError(res, "server error");
     }
 }

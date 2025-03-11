@@ -11,10 +11,13 @@ function startSanitize(input) {
 }
 
 //this function makes sure that an event type exists in the list of Total eventTypes available to the user in their organization
-function validateEventType(typeID, organizationID){
+async function validateEventType(typeID, organizationID){
     //get the list of eventTypes
-    const eventTypes = getEventTypes(organizationID); //may need to make this function async
-    return eventTypes.some(event => event.TypeID === typeID);
+    const eventTypes = await getEventTypes(organizationID);
+    for(let i = 0; i < eventTypes.length; i++){
+        if (parseInt(eventTypes[i].TypeID) === typeID) return true;
+    }
+    return false
 }
 
 function sanitizeTypeName(name){
