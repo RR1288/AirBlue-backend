@@ -149,3 +149,5 @@ dist-ssr
 
 .env
 pgdata/
+setup.sh
+clean.sh
