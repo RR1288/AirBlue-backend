@@ -4,7 +4,7 @@ module.exports = {
         return queryInterface.bulkInsert('OrganizationEventTypes', [
             {
                 TypeID: 3,
-                Name: 'Conference',
+                Name: 'Staff Conference',
                 OrganizationID: 1,
                 createdAt: new Date(),
                 updatedAt: new Date()

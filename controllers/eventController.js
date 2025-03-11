@@ -54,7 +54,7 @@ async function getEventTypes(organizationID) {
                 typeList.push({TypeID: defaultEventTypes[i].dataValues.TypeID, Name: defaultEventTypes[i].dataValues.Name});
             }
             for (let i = 0; i < organizationEventTypes.length; i++){
-                typeList.push({TypeID: defaultEventTypes[i].dataValues.TypeID, Name: defaultEventTypes[i].dataValues.Name});
+                typeList.push({TypeID: organizationEventTypes[i].dataValues.TypeID, Name: organizationEventTypes[i].dataValues.Name});
             }
         });
         //return the list generated

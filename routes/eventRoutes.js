@@ -50,4 +50,28 @@ const {  createEvent, getAvailableEventTypes } = require("../services/eventServi
 router.post('/create-event', protect, authorizedRoles(Roles.PLANNER), checkOrganizationUser,  createEvent);
 
 
+//get methods
+
+/**
+ * @swagger
+ * /events/event-types:
+ *   get:
+ *     summary: Retrieve a list of event types avaiable to you
+ *     description: Fetch all event planners from the database.
+ *     tags:
+ *       - Events
+ *     responses:
+ *       200:
+ *         description: Successfully retrieved event types
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *       404:
+ *         description: No event planners found
+ *       500:
+ *         description: Internal server error
+ */
+router.get("/event-types", protect, authorizedRoles(Roles.ADMIN), checkOrganizationUser, getAvailableEventTypes);
+
 module.exports = router;
