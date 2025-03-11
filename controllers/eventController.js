@@ -1,10 +1,10 @@
-const { Organization, Event, EventGroup, EventStaff, Attendee, EventTypes, OrganizationEventType, DefaultEventType, sequelize, Sequelize } = require("../models");
+const { User, Organization, Event, EventGroup, EventStaff, Attendee, EventTypes, OrganizationEventType, DefaultEventType, sequelize, Sequelize } = require("../models");
 
 /*
 CREATE EVENT
 this function
 */
-async function createEvent(userId, name, startDate, endDate, description, typeID, organizationID) {
+exports.createEvent = async (userId, name, startDate, endDate, description, typeID, organizationID) => {
     try {
         let event;
         await sequelize.transaction(async t => {
@@ -34,9 +34,9 @@ async function createEvent(userId, name, startDate, endDate, description, typeID
 
 /*
 get event Types:
-returns a list of event types that the user can assign to a event
+returns a list of event types that the user can assign to an event
 */
-async function getEventTypes(organizationID) {
+exports.getEventTypes = async (organizationID) => {
     try {
         let typeList = [];
         await sequelize.transaction(async t => {
@@ -62,7 +62,6 @@ async function getEventTypes(organizationID) {
     } catch (error) {
         console.log(error);
     }
-
 }
 
 exports.getAttendees = async (eventId) => {
@@ -88,6 +87,3 @@ exports.getEventStaffByRole = async (eventId, role) => {
         ],
     });
 };
-
-
-module.exports = {createEvent, getEventTypes}

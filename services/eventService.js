@@ -11,7 +11,7 @@ exports.createEvent = async (req, res) => {
     try {
         let {name, startDate, endDate, description, typeID} = req.body;
         //make sure required inputs have been sent
-        if(!name, !startDate, !endDate, !typeID) return sendError(res, "missing required inputs");
+        if(!name || !startDate || !endDate || !typeID) return sendError(res, "missing required inputs");
         //pull organizationID and userID from token
         const token = req.headers.authorization?.split(' ')[1];
         const decoded = jwt.verify(token, process.env.JWT_SECRET);
