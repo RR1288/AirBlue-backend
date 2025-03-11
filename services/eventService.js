@@ -20,9 +20,12 @@ exports.createEvent = async (req, res) => {
         //sanitization and validation
         if (!validateUserID(userID)) {return sendError(res, "User does not exist", 404);}
         if (!validateOrganizationID(organizationID)) return sendError(res, "Organization does not exist", 404);
-        if (!sanitizeEventName(name) === null) return sendError(res, "event Name is invalid", 400);
-        if (!sanitizeDate(startDate) === null) return sendError(res, "invalid start date", 400);
-        if (!sanitizeDate(endDate) === null) return sendError(res, "invalid start date", 400);
+        name = sanitizeEventName(name);
+        if (name === null) return sendError(res, "event Name is invalid", 400);
+        startDate = sanitizeDate(startDate);
+        if (startDate === null) return sendError(res, "invalid start date", 400);
+        endDate = sanitizeDate(endDate);
+        if (endDate === null) return sendError(res, "invalid start date", 400);
         
         if(!description){
             description = '';

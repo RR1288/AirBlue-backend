@@ -10,24 +10,24 @@ async function createEvent(userId, name, startDate, endDate, description, typeID
         await sequelize.transaction(async t => {
             //create the event
             event = await Event.create({
-                EventID: event.EventID,
                 EventName: name,
                 EventStartDate: startDate,
                 EventEndDate: endDate,
                 EventDescription: description,
-                TyperID: typeID,
+                TypeID: typeID,
                 OrganizationID: organizationID
             });
             //add the creating user to the event staff as an eventplanner
             const eventStaff = await EventStaff.create({
                 UserID: userId,
                 EventID: event.EventID,
-                Role: 'E' // hard coded that the first addition to the events eventstaff is an eventplanner
+                RoleID: 'E' // hard coded that the first addition to the events eventstaff is an eventplanner
             });
         });
         //returns the event Id on success
         return event.EventID;
     } catch (error) {
+        console.log(error);
         throw new Error("Event creation failed");
     }
 }
@@ -44,7 +44,6 @@ async function getEventTypes(organizationID) {
             let defaultEventTypes = await DefaultEventType.findAll({
                 attributes: ['TypeID', 'Name'],
             });
-            console.log(defaultEventTypes);
             // get a list of all organization eventTypes that belong to the current organization and append it to the prior list
             let organizationEventTypes = await OrganizationEventType.findAll({
                 attributes: ['TypeID', 'Name'],
