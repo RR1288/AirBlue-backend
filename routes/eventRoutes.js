@@ -5,6 +5,7 @@ const { Roles } = require('../utils/Roles.js');
 const { authorizedRoles } = require("../middleware/roleMiddleware.js");
 const { checkOrganizationUser } = require("../middleware/organizationMiddleware.js");
 const {  createEvent, getAvailableEventTypes } = require("../services/eventService.js");
+const EventService = require("../services/eventService");
 /**
  * @swagger
  * /events/create-event:
@@ -73,5 +74,197 @@ router.post('/create-event', protect, authorizedRoles(Roles.PLANNER), checkOrgan
  *         description: Internal server error
  */
 router.get("/event-types", protect, authorizedRoles(Roles.ADMIN), checkOrganizationUser, getAvailableEventTypes);
+
+/**
+ * @swagger
+ * /events/attendees/{eventId}:
+ *   get:
+ *     summary: Get a list of attendees for an event.
+ *     description: Retrieve all attendees for a given event.
+ *     tags:
+ *       - Events
+ *     parameters:
+ *       - in: path
+ *         name: eventId
+ *         required: true
+ *         description: The ID of the event
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Successfully retrieved the attendees list
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 message:
+ *                   type: string
+ *                   example: Attendees fetched successfully
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       id:
+ *                         type: string
+ *                         example: "usr_00001"
+ *                       name:
+ *                         type: string
+ *                         example: "John Doe"
+ *                       email:
+ *                         type: string
+ *                         example: "johndoe@exmple.com"
+ *                       event:
+ *                         type: object
+ *                         properties:
+ *                           id:
+ *                             type: string
+ *                             example: "evt_00001"
+ *                           title:
+ *                             type: string
+ *                             example: "Tech Conference 2025"
+ *       400:
+ *         description: Bad request - Event ID is required
+ *       500:
+ *         description: Internal server error
+ */
+router.get(
+    "/attendees/:eventId",
+    protect,
+    authorizedRoles(Roles.ADMIN, Roles.PLANNER),
+    EventService.getAttendees
+);
+
+/**
+ * @swagger
+ * /events/event-planners/{eventId}:
+ *   get:
+ *     summary: Get event planners for a given event.
+ *     description: Retrieve a list of event planners (Role 'E') for the specified event.
+ *     tags:
+ *       - Events
+ *     parameters:
+ *       - in: path
+ *         name: eventId
+ *         required: true
+ *         description: The ID of the event.
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Event planners fetched successfully.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 message:
+ *                   type: string
+ *                   example: Event planners fetched successfully.
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       id:
+ *                         type: string
+ *                         example: "usr_001"
+ *                       name:
+ *                         type: string
+ *                         example: "Alice Johnson"
+ *                       email:
+ *                         type: string
+ *                         example: "alice@example.com"
+ *                       event:
+ *                         type: object
+ *                         properties:
+ *                           id:
+ *                             type: string
+ *                             example: "evt_001"
+ *                           title:
+ *                             type: string
+ *                             example: "Annual Conference 2025"
+ *       400:
+ *         description: Bad request – Event ID is required.
+ *       500:
+ *         description: Internal server error.
+ */
+router.get(
+    "/event-planners/:eventId",
+    protect,
+    authorizedRoles(Roles.ADMIN),
+    EventService.getEventPlanners
+);
+
+/**
+ * @swagger
+ * /events/finance-users/{eventId}:
+ *   get:
+ *     summary: Get finance users for a given event.
+ *     description: Retrieve a list of finance users (Role 'F') for the specified event.
+ *     tags:
+ *       - Events
+ *     parameters:
+ *       - in: path
+ *         name: eventId
+ *         required: true
+ *         description: The ID of the event.
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Finance users fetched successfully.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 message:
+ *                   type: string
+ *                   example: Finance users fetched successfully.
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       id:
+ *                         type: string
+ *                         example: "usr_002"
+ *                       name:
+ *                         type: string
+ *                         example: "Bob Smith"
+ *                       email:
+ *                         type: string
+ *                         example: "bob@example.com"
+ *                       event:
+ *                         type: object
+ *                         properties:
+ *                           id:
+ *                             type: string
+ *                             example: "evt_001"
+ *                           title:
+ *                             type: string
+ *                             example: "Annual Conference 2025"
+ *       400:
+ *         description: Bad request – Event ID is required.
+ *       500:
+ *         description: Internal server error.
+ */
+router.get(
+    "/finance-users/:eventId",
+    protect,
+    authorizedRoles(Roles.ADMIN),
+    EventService.getFinanceUsers
+);
 
 module.exports = router;
