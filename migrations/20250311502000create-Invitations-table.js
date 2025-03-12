@@ -21,6 +21,10 @@ module.exports = {
                 type: Sequelize.BIGINT,
                 allowNull: true,
             },
+            EventGroupID: {
+                type: Sequelize.BIGINT,
+                allowNull: true,
+            },
             status: {
                 type: Sequelize.ENUM("pending", "accepted", "declined"),
                 allowNull: false,

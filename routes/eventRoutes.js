@@ -133,4 +133,28 @@ router.get(
     EventService.getFinanceUsers
 );
 
+/**
+ * @swagger
+ * /events/invitations/accept:
+ *   post:
+ *     summary: Accept an event invitation
+ *     tags:
+ *       - Events
+ *     parameters:
+ *       - in: query
+ *         name: invitation
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Invitation Token received in the invitation link
+ *     responses:
+ *       200:
+ *         description: Invitation accepted successfully
+ *       400:
+ *         description: Invalid or expired invitation token
+ *       500:
+ *         description: Internal server error
+ */
+router.post("/invitations/accept", protect, EventService.acceptInvitation);
+
 module.exports = router;

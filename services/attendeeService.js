@@ -7,11 +7,11 @@ const AttendeeController = require("../controllers/attendeeController");
 exports.inviteAttendee = async (req, res) => {
   try {
     const { eventId } = req.params;
-    const { email } = req.body;
+    const { email, eventGroupId } = req.body;
     if (!eventId || !email) {
       return sendError(res, "Event ID and email are required", 400);
     }
-    const invitation = await AttendeeController.inviteAttendee(eventId, email);
+    const invitation = await AttendeeController.inviteAttendee(eventId, email, eventGroupId);
     return sendSuccess(res, "Invitation sent successfully", {invitation});
   } catch (error) {
     console.error(error);

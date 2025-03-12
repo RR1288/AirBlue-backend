@@ -23,7 +23,7 @@ const { Roles } = require("../utils/Roles");
  *         required: true
  *         description: The ID of the event.
  *         schema:
- *           type: string
+ *           type: integer
  *     requestBody:
  *       required: true
  *       content:
@@ -34,6 +34,9 @@ const { Roles } = require("../utils/Roles");
  *               email:
  *                 type: string
  *                 example: "invitee@example.com"
+ *               eventGroupId:
+ *                 type: integer
+ *                 example: 1
  *     responses:
  *       200:
  *         description: Invitation sent successfully.
@@ -43,8 +46,8 @@ const { Roles } = require("../utils/Roles");
  *               type: object
  *               properties:
  *                 invitationId:
- *                   type: string
- *                   example: "inv_001"
+ *                   type: integer
+ *                   example: 1
  *                 invitedEmail:
  *                   type: string
  *                   example: "invitee@example.com"
@@ -75,7 +78,7 @@ router.post("/invite/:eventId", protect, authorizedRoles(Roles.PLANNER, Roles.PL
  *         required: true
  *         description: The ID of the event.
  *         schema:
- *           type: string
+ *           type: integer
  *     responses:
  *       200:
  *         description: Attendees and pending invitations fetched successfully.
@@ -90,8 +93,8 @@ router.post("/invite/:eventId", protect, authorizedRoles(Roles.PLANNER, Roles.PL
  *                     type: object
  *                     properties:
  *                       id:
- *                         type: string
- *                         example: "usr_001"
+ *                         type: integer
+ *                         example: 5
  *                       name:
  *                         type: string
  *                         example: "Alice Johnson"
@@ -104,8 +107,8 @@ router.post("/invite/:eventId", protect, authorizedRoles(Roles.PLANNER, Roles.PL
  *                     type: object
  *                     properties:
  *                       invitationId:
- *                         type: string
- *                         example: "inv_001"
+ *                         type: integer
+ *                         example: 6
  *                       invitedEmail:
  *                         type: string
  *                         example: "invitee@example.com"

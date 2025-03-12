@@ -9,7 +9,7 @@ const crypto = require("crypto");
  * Checks if the email exists in the system, creates a pending invitation,
  * and sends an invitation link (or account creation link) via email.
  */
-exports.inviteAttendee = async (eventId, email) => {
+exports.inviteAttendee = async (eventId, email, eventGroupId) => {
   // Check if user exists (case-insensitive search)
   const user = await User.findOne({ where: { Email: { [Op.iLike]: email } } });
   
@@ -20,6 +20,7 @@ exports.inviteAttendee = async (eventId, email) => {
     status: "pending",
     expiresAt: new Date(Date.now() + 48 * 60 * 60 * 1000), // Expires in 48h
     token: crypto.randomBytes(16).toString("hex"),
+    EventGroupID:  eventGroupId,
   };
   if (user) {
     // Record the user ID, but do not expose it later
@@ -49,6 +50,7 @@ exports.inviteAttendee = async (eventId, email) => {
   return {
     invitationId: invitation.InvitationID,
     invitedEmail: invitation.invitedEmail,
+    eventGroupId: invitation.EventGroupID,
     status: invitation.status
   };
 };

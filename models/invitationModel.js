@@ -20,6 +20,10 @@ module.exports = (sequelize, DataTypes) => {
           type: DataTypes.BIGINT,
           allowNull: true,
         },
+        EventGroupID: {
+          type: DataTypes.BIGINT,
+          allowNull: true,
+        },
         status: {
           type: DataTypes.ENUM("pending", "accepted", "declined"),
           allowNull: false,
@@ -39,6 +43,7 @@ module.exports = (sequelize, DataTypes) => {
     Invitation.associate = (models) => {
       Invitation.belongsTo(models.Event, { foreignKey: "EventID", as: "event" });
       Invitation.belongsTo(models.User, { foreignKey: "UserID", as: "user" });
+      Invitation.belongsTo(models.EventGroup, { foreignKey: "EventGroupID", as: "eventGroup" });
     };
   
     return Invitation;
