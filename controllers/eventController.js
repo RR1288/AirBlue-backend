@@ -32,6 +32,13 @@ exports.createEvent = async (userId, name, startDate, endDate, description, type
     }
 }
 
+
+//gets eventByID
+exports.getEventByID = async (eventID) => {
+    return await Event.findByPk(eventID);
+}
+
+
 /*
 get event Types:
 returns a list of event types that the user can assign to an event
@@ -47,14 +54,14 @@ exports.getEventTypes = async (organizationID) => {
             // get a list of all organization eventTypes that belong to the current organization and append it to the prior list
             let organizationEventTypes = await OrganizationEventType.findAll({
                 attributes: ['TypeID', 'Name'],
-                where: { OrganizationID: organizationID},
+                where: { OrganizationID: organizationID },
             });
             //combine the results of each query into one list
-            for (let i = 0; i < defaultEventTypes.length; i++){
-                typeList.push({TypeID: defaultEventTypes[i].dataValues.TypeID, Name: defaultEventTypes[i].dataValues.Name});
+            for (let i = 0; i < defaultEventTypes.length; i++) {
+                typeList.push({ TypeID: defaultEventTypes[i].dataValues.TypeID, Name: defaultEventTypes[i].dataValues.Name });
             }
-            for (let i = 0; i < organizationEventTypes.length; i++){
-                typeList.push({TypeID: organizationEventTypes[i].dataValues.TypeID, Name: organizationEventTypes[i].dataValues.Name});
+            for (let i = 0; i < organizationEventTypes.length; i++) {
+                typeList.push({ TypeID: organizationEventTypes[i].dataValues.TypeID, Name: organizationEventTypes[i].dataValues.Name });
             }
         });
         //return the list generated
@@ -66,10 +73,10 @@ exports.getEventTypes = async (organizationID) => {
 
 exports.getAttendees = async (eventId) => {
     return await Attendee.findAll({
-        where: {EventID: eventId},
+        where: { EventID: eventId },
         include: [
-            {model: User, attributes: ["UserID", "FName", "LName", "Email"]},
-            {model: Event, attributes: ["EventID", "EventName"]},
+            { model: User, attributes: ["UserID", "FName", "LName", "Email"] },
+            { model: Event, attributes: ["EventID", "EventName"] },
         ],
     });
 };
@@ -80,10 +87,29 @@ exports.getAttendees = async (eventId) => {
  */
 exports.getEventStaffByRole = async (eventId, role) => {
     return await EventStaff.findAll({
-        where: {EventID: eventId, RoleID: {[Sequelize.Op.like]: `%${role}%`}},
+        where: { EventID: eventId, RoleID: { [Sequelize.Op.like]: `%${role}%` } },
         include: [
-            {model: User, attributes: ["UserID", "FName", "LName", "Email"]},
-            {model: Event, attributes: ["EventID", "EventName"]},
+            { model: User, attributes: ["UserID", "FName", "LName", "Email"] },
+            { model: Event, attributes: ["EventID", "EventName"] },
         ],
     });
+};
+
+
+exports.setEventBudget = async (eventID, totalBudget, flightBudget) => {
+    try {
+        let event = await Event.findByPk(eventID);
+        if (!event) {
+            throw new Error("event does not exist");
+        }
+
+        await event.update({
+            EventTotalBudget: totalBudget,
+            EventFlightBudget: flightBudget
+        });
+        return true;
+    } catch (error) {
+        throw new Error("failed to add budget");
+    }
+
 };

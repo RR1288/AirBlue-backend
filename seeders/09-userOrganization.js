@@ -13,7 +13,7 @@ module.exports = {
             {
                 UserID: 2,
                 OrganizationID: 1,
-                Roles: "AE", // Event Planner, Administrator
+                Roles: "EF", // Event Planner, Finance
                 updatedAt: new Date(),
                 createdAt: new Date(),
                 StillActive: true,
