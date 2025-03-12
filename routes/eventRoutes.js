@@ -6,6 +6,9 @@ const { authorizedRoles } = require("../middleware/roleMiddleware.js");
 const { checkOrganizationUser } = require("../middleware/organizationMiddleware.js");
 const {  createEvent, getAvailableEventTypes } = require("../services/eventService.js");
 const EventService = require("../services/eventService");
+const { setEventBudget } = require("../services/financeService.js");
+const { InEventStaffFinance } = require("../middleware/eventMiddleware.js");
+
 /**
  * @swagger
  * /events/create-event:
@@ -37,7 +40,7 @@ const EventService = require("../services/eventService");
  *                 example: 2025-05-26
  *               typeID:
  *                 type: integer
- *                 example: 4
+ *                 example: 2
  *               description:
  *                 type: string
  *                 example: meeting to discuss current finances with the board of directors
@@ -51,6 +54,42 @@ const EventService = require("../services/eventService");
 router.post('/create-event', protect, authorizedRoles(Roles.PLANNER), checkOrganizationUser,  createEvent);
 
 
+/**
+ * @swagger
+ * /events/set-budget:
+ *   post:
+ *     summary: updates the event budget
+ *     description: endpoint to update the event budget
+ *     tags:
+ *       - Events
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - eventID
+ *               - totalBudget
+ *               - flightBudget
+ *             properties:
+ *               eventID:
+ *                 type: integer
+ *                 example: board of directors meeting
+ *               totalBudget:
+ *                 type: number
+ *                 example: 400000.12
+ *               flightBudget:
+ *                 type: number
+ *                 example: 50000.99
+ *               
+ *     responses:
+ *       201:
+ *         description: user successfully created
+ *       400:
+ *         description: Bad request invalid input
+*/
+router.post("/set-budget", protect, authorizedRoles(Roles.FINANCE), InEventStaffFinance, checkOrganizationUser, setEventBudget);
 //get methods
 
 /**
@@ -73,7 +112,7 @@ router.post('/create-event', protect, authorizedRoles(Roles.PLANNER), checkOrgan
  *       500:
  *         description: Internal server error
  */
-router.get("/event-types", protect, authorizedRoles(Roles.ADMIN), checkOrganizationUser, getAvailableEventTypes);
+router.get("/event-types", protect, authorizedRoles(Roles.PLANNER), checkOrganizationUser, getAvailableEventTypes);
 
 /**
  * @swagger
