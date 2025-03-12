@@ -37,14 +37,16 @@ exports.processInvitationAcceptance = async (invitationToken) => {
         });
 
         if (!invitation) {
-            return false; // Invalid or expired
+            console.error("Invitation not found");
+            throw new Error("Invitation not found");
         }
 
         // Find the user
         let user = await User.findByPk(invitation.UserID);
 
         if (!user) {
-            return false; // User should have created an account before accepting
+            console.error("User not found");
+            throw new Error("User not found"); // User should have created an account before accepting
         }
 
         // Check if user is already an attendee
@@ -53,6 +55,7 @@ exports.processInvitationAcceptance = async (invitationToken) => {
         });
 
         if (existingAttendee) {
+            console.error("User is already an attendee");
             return true; // User is already an attendee
         }
 
@@ -60,14 +63,14 @@ exports.processInvitationAcceptance = async (invitationToken) => {
         await Attendee.create({
             EventID: invitation.EventID,
             UserID: user.UserID,
-            Confirmed: "t", //  TODO: might not need this column
+            Confirmed: true,
             EventGroupID: invitation.EventGroupID,
         });
 
         // Mark invitation as accepted
         await invitation.update({ status: "accepted" });
-
         return true;
+
     } catch (error) {
         console.error("Error processing invitation acceptance:", error);
         throw new Error("Error processing invitation");

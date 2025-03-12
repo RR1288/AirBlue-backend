@@ -46,12 +46,9 @@ exports.getAttendees = async (req, res) => {
 
 exports.removeAttendee = async (req, res) => {
     try {
-        const {eventId, userId} = req.body;
-        console.log(req.user);
-        
+        const {eventId, userId} = req.body;        
         const requesterId = req.user.id; // Authenticated user's ID
-        const requesterRoles = req.user.roles; // "E", or "A"
-        const requesterOrgId = req.user.organizationId; // For admins
+        const requesterRoles = req.user.roles; // Must be an Event Planner 
 
         if (!eventId) {
             return sendError(res, "Event ID is required", 400);
@@ -65,7 +62,6 @@ exports.removeAttendee = async (req, res) => {
             targetUserId,
             requesterId,
             requesterRoles,
-            requesterOrgId
         );
 
         if (!success) {

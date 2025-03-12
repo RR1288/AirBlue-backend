@@ -33,10 +33,10 @@ exports.inviteAttendee = async (eventId, email, eventGroupId) => {
     // Generate the invitation link based on user existence
     let invitationLink;
     if (user) {
-        // Link for existing user to accept the invitation
+        // TODO: Link for existing user to accept the invitation
         invitationLink = `https://example.com/invitation/accept?invitation=${invitation.token}`;
     } else {
-        // Link for new user to create an account and accept the invitation
+        // TODO: Link for new user to create an account and accept the invitation
         invitationLink = `https://example.com/invitation/create-account?invitation=${invitation.token}`;
         //Send email too
         await sendAccountSetupEmail(email, invitationLink);
@@ -86,8 +86,7 @@ exports.removeAttendee = async (
     eventId,
     targetUserId,
     requesterId,
-    requesterRole,
-    requesterOrgId
+    requesterRole
 ) => {
     try {
         // 1. Verify the event exists.
@@ -98,19 +97,22 @@ exports.removeAttendee = async (
         const attendee = await Attendee.findOne({
             where: {EventID: eventId, UserID: targetUserId},
         });
-        if (!attendee) throw new Error("Attendee not found");
+        if (!attendee) {
+            throw new Error("Attendee not found");
+        }
 
-        console.log("Event: " ,event);
+        if (!requesterRole) {
+            // Attendees don't have a role
+
+            if (targetUserId !== requesterId) {
+                throw new Error(
+                    "User to be removed does not match logged user"
+                );
+            }
+        }
 
         // 3. Role-based checks:
-        if (requesterRole.includes(Roles.ADMIN)) {
-            // Admins can only manage events in their organization.
-            if (event.OrganizationID !== requesterOrgId) {
-              console.log("Req org id: ", requesterOrgId);
-              
-              throw new Error("Not in organization");
-            }
-        } else if (requesterRole.includes(Roles.PLANNER)) {
+        else if (requesterRole.includes(Roles.PLANNER)) {
             // Event planners can only manage events they are assigned to.
             const staffRecord = await EventStaff.findOne({
                 where: {
@@ -119,18 +121,17 @@ exports.removeAttendee = async (
                     RoleID: {[Sequelize.Op.like]: `%${Roles.PLANNER}%`},
                 },
             });
+
             if (!staffRecord) {
-              throw new Error("Not in organization");
-            };
-        } else {
-            // If it is an attendee
-            // Attendees can only remove themselves.
-            if (targetUserId !== requesterId) {
-             throw new Error("Not allowed");
+                console.error("Not in organization");
+                throw new Error("Not in organization");
             }
         }
 
-        // 4. Proceed to remove the attendee.
+        // 4. Update confirmed status
+        attendee.Confirmed = false;
+        await attendee.save();
+        // 5. Proceed to remove the attendee.
         await attendee.destroy();
         return true;
     } catch (error) {
