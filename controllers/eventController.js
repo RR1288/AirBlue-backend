@@ -103,12 +103,13 @@ exports.setEventBudget = async (eventID, totalBudget, flightBudget) => {
             throw new Error("event does not exist");
         }
 
-        await event.udpate({
+        await event.update({
             EventTotalBudget: totalBudget,
             EventFlightBudget: flightBudget
         });
         return true;
     } catch (error) {
+        console.log(error);
         throw new Error("failed to add budget");
     }
 

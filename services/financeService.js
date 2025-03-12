@@ -18,6 +18,7 @@ exports.setEventBudget = async (req, res) => {
         if(!success) return sendError(res, "failed to set budget", 400);
         return sendSuccess(res, "successfully updated event budget");
     } catch (error) {
+        console.log(error);
         return sendError(res, "failed to updated event budget", 400);
     }
 
