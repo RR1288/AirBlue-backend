@@ -113,3 +113,34 @@ exports.setEventBudget = async (eventID, totalBudget, flightBudget) => {
     }
 
 };
+
+exports.appendRoleToEventStaff = async (userID, eventID, role) => {
+try {
+    //get the users entry for event staff
+    const staff = await EventStaff.findAll({
+        where: { EventID: eventID, UserID: userID },
+    });
+    //create a new value for the roleID in event staff
+    let newRole = staff.RoleID + role;
+    //update event staff with the new value for RoleID
+    staff.update({RoleID: newRole});
+    //return true on success
+    return true;
+} catch (error) {
+    throw new Error("failed to append role to eventstaff entry for user");
+}
+};
+
+exports.addToEventStaff = async (userID, eventID, role) => {
+    try {
+        const eventStaff = await EventStaff.create({
+            UserID: userID,
+            EventID: eventID,
+            RoleID: role
+        });
+        return true;
+    } catch (error) {
+        throw new Error("failed to add user to event staff");
+    }
+
+};
