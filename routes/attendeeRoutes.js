@@ -122,4 +122,58 @@ router.post("/invite/:eventId", protect, authorizedRoles(Roles.PLANNER, Roles.PL
  */
 router.get("/:eventId", protect, authorizedRoles(Roles.PLANNER, Roles.ADMIN), AttendeeService.getAttendees);
 
+
+/**
+ * @swagger
+ * /attendees/remove:
+ *   delete:
+ *     summary: Remove an attendee from an event.
+ *     description: >
+ *       An attendee can only remove themselves from an event.
+ *       An event planner may remove an attendee only if they are assigned to that event.
+ *       An admin may remove an attendee only if the event belongs to their organization.
+ *     tags:
+ *       - Attendees
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               eventId:
+ *                 type: integer
+ *                 example: 1
+ *               userId:
+ *                 type: integer
+ *                 example: 11
+ *                 description: >
+ *                   Optional. For planners or admins: the ID of the attendee to remove.
+ *                   If omitted, the authenticated user is assumed.
+ *     responses:
+ *       200:
+ *         description: Attendee removed successfully.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 message:
+ *                   type: string
+ *                   example: Attendee removed successfully.
+ *       400:
+ *         description: Bad request – missing required fields.
+ *       403:
+ *         description: Unauthorized – not allowed to remove this attendee.
+ *       500:
+ *         description: Internal server error.
+ */
+router.delete("/remove", protect, AttendeeService.removeAttendee); // TODO: Restrict access from Finance Planners
+
+
 module.exports = router;

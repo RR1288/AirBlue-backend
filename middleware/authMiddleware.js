@@ -16,6 +16,9 @@ exports.protect = async (req, res, next) => {
 
         user.roles = decoded.roles; // Attach roles to user
         user.username = decoded.username;   // Attach username to user
+        user.organizationId = decoded.OrganizationID;
+        user.id = decoded.id;
+        
         req.user = user; // Attach user to request
         
         next(); // Move to the next function in the route handler
