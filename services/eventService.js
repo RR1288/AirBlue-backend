@@ -1,19 +1,6 @@
 const {sendSuccess, sendError} = require("../utils/responseHelpers");
 const EventController = require("../controllers/eventController");
 
-exports.getAttendees = async (req, res) => {
-    try {
-        const {eventId} = req.params;
-        if (!eventId) {
-            return sendError(res, "Event ID is required", 400);
-        }
-
-        const attendees = await EventController.getAttendees(eventId);
-        return sendSuccess(res, attendees, "Attendees fetched successfully");
-    } catch (error) {
-        return sendError(res, error.message, 500);
-    }
-};
 
 exports.getEventPlanners = async (req, res) => {
     try {

@@ -107,7 +107,7 @@ function sendPasswordResetEmail(userEmail) {
 }
 
 // Function to send account setup email
-function sendAccountSetupEmail(userEmail) {
+function sendAccountSetupEmail(userEmail, invitationLink) {
   // URL to the account setup page, including the setup token as a query parameter
   // Replace stickbug link with ${setupURL} (line 182) whenever that gets made
   //const setupUrl = `https://yourwebsite.com/setup-account?token=some-setup-token`; // Replace with real token when available
@@ -179,7 +179,9 @@ function sendAccountSetupEmail(userEmail) {
             <h1>Welcome to Airblue!</h1>
             <p>Hi there,</p>
             <p>Welcome to Airblue! Thank you for choosing us for all you flight booking needs. Click the link below to complete your account setup:</p>
-            <a href="https://www.youtube.com/watch?v=tCBy8mx0BjY">Set up your account</a>
+            <a href="${invitationLink}">Set up your account</a>
+            <p>${invitationLink}</p>
+
             <p>If you didn’t request this, please ignore this email.</p>
             <footer>
               <p>Thanks, <br> The Airblue Team</p>

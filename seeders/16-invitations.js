@@ -4,7 +4,7 @@ module.exports = {
   up: async (queryInterface, Sequelize) => {
     await queryInterface.bulkInsert('Invitations', [
       {
-        invitedEmail: 'john.doe@example.com',
+        invitedEmail: 'johnydoe@example.com',
         EventID: 1,
         UserID: null, // User not registered yet
         status: 'pending',
@@ -14,9 +14,9 @@ module.exports = {
         updatedAt: new Date()
       },
       {
-        invitedEmail: 'jane.doe@example.com',
+        invitedEmail: 'johndoe@example.com',
         EventID: 1,
-        UserID: 2, // Existing user
+        UserID: 1, // Existing user
         status: 'accepted',
         expiresAt: new Date(Date.now() + 48 * 60 * 60 * 1000),
         token: 'sampletoken2',
@@ -24,7 +24,7 @@ module.exports = {
         updatedAt: new Date()
       },
       {
-        invitedEmail: 'mark.smith@example.com',
+        invitedEmail: 'marksmith@example.com',
         EventID: 2,
         UserID: null,
         status: 'pending',
