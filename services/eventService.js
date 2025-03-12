@@ -38,7 +38,6 @@ exports.createEvent = async (req, res) => {
         // return eventID to user on success
         return sendSuccess(res, "User registered successfully", eventID);
     } catch (err) {
-        console.log(err);
         return sendError(res, "server error");
     }
 }

@@ -109,7 +109,6 @@ exports.setEventBudget = async (eventID, totalBudget, flightBudget) => {
         });
         return true;
     } catch (error) {
-        console.log(error);
         throw new Error("failed to add budget");
     }
 
