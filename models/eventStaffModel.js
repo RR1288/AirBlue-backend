@@ -10,10 +10,9 @@ module.exports = (sequelize, DataTypes) => {
             references: {model: "Events", key: "EventID"},
             primaryKey: true,
         },
-        // RoleID: {
-        //     type: DataTypes.BIGINT,
-        //     references: {model: "Roles", key: "RoleID"},
-        // },
+        RoleID: {
+            type: DataTypes.STRING(2),
+         },
         createdAt: DataTypes.DATE,
         updatedAt: DataTypes.DATE,
         deletedAt: DataTypes.DATE

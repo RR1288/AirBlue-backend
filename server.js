@@ -22,7 +22,6 @@ app.use("/users", userRoutes);
 app.use("/auth", authRoutes);
 app.use("/flights", flightRoutes);
 app.use("/events", eventRoutes);
-
 // Root route
 app.get("/", (req, res) => {
     res.send("Welcome to AirBlue API");
