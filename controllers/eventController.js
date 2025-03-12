@@ -1,68 +1,5 @@
-const { User, Organization, Event, EventGroup, EventStaff, Attendee, EventTypes, OrganizationEventType, DefaultEventType, sequelize, Sequelize } = require("../models");
-
-/*
-CREATE EVENT
-this function
-*/
-exports.createEvent = async (userId, name, startDate, endDate, description, typeID, organizationID) => {
-    try {
-        let event;
-        await sequelize.transaction(async t => {
-            //create the event
-            event = await Event.create({
-                EventName: name,
-                EventStartDate: startDate,
-                EventEndDate: endDate,
-                EventDescription: description,
-                TypeID: typeID,
-                OrganizationID: organizationID
-            });
-            //add the creating user to the event staff as an eventplanner
-            const eventStaff = await EventStaff.create({
-                UserID: userId,
-                EventID: event.EventID,
-                RoleID: 'E' // hard coded that the first addition to the events eventstaff is an eventplanner
-            });
-        });
-        //returns the event Id on success
-        return event.EventID;
-    } catch (error) {
-        console.log(error);
-        throw new Error("Event creation failed");
-    }
-}
-
-/*
-get event Types:
-returns a list of event types that the user can assign to an event
-*/
-exports.getEventTypes = async (organizationID) => {
-    try {
-        let typeList = [];
-        await sequelize.transaction(async t => {
-            //get a list of all default eventTypes
-            let defaultEventTypes = await DefaultEventType.findAll({
-                attributes: ['TypeID', 'Name'],
-            });
-            // get a list of all organization eventTypes that belong to the current organization and append it to the prior list
-            let organizationEventTypes = await OrganizationEventType.findAll({
-                attributes: ['TypeID', 'Name'],
-                where: { OrganizationID: organizationID},
-            });
-            //combine the results of each query into one list
-            for (let i = 0; i < defaultEventTypes.length; i++){
-                typeList.push({TypeID: defaultEventTypes[i].dataValues.TypeID, Name: defaultEventTypes[i].dataValues.Name});
-            }
-            for (let i = 0; i < organizationEventTypes.length; i++){
-                typeList.push({TypeID: organizationEventTypes[i].dataValues.TypeID, Name: organizationEventTypes[i].dataValues.Name});
-            }
-        });
-        //return the list generated
-        return typeList;
-    } catch (error) {
-        console.log(error);
-    }
-}
+const {User, Event, EventStaff, Attendee, Invitation, Sequelize} = require("../models");
+const { Op } = require("sequelize");
 
 exports.getAttendees = async (eventId) => {
     return await Attendee.findAll({
@@ -86,4 +23,53 @@ exports.getEventStaffByRole = async (eventId, role) => {
             {model: Event, attributes: ["EventID", "EventName"]},
         ],
     });
+};
+
+exports.processInvitationAcceptance = async (invitationToken) => {
+    try {
+        // Find the invitation using the token
+        const invitation = await Invitation.findOne({
+            where: {
+                token: invitationToken,
+                status: "pending",
+                expiresAt: { [Op.gt]: new Date() }, // Ensure it's not expired
+            },
+        });
+
+        if (!invitation) {
+            return false; // Invalid or expired
+        }
+
+        // Find the user
+        let user = await User.findByPk(invitation.UserID);
+
+        if (!user) {
+            return false; // User should have created an account before accepting
+        }
+
+        // Check if user is already an attendee
+        const existingAttendee = await Attendee.findOne({
+            where: { EventID: invitation.EventID, UserID: user.UserID, EventGroupID: invitation.EventGroupID },
+        });
+
+        if (existingAttendee) {
+            return true; // User is already an attendee
+        }
+
+        // Add user to Attendees table
+        await Attendee.create({
+            EventID: invitation.EventID,
+            UserID: user.UserID,
+            Confirmed: "t", //  TODO: might not need this column
+            EventGroupID: invitation.EventGroupID,
+        });
+
+        // Mark invitation as accepted
+        await invitation.update({ status: "accepted" });
+
+        return true;
+    } catch (error) {
+        console.error("Error processing invitation acceptance:", error);
+        throw new Error("Error processing invitation");
+    }
 };
