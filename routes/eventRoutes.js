@@ -75,7 +75,7 @@ router.post('/create-event', protect, authorizedRoles(Roles.PLANNER), checkOrgan
  *             properties:
  *               eventID:
  *                 type: integer
- *                 example: board of directors meeting
+ *                 example: 1
  *               totalBudget:
  *                 type: number
  *                 example: 400000.12
