@@ -1,6 +1,5 @@
+const { User, Event, EventStaff, Attendee, Invitation, OrganizationEventType, DefaultEventType, sequelize, Sequelize } = require("../models");
 const { Op } = require("sequelize");
-const { User, Event, EventGroup, EventStaff, Attendee, EventTypes, Invitation, OrganizationEventType, DefaultEventType, sequelize, Sequelize } = require("../models");
-
 /*
 CREATE EVENT
 this function
@@ -8,7 +7,7 @@ this function
 exports.createEvent = async (userId, name, startDate, endDate, description, typeID, organizationID) => {
     try {
         let event;
-        await sequelize.transaction(async t => {
+        await sequelize.transaction(async () => {
             //create the event
             event = await Event.create({
                 EventName: name,
@@ -19,11 +18,6 @@ exports.createEvent = async (userId, name, startDate, endDate, description, type
                 OrganizationID: organizationID
             });
             //add the creating user to the event staff as an eventplanner
-            const eventStaff = await EventStaff.create({
-                UserID: userId,
-                EventID: event.EventID,
-                RoleID: 'E' // hard coded that the first addition to the events eventstaff is an eventplanner
-            });
         });
         //returns the event Id on success
         return event.EventID;
@@ -47,7 +41,7 @@ returns a list of event types that the user can assign to an event
 exports.getEventTypes = async (organizationID) => {
     try {
         let typeList = [];
-        await sequelize.transaction(async t => {
+        await sequelize.transaction(async () => {
             //get a list of all default eventTypes
             let defaultEventTypes = await DefaultEventType.findAll({
                 attributes: ['TypeID', 'Name'],
@@ -146,8 +140,9 @@ exports.processInvitationAcceptance = async (invitationToken) => {
         console.error("Error processing invitation acceptance:", error);
         throw new Error("Error processing invitation");
     }
+};
 
-}
+
 exports.setEventBudget = async (eventID, totalBudget, flightBudget) => {
     try {
         let event = await Event.findByPk(eventID);
