@@ -18,11 +18,7 @@ exports.createEvent = async (userId, name, startDate, endDate, description, type
                 OrganizationID: organizationID
             });
             //add the creating user to the event staff as an eventplanner
-            const eventStaff = await EventStaff.create({
-                UserID: userId,
-                EventID: event.EventID,
-                RoleID: 'E' // hard coded that the first addition to the events eventstaff is an eventplanner
-            });
+            this.addToEventStaff(userId, event.EventID, 'E');
         });
         //returns the event Id on success
         return event.EventID;
