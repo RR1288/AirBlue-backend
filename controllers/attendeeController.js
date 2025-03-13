@@ -1,5 +1,6 @@
 const {Attendee, Invitation, User, Event, EventStaff} = require("../models");
 const {Op} = require("sequelize");
+const { Sequelize } = require("sequelize");
 const {sendInvitation, sendAccountSetupEmail} = require("../utils/emailSender");
 const {Roles} = require("../utils/Roles");
 const crypto = require("crypto");
@@ -93,6 +94,8 @@ exports.removeAttendee = async (
         const event = await Event.findByPk(eventId);
         if (!event) throw new Error("Event not found");
 
+        
+
         // 2. Check if the attendee record exists.
         const attendee = await Attendee.findOne({
             where: {EventID: eventId, UserID: targetUserId},
@@ -136,6 +139,6 @@ exports.removeAttendee = async (
         return true;
     } catch (error) {
         console.error("Error in service:", error);
-        throw new Error("Error processing request");
+        throw error;
     }
 };
