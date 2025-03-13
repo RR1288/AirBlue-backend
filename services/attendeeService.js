@@ -44,36 +44,107 @@ exports.getAttendees = async (req, res) => {
     }
 };
 
-exports.removeAttendee = async (req, res) => {
+/**
+ * Revokes pending or accepted invitations for an event.
+ * Only a planner assigned to the event can revoke invitations.
+ */
+exports.revokeInvitations = async (req, res) => {
     try {
-        const {eventId, userId} = req.body;        
+        const {eventId, emails: invitationIds} = req.body;
         const requesterId = req.user.id; // Authenticated user's ID
-        const requesterRoles = req.user.roles; // Must be an Event Planner 
+        const requesterRoles = req.user.roles; // Must be an Event Planner
 
-        if (!eventId) {
-            return sendError(res, "Event ID is required", 400);
+        if (
+            !eventId ||
+            !invitationIds ||
+            !Array.isArray(invitationIds) ||
+            invitationIds.length === 0
+        ) {
+            return sendError(res, "Event ID and emails are required", 400);
         }
 
-        // If userId is omitted, assume requester wants to cancel their own attendance.
-        const targetUserId = userId || requesterId;
-
-        const success = await AttendeeController.removeAttendee(
+        const revoked = await AttendeeController.revokeInvitations(
             eventId,
-            targetUserId,
+            invitationIds,
             requesterId,
-            requesterRoles,
+            requesterRoles
         );
 
-        if (!success) {
+        if (!revoked) {
             return sendError(
                 res,
-                "Not authorized to remove this attendee or attendee not found",
+                "Not authorized or no matching invitations found",
                 403
             );
         }
-        return sendSuccess(res, "Attendee removed successfully");
+        return sendSuccess(res, "Invitations removed successfully");
     } catch (error) {
-        console.error("Error in controller:", error);
+        console.error("Error in revokeInvitations controller: ", error);
+        return sendError(res, "Internal server error", 500);
+    }
+};
+
+/**
+ * Cancel the logged-in user's own invitation or attendance.
+ */
+exports.cancelOwnParticipation = async (req, res) => {
+    try {
+        const {eventId} = req.body;
+        const requesterId = req.user.id;
+        if (!eventId) {
+            return sendError(res, "Event ID is required", 400);
+        }
+        const result = await AttendeeController.cancelOwnParticipation(
+            eventId,
+            requesterId
+        );
+        if (!result) {
+            return sendError(res, "No invitation found or unauthorized", 403);
+        }
+        return sendSuccess(res, "Invitation canceled successfully", result);
+    } catch (error) {
+        console.error("Error in cancelOwnInvitation controller:", error);
+        return sendError(res, "Internal server error", 500);
+    }
+};
+
+/**
+ * Remove confirmed attendees from an event.
+ * Only an event planner who is authorized for the event can remove confirmed attendees.
+ */
+exports.removeConfirmedAttendees = async (req, res) => {
+    try {
+        const {eventId, userIds} = req.body;
+        const requesterId = req.user.id;
+        const requesterRole = req.user.role;
+        if (
+            !eventId ||
+            !userIds ||
+            !Array.isArray(userIds) ||
+            userIds.length === 0
+        ) {
+            return sendError(
+                res,
+                400,
+                "Event ID and at least one userId are required"
+            );
+        }
+        const removed = await AttendeeController.removeConfirmedAttendees(
+            eventId,
+            userIds,
+            requesterId,
+            requesterRole
+        );
+        if (!removed) {
+            return sendError(
+                res,
+                "Not authorized to remove these attendees or none found",
+                403
+            );
+        }
+        return sendSuccess(res, "Attendees removed successfully", {removed});
+    } catch (error) {
+        console.error("Error in removeConfirmedAttendees controller:", error);
         return sendError(res, "Internal server error", 500);
     }
 };

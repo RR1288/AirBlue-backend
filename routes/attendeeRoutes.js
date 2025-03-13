@@ -9,7 +9,7 @@ const { Roles } = require("../utils/Roles");
  * @swagger
  * /attendees/invite/{eventId}:
  *   post:
- *     summary: Invite an attendee by email for a given event.
+ *     summary: Invite an attendee by email for a given event (Event Planner only).
  *     description: |
  *       The system checks if the provided email exists. 
  *       If it does, it sends an invitation link to accept the invitation.
@@ -65,7 +65,7 @@ router.post("/invite/:eventId", protect, authorizedRoles(Roles.PLANNER, Roles.PL
  * @swagger
  * /attendees/{eventId}:
  *   get:
- *     summary: Get accepted attendees and pending invitations for an event.
+ *     summary: Get accepted attendees and pending invitations for an event (Event Planner only).
  *     description: |
  *       Returns two lists:
  *         - Attendees: Users who have accepted the invitation (with full user info).
@@ -125,13 +125,11 @@ router.get("/:eventId", protect, authorizedRoles(Roles.PLANNER, Roles.ADMIN), At
 
 /**
  * @swagger
- * /attendees/remove:
+ * /attendees/invite/revoke:
  *   delete:
- *     summary: Remove an attendee from an event.
+ *     summary: Revoke invitations for an event  (Event Planner only).
  *     description: >
- *       An attendee can only remove themselves from an event.
- *       An event planner may remove an attendee only if they are assigned to that event.
- *       An admin may remove an attendee only if the event belongs to their organization.
+ *       An event planner may revoke invitations only if they are assigned to that event.
  *     tags:
  *       - Attendees
  *     security:
@@ -146,15 +144,16 @@ router.get("/:eventId", protect, authorizedRoles(Roles.PLANNER, Roles.ADMIN), At
  *               eventId:
  *                 type: integer
  *                 example: 1
- *               userId:
- *                 type: integer
- *                 example: 11
- *                 description: >
- *                   Optional. For planners or admins: the ID of the attendee to remove.
- *                   If omitted, the authenticated user is assumed.
+ *               invitationIds:
+ *                 type: array
+ *                 example: [1, 2, 3]
+ *                 items:
+ *                   type: integer
+ *                 description: "Array of invitation ids to revoke."
+ *                  
  *     responses:
  *       200:
- *         description: Attendee removed successfully.
+ *         description: Invitation revoked successfully.
  *         content:
  *           application/json:
  *             schema:
@@ -165,7 +164,7 @@ router.get("/:eventId", protect, authorizedRoles(Roles.PLANNER, Roles.ADMIN), At
  *                   example: true
  *                 message:
  *                   type: string
- *                   example: Attendee removed successfully.
+ *                   example: Invitations revoked successfully.
  *       400:
  *         description: Bad request – missing required fields.
  *       403:
@@ -173,7 +172,85 @@ router.get("/:eventId", protect, authorizedRoles(Roles.PLANNER, Roles.ADMIN), At
  *       500:
  *         description: Internal server error.
  */
-router.delete("/remove", protect, AttendeeService.removeAttendee); // TODO: Restrict access from Finance Planners
+router.delete("/invite/revoke", protect, authorizedRoles(Roles.PLANNER), AttendeeService.revokeInvitations );
 
+/**
+ * @swagger
+ * /attendees/remove:
+ *   delete:
+ *     summary: Remove confirmed attendees from an event (Event Planner only).
+ *     tags:
+ *       - Attendees
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               eventId:
+ *                 type: integer
+ *                 example: 1
+ *               userIds:
+ *                 type: array
+ *                 example: [9, 10, 11]
+ *                 items:
+ *                   type: integers
+ *                 description: "Array of user IDs to remove from the event."
+ *     responses:
+ *       200:
+ *         description: Attendees removed successfully.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 message:
+ *                   type: string
+ *                   example: Attendees removed successfully.
+ *       400:
+ *         description: Missing required fields.
+ *       403:
+ *         description: Unauthorized.
+ *       500:
+ *         description: Internal server error.
+ */
+router.delete("/remove", protect, authorizedRoles(Roles.PLANNER), AttendeeService.removeConfirmedAttendees);
+
+/**
+ * @swagger
+ * /attendees/cancel:
+ *   delete:
+ *     summary: Cancel your own pending invitation (End user only).
+ *     tags:
+ *       - Attendees
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               eventId:
+ *                 type: integer
+ *                 example: 1
+ *     responses:
+ *       200:
+ *         description: Invitation canceled successfully.
+ *       400:
+ *         description: Missing required fields.
+ *       403:
+ *         description: Unauthorized or no pending invitation found.
+ *       500:
+ *         description: Internal server error.
+ */
+router.delete("/cancel", protect, AttendeeService.cancelOwnParticipation);
 
 module.exports = router;

@@ -82,9 +82,9 @@ exports.getAttendees = async (eventId) => {
     };
 };
 
-exports.removeAttendee = async (
+exports.revokeInvitations = async (
     eventId,
-    targetUserId,
+    invitationIds,
     requesterId,
     requesterRole
 ) => {
@@ -93,49 +93,141 @@ exports.removeAttendee = async (
         const event = await Event.findByPk(eventId);
         if (!event) throw new Error("Event not found");
 
-        // 2. Check if the attendee record exists.
-        const attendee = await Attendee.findOne({
-            where: {EventID: eventId, UserID: targetUserId},
-        });
-        if (!attendee) {
-            throw new Error("Attendee not found");
+        // 2. Check authorization
+        const isAuthorized = await checkPlannerAuthorization(
+            requesterRole,
+            eventId,
+            requesterId
+        );
+
+        if (!isAuthorized) {
+            console.error("Not authorized");
+            throw new Error("Not authorized");
         }
 
-        if (!requesterRole) {
-            // Attendees don't have a role
-
-            if (targetUserId !== requesterId) {
-                throw new Error(
-                    "User to be removed does not match logged user"
-                );
-            }
-        }
-
-        // 3. Role-based checks:
-        else if (requesterRole.includes(Roles.PLANNER)) {
-            // Event planners can only manage events they are assigned to.
-            const staffRecord = await EventStaff.findOne({
+        // 3. Destroy invitations
+        const revoked = [];
+        for (const invitationId of invitationIds) {
+            const invitation = await Invitation.findOne({
                 where: {
                     EventID: eventId,
-                    UserID: requesterId,
-                    RoleID: {[Sequelize.Op.like]: `%${Roles.PLANNER}%`},
+                    InvitationID: invitationId,
+                    status: "pending",
                 },
             });
-
-            if (!staffRecord) {
-                console.error("Not in organization");
-                throw new Error("Not in organization");
+            if (invitation) {
+                await invalidInvitation(invitation);
+                revoked.push(invitation.InvitationID);
             }
         }
-
-        // 4. Update confirmed status
-        attendee.Confirmed = false;
-        await attendee.save();
-        // 5. Proceed to remove the attendee.
-        await attendee.destroy();
-        return true;
+        return revoked.length > 0 ? revoked : false;
     } catch (error) {
         console.error("Error in service:", error);
         throw new Error("Error processing request");
     }
+};
+
+/**
+ * Cancel the logged-in user's own pending invitation or attendance.
+ */
+exports.cancelOwnParticipation = async (eventId, requesterId) => {
+    // Attempt to cancel a pending invitation first.
+    const invitation = await Invitation.findOne({
+        where: {EventID: eventId, UserID: requesterId},
+    });
+
+    if (invitation) {
+        invitation.status = "declined";
+        invitation.expiresAt = new Date();
+        await invitation.save();
+        await invitation.destroy();
+        return {canceled: true, method: "invitation", id: invitation.id};
+    }
+
+    // If no invitation exists, check if the user is a confirmed attendee.
+    const attendee = await Attendee.findOne({
+        where: {EventID: eventId, UserID: requesterId},
+    });
+
+    if (attendee) {
+        invitation.status = "declined";
+        invitation.expiresAt = new Date();
+        await invitation.save();
+        await attendee.destroy();
+        return {canceled: true, method: "attendee", id: attendee.id};
+    }
+
+    // If neither record exists, throw an error.
+    throw new Error(
+        "No invitation or attendance record found for cancellation."
+    );
+};
+
+/**
+ * Remove confirmed attendees from an event.
+ * Only a planner who is authorized for the event can remove confirmed attendees.
+ */
+exports.removeConfirmedAttendees = async (
+    eventId,
+    userIds,
+    requesterId,
+    requesterRole
+) => {
+    // 1. Check authorization
+    const isAuthorized = await checkPlannerAuthorization(
+        requesterRole,
+        eventId,
+        requesterId
+    );
+
+    if (!isAuthorized) {
+        console.error("Not authorized");
+        throw new Error("Not authorized");
+    }
+
+    // 2. For each user id remove their attendance
+    const removed = [];
+    for (const userId of userIds) {
+        const attendee = await Attendee.findOne({
+            where: {EventID: eventId, UserID: userId},
+        });
+        if (attendee) {
+            attendee.Confirmed = false;
+            await attendee.save();
+            await attendee.destroy();
+            removed.push(userId);
+        }
+    }
+    return removed.length > 0 ? removed : false;
+};
+
+//=========== UTILS ===============================================
+exports.checkPlannerAuthorization = async (
+    requesterRole,
+    eventId,
+    requesterId
+) => {
+    if (requesterRole.includes(Roles.PLANNER)) {
+        // Event planners can only manage events they are assigned to.
+        const staffRecord = await EventStaff.findOne({
+            where: {
+                EventID: eventId,
+                UserID: requesterId,
+                RoleID: {[Sequelize.Op.like]: `%${Roles.PLANNER}%`},
+            },
+        });
+
+        if (!staffRecord) {
+            return false;
+        }
+        return true;
+    } else {
+        return false;
+    }
+};
+
+exports.invalidInvitation = async (invitation) => {
+    invitation.expiresAt = new Date.now(); // Invalid invitation
+    await invitation.save(); // Save before deleting it
+    await invitation.destroy();
 };
