@@ -68,15 +68,16 @@ exports.checkEventOrganization = async (req, res, next) => {
     }
 };
 
-exports.hasEventPlanner = async (req, res, next) =>{
+exports.hasFinancePlanner = async (req, res, next) =>{
     try {
         const {user, eventID} = req.body;
         const token = req.headers.authorization?.split(' ')[1];
         const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
-        const event = await Event.findByPk(eventID);
-        if (!event) return sendError(res, "event does not exist", 400);
-        if(parseInt(event.OrganizationID) !== parseInt(decoded.OrganizationID)) return sendError(res, "user is not in organization", 400)
+        const financeUsers = await Event.findByPk(eventID); const staff = await EventStaff.findAll({
+            where: { EventID: eventID, RoleID: { [Sequelize.Op.like]: `%F%` } },
+        });
+        if (financeUsers.length != 0) return sendError(res, "there is already a finance user in this event");
 
         return next();
     } catch (error) {
