@@ -1,7 +1,7 @@
 const { sendSuccess, sendError } = require('../utils/responseHelpers');
 const { validateOrganizationID } = require("../utils/OrganizationSanitization");
 const { createEvent, getEventTypes } = require("../controllers/eventController");
-const { sanitizeEventName, sanitizeEventDescription, sanitizeDate, sanitizeTotalBudget, sanitizeFlightBudget} = require("../utils/eventSanitization");
+const { sanitizeEventName, sanitizeEventDescription, sanitizeDate, sanitizeTotalBudget, sanitizeFlightBudget, validateEventID} = require("../utils/eventSanitization");
 const { validateUserID } = require("../utils/UserSanitizations");
 const { validateEventType} = require("../utils/eventTypeSantization");
 const EventController = require("../controllers/eventController");
@@ -41,6 +41,61 @@ exports.createEvent = async (req, res) => {
         return sendError(res, "server error");
     }
 }
+
+
+exports.joinEventFinance =  async (req, res) => { //consider making the function call addEventFinance instead
+    try {
+        let {user, eventID,} = req.body;
+        if(!user || !eventID) return sendError(res, "missing inputs");
+        //validation
+        if (!validateUserID(user.id)) return sendError(res, "invalid userID", 400);
+        if (!validateEventID(eventID)) return sendError(res, "invalid eventID", 400);
+        //checking if user is already in event staff to see which function needs to be run
+        let succes;
+        if(EventController.getEventStaff(userID, eventID).length === 0){// if not in eventStaff add the user to the eventStaff
+            success = await EventController.addToEventStaff(userID, eventID, 'F');
+        }else{//else append the role to the entry
+            succes = await EventController.appendRoleToEventStaff(userID, eventID, 'F');
+        }
+        //make sure that function ran successfully
+        if(!success) return sendError(res, "failed to add user to event staff as an event planner", 400);
+        return sendSuccess(req, "successfully added user to event staff as a finance user");
+
+    } catch (error) {
+        return sendError(req, "server error, unable to add user to eventstaff")
+    }
+
+};
+
+exports.addEventFinance =  async (req, res) => {
+    try {
+        let {userID, eventID,} = req.body;
+        if(!userID || !eventID) return sendError(res, "missing inputs");
+        //validation
+        if (!validateUserID(userID)) return sendError(res, "invalid userID", 400);
+        if (!validateEventID(eventID)) return sendError(res, "invalid eventID", 400);
+        //run function
+        let success;
+        if(EventController.getEventStaff(userID, eventID).length === 0){// if not in eventStaff add the user to the eventStaff
+            success = await EventController.addToEventStaff(userID, eventID, 'F');
+        }else{//else append the role to the entry
+            success = await EventController.appendRoleToEventStaff(userID, eventID, 'F');
+        }
+        //make sure that function ran successfully
+        if(!success) return sendError(res, "failed to add user to event staff as an event planner", 400);
+        return sendSuccess(req, "successfully added user to event staff as a finance user");
+
+    } catch (error) {
+        return sendError(req, "server error, unable to add user to eventstaff")
+    }
+}
+
+
+
+
+/*
+Get Methods
+*/
 
 //this function returns to a user every event type that is available to their organization
 exports.getAvailableEventTypes = async (req, res) =>{

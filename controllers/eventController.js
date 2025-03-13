@@ -90,7 +90,13 @@ exports.getEventStaffByRole = async (eventId, role) => {
         ],
     });
 };
-
+exports.getEventStaff = async (userID, eventID) => {
+    try{
+    return await EventStaff.findAll({where: {EvemtID: eventID, UserID: userID}});
+    }catch(error){
+        throw new Error("failed to find entry in event staff");
+    }
+};
 
 exports.setEventBudget = async (eventID, totalBudget, flightBudget) => {
     try {
@@ -140,3 +146,4 @@ exports.addToEventStaff = async (userID, eventID, role) => {
     }
 
 };
+
