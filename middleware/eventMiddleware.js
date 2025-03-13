@@ -1,6 +1,6 @@
 const { sendError } = require('../utils/responseHelpers');
 const jwt = require('jsonwebtoken');
-const {EventStaff, Sequelize} = require("../models");
+const {EventStaff, Event, Sequelize} = require("../models");
 
 
 exports.InEventStaffFinance = async (req, res, next) => {
@@ -48,5 +48,38 @@ exports.InEventStaffPlanner = async (req, res, next) => {
     } catch (err) {
         console.error(err);
         return sendError(res, "EventStaff is not present", 401);
+    }
+};
+
+//makes sure that the users organization is the event organization
+exports.checkEventOrganization = async (req, res, next) => {
+    try {
+        const {eventID} = req.body;
+        const token = req.headers.authorization?.split(' ')[1];
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+
+        const event = await Event.findByPk(eventID);
+        if (!event) return sendError(res, "event does not exist", 400);
+        if(parseInt(event.OrganizationID) !== parseInt(decoded.OrganizationID)) return sendError(res, "user is not in organization", 400)
+
+        return next();
+    } catch (error) {
+        return sendError(res, "failed check");
+    }
+};
+
+exports.hasEventPlanner = async (req, res, next) =>{
+    try {
+        const {user, eventID} = req.body;
+        const token = req.headers.authorization?.split(' ')[1];
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+
+        const event = await Event.findByPk(eventID);
+        if (!event) return sendError(res, "event does not exist", 400);
+        if(parseInt(event.OrganizationID) !== parseInt(decoded.OrganizationID)) return sendError(res, "user is not in organization", 400)
+
+        return next();
+    } catch (error) {
+        return sendError(res, "failed check");
     }
 };

@@ -90,6 +90,39 @@ router.post('/create-event', protect, authorizedRoles(Roles.PLANNER), checkOrgan
  *         description: Bad request invalid input
 */
 router.post("/set-budget", protect, authorizedRoles(Roles.FINANCE), InEventStaffFinance, checkOrganizationUser, setEventBudget);
+
+/**
+ * @swagger
+ * /events/join-eventstaff-finance:
+ *   post:
+ *     summary: updates the event budget
+ *     description: endpoint to update the event budget
+ *     tags:
+ *       - Events
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - eventID
+ *               - totalBudget
+ *               - flightBudget
+ *             properties:
+ *               eventID:
+ *                 type: integer
+ *                 example: 1
+ *               
+ *     responses:
+ *       201:
+ *         description: user successfully created
+ *       400:
+ *         description: Bad request invalid input
+*/
+router.post("/set-budget", protect, authorizedRoles(Roles.FINANCE), checkOrganizationUser, checkEventOrganization, EventService.joinEventFinance);
+
+
 //get methods
 
 /**
