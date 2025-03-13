@@ -1,5 +1,6 @@
 const {Attendee, Invitation, User, Event, EventStaff} = require("../models");
 const {Op} = require("sequelize");
+const { Sequelize } = require("sequelize");
 const {sendInvitation, sendAccountSetupEmail} = require("../utils/emailSender");
 const {Roles} = require("../utils/Roles");
 const crypto = require("crypto");
@@ -92,6 +93,8 @@ exports.revokeInvitations = async (
         // 1. Verify the event exists.
         const event = await Event.findByPk(eventId);
         if (!event) throw new Error("Event not found");
+
+        
 
         // 2. Check authorization
         const isAuthorized = await checkPlannerAuthorization(

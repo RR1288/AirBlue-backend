@@ -45,7 +45,7 @@ describe('attendeeService', () => {
 
       await attendeeService.inviteAttendee(req, res);
 
-      expect(AttendeeController.inviteAttendee).toHaveBeenCalledWith('123', 'test@example.com');
+      expect(AttendeeController.inviteAttendee).toHaveBeenCalledWith('123', 'test@example.com', undefined);
       expect(sendSuccess).toHaveBeenCalledWith(
         res,
         'Invitation sent successfully',
