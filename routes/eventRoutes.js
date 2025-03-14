@@ -4,10 +4,10 @@ const router = express.Router();
 const { Roles } = require('../utils/Roles.js');
 const { authorizedRoles } = require("../middleware/roleMiddleware.js");
 const { checkOrganizationUser } = require("../middleware/organizationMiddleware.js");
-const {  createEvent, getAvailableEventTypes } = require("../services/eventService.js");
+const {  createEvent, getAvailableEventTypes, } = require("../services/eventService.js");
 const EventService = require("../services/eventService");
 const { setEventBudget } = require("../services/financeService.js");
-const { InEventStaffFinance } = require("../middleware/eventMiddleware.js");
+const { InEventStaffFinance,  InEventStaffPlanner, checkEventOrganization , hasFinancePlanner} = require("../middleware/eventMiddleware.js");
 
 /**
  * @swagger
@@ -107,8 +107,6 @@ router.post("/set-budget", protect, authorizedRoles(Roles.FINANCE), InEventStaff
  *             type: object
  *             required:
  *               - eventID
- *               - totalBudget
- *               - flightBudget
  *             properties:
  *               eventID:
  *                 type: integer
@@ -120,7 +118,73 @@ router.post("/set-budget", protect, authorizedRoles(Roles.FINANCE), InEventStaff
  *       400:
  *         description: Bad request invalid input
 */
-router.post("/set-budget", protect, authorizedRoles(Roles.FINANCE), checkOrganizationUser, checkEventOrganization, EventService.joinEventFinance);
+router.post("/join-eventstaff-finance", protect, authorizedRoles(Roles.FINANCE), checkOrganizationUser, checkEventOrganization , hasFinancePlanner, EventService.joinEventFinance);
+
+/**
+ * @swagger
+ * /events/add-eventstaff-finance:
+ *   post:
+ *     summary: updates the event budget
+ *     description: endpoint to update the event budget
+ *     tags:
+ *       - Events
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - eventID
+ *               - userID
+ *             properties:
+ *               eventID:
+ *                 type: integer
+ *                 example: 1
+ *               userID:
+ *                 type: integer
+ *                 example: 1
+ *               
+ *     responses:
+ *       201:
+ *         description: user successfully created
+ *       400:
+ *         description: Bad request invalid input
+*/
+router.post("/add-eventstaff-finance", protect, authorizedRoles(Roles.FINANCE), checkOrganizationUser, checkUserInOrganization, InEventStaffFinance, checkEventOrganization, EventService.joinEventFinance);
+
+/**
+ * @swagger
+ * /events/add-eventstaff-finance:
+ *   post:
+ *     summary: updates the event budget
+ *     description: endpoint to update the event budget
+ *     tags:
+ *       - Events
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - eventID
+ *               - userID
+ *             properties:
+ *               eventID:
+ *                 type: integer
+ *                 example: 1
+ *               userID:
+ *                 type: integer
+ *                 example: 1
+ *               
+ *     responses:
+ *       201:
+ *         description: user successfully created
+ *       400:
+ *         description: Bad request invalid input
+*/
+router.post("/add-eventstaff-finance", protect, authorizedRoles(Roles.FINANCE), checkOrganizationUser, checkUserInOrganization, InEventStaffFinance, checkEventOrganization, EventService.joinEventFinance);
 
 
 //get methods
