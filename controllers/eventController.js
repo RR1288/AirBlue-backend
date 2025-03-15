@@ -92,7 +92,7 @@ exports.getEventStaffByRole = async (eventId, role) => {
 };
 exports.getEventStaff = async (userID, eventID) => {
     try{
-    return await EventStaff.findAll({where: {EvemtID: eventID, UserID: userID}});
+        return await EventStaff.findAll({where: {EventID: eventID, UserID: userID}});
     }catch(error){
         throw new Error("failed to find entry in event staff");
     }
@@ -119,7 +119,7 @@ exports.setEventBudget = async (eventID, totalBudget, flightBudget) => {
 exports.appendRoleToEventStaff = async (userID, eventID, role) => {
 try {
     //get the users entry for event staff
-    const staff = await EventStaff.findAll({
+    let staff = await EventStaff.findOne({
         where: { EventID: eventID, UserID: userID },
     });
     //create a new value for the roleID in event staff
@@ -129,6 +129,7 @@ try {
     //return true on success
     return true;
 } catch (error) {
+    console.log(error);
     throw new Error("failed to append role to eventstaff entry for user");
 }
 };

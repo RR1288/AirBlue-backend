@@ -2,8 +2,8 @@ const express = require("express");
 const { protect } = require("../middleware/authMiddleware");
 const router = express.Router();
 const { Roles } = require('../utils/Roles.js');
-const { authorizedRoles } = require("../middleware/roleMiddleware.js");
-const { checkOrganizationUser } = require("../middleware/organizationMiddleware.js");
+const { authorizedRoles, checkUserAuthorizedRoles} = require("../middleware/roleMiddleware.js");
+const { checkOrganizationUser, checkUserInOrganization} = require("../middleware/organizationMiddleware.js");
 const {  createEvent, getAvailableEventTypes, } = require("../services/eventService.js");
 const EventService = require("../services/eventService");
 const { setEventBudget } = require("../services/financeService.js");
@@ -124,8 +124,8 @@ router.post("/join-eventstaff-finance", protect, authorizedRoles(Roles.FINANCE),
  * @swagger
  * /events/add-eventstaff-finance:
  *   post:
- *     summary: updates the event budget
- *     description: endpoint to update the event budget
+ *     summary: adds a user as an event staff finance user
+ *     description: endpoint to add a user as an event staff finance user
  *     tags:
  *       - Events
  *     requestBody:
@@ -151,14 +151,14 @@ router.post("/join-eventstaff-finance", protect, authorizedRoles(Roles.FINANCE),
  *       400:
  *         description: Bad request invalid input
 */
-router.post("/add-eventstaff-finance", protect, authorizedRoles(Roles.FINANCE), checkOrganizationUser, checkUserInOrganization, InEventStaffFinance, checkEventOrganization, EventService.joinEventFinance);
+router.post("/add-eventstaff-finance", protect, authorizedRoles(Roles.FINANCE), checkOrganizationUser, checkUserInOrganization, InEventStaffFinance, checkEventOrganization, checkUserAuthorizedRoles(Roles.FINANCE), EventService.addEventFinance);
 
 /**
  * @swagger
- * /events/add-eventstaff-finance:
+ * /events/add-eventstaff-planner:
  *   post:
- *     summary: updates the event budget
- *     description: endpoint to update the event budget
+ *     summary: allows eventstaff users in an events staff table to add new event planners
+ *     description: endpoint that allows eventstaff users in an events staff table to add new event planners
  *     tags:
  *       - Events
  *     requestBody:
@@ -184,7 +184,7 @@ router.post("/add-eventstaff-finance", protect, authorizedRoles(Roles.FINANCE), 
  *       400:
  *         description: Bad request invalid input
 */
-router.post("/add-eventstaff-finance", protect, authorizedRoles(Roles.FINANCE), checkOrganizationUser, checkUserInOrganization, InEventStaffFinance, checkEventOrganization, EventService.joinEventFinance);
+router.post("/add-eventstaff-planner", protect, authorizedRoles(Roles.FINANCE), checkOrganizationUser, checkUserInOrganization, InEventStaffPlanner, checkEventOrganization, checkUserAuthorizedRoles(Roles.PLANNER), EventService.addEventPlanner);
 
 
 //get methods

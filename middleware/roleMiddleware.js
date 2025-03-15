@@ -23,12 +23,12 @@ exports.authorizedRoles = (...allowedRoles) => {
 };
 
 exports.checkUserAuthorizedRoles = (...allowedRoles) => {
-    return (req, res, next) => {
+    return async (req, res, next) => {
         // E: Event Planner, F: Financial Officer, A: Admin
         // Check if user has any roles
         const {userID} = req.body;
-        const roles = getUserOrganizationByUserID(userID).Roles;
-
+        let roles = await getUserOrganizationByUserID(userID);
+        roles = roles.Roles;
         if (req.user && roles) {
             const rolesArr = roles.split("");
 
