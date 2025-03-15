@@ -7,7 +7,7 @@ const { checkOrganizationUser, checkUserInOrganization} = require("../middleware
 const {  createEvent, getAvailableEventTypes, } = require("../services/eventService.js");
 const EventService = require("../services/eventService");
 const { setEventBudget } = require("../services/financeService.js");
-const { InEventStaffFinance,  InEventStaffPlanner, checkEventOrganization , hasFinancePlanner} = require("../middleware/eventMiddleware.js");
+const { InEventStaffFinance,  InEventStaffPlanner, checkEventOrganization , hasFinancePlanner, hasBudget} = require("../middleware/eventMiddleware.js");
 
 /**
  * @swagger
@@ -186,7 +186,43 @@ router.post("/add-eventstaff-finance", protect, authorizedRoles(Roles.FINANCE), 
 */
 router.post("/add-eventstaff-planner", protect, authorizedRoles(Roles.FINANCE), checkOrganizationUser, checkUserInOrganization, InEventStaffPlanner, checkEventOrganization, checkUserAuthorizedRoles(Roles.PLANNER), EventService.addEventPlanner);
 
-
+/**
+ * @swagger
+ * /events/create-event-group:
+ *   post:
+ *     summary: function for event planners users to create eventGroups to assign to attendees
+ *     description: endpoint that allows event planners to create eventGroups to assign to attendees
+ *     tags:
+ *       - Events
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - eventID
+ *               - name
+ *               - budget
+ *             properties:
+ *               eventID:
+ *                 type: integer
+ *                 example: 1
+ *               name:
+ *                 type: string
+ *                 example: standard
+ *               budget:
+ *                 type: number
+ *                 example: 200.45
+ *    
+ *               
+ *     responses:
+ *       201:
+ *         description: user successfully created
+ *       400:
+ *         description: Bad request invalid input
+*/
+router.post("/create-event-group", protect,authorizedRoles(Roles.PLANNER), checkOrganizationUser, InEventStaffPlanner, checkEventOrganization, hasBudget, EventService.createEventGroup);
 //get methods
 
 /**
