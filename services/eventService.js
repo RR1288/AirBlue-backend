@@ -4,6 +4,7 @@ const { createEvent, getEventTypes } = require("../controllers/eventController")
 const { sanitizeEventName, sanitizeEventDescription, sanitizeDate, sanitizeTotalBudget, sanitizeFlightBudget, validateEventID} = require("../utils/eventSanitization");
 const { validateUserID } = require("../utils/UserSanitizations");
 const { validateEventType} = require("../utils/eventTypeSantization");
+const { sanitizeGroupFlightBudget, sanitizeGroupName} = require("../utils/sanitizeEventGroup");
 const EventController = require("../controllers/eventController");
 const jwt = require('jsonwebtoken');
 
@@ -121,6 +122,22 @@ exports.addEventPlanner =  async (req, res) => {
     }
 }
 
+exports.createEventGroup = async (req, res) => {
+    try {
+        let {eventID, name, budget} = req.body;
+        if (!eventID || !name || !budget) return sendError(res, "missing inputs", 400);
+        //validations
+        if (!validateEventID(eventID)) return sendError(res, "invalid eventID", 400);
+        if (sanitizeGroupFlightBudget(budget) === null) return sendError(res, "invalid flight budget", 400);
+        if (sanitizeGroupName(name) === null) return sendError(res, "invalidname for the group", 400);
+        //run main function
+        let success = EventController.createEventGroup(eventID, name, budget);
+        if (!success) return sendError(res, "EventGroup creation failed", 400);
+        return sendSuccess(res, "event group successfully created");
+    } catch (error) {
+        return sendError(res, "failed to create EventGroup");
+    }
+};
 /*
 Get Methods
 */
