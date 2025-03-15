@@ -135,6 +135,7 @@ exports.createEventGroup = async (req, res) => {
         if (!success) return sendError(res, "EventGroup creation failed", 400);
         return sendSuccess(res, "event group successfully created");
     } catch (error) {
+        console.log(error);
         return sendError(res, "failed to create EventGroup");
     }
 };

@@ -1,3 +1,4 @@
+const validator = require("validator");
 function startSanitizeString(input){
     if (typeof input !== 'string') return null;
     let sanitizedInput = input.trim();
@@ -7,7 +8,7 @@ function startSanitizeString(input){
     return sanitizedInput;
 }
 
-function sanitizeFlightBudget(budget){
+function sanitizeGroupFlightBudget(budget){
     if (typeof budget !== 'number') return null;
     //turning it to string to run through validation
     let strValue = String(budget).trim();
@@ -29,4 +30,4 @@ function sanitizeGroupName(name){
     return SanitizedName;
 }
 
-module.exports = {sanitizeFlightBudget, sanitizeGroupName};
+module.exports = {sanitizeGroupFlightBudget, sanitizeGroupName};
