@@ -28,6 +28,19 @@ exports.createEvent = async (userId, name, startDate, endDate, description, type
     }
 }
 
+exports.createEventGroup = async (eventID, name, budget) => {
+    try{
+    const eventGroup  = await EventGroup.create({
+        Name: name,
+        EventID: eventID,
+        flightBudget: budget
+    });
+    return 
+} catch(error){
+    throw new Error("failed to make event group");
+}
+};
+
 
 //gets eventByID
 exports.getEventByID = async (eventID) => {
@@ -147,4 +160,3 @@ exports.addToEventStaff = async (userID, eventID, role) => {
     }
 
 };
-
