@@ -1,6 +1,7 @@
 const { sendError } = require('../utils/responseHelpers');
 const jwt = require('jsonwebtoken');
 const {EventStaff, Event, Sequelize} = require("../models");
+const {getEventByID} = require("../controllers/eventController");
 
 
 exports.InEventStaffFinance = async (req, res, next) => {
@@ -82,5 +83,17 @@ exports.hasFinancePlanner = async (req, res, next) =>{
         return next();
     } catch (error) {
         return sendError(res, "failed check");
+    }
+};
+
+exports.hasBudget = async (req, res, next) => {
+    try {
+        const {eventID} = req.body;
+        const event = await getEventByID(eventID);
+        //make sure that there are value in the events budget
+        if (!(event.EventFlightBudget > 0) || !(event.EventTotalBudget > 0)) return sendError(res, "no budget set for event", 400);
+        return next();
+    } catch (error) {
+        return sendError(res, "failed budget check");
     }
 };
