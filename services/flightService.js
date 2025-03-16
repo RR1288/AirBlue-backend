@@ -85,3 +85,23 @@ exports.holdOffer = async (req, res) => {
         return sendError(res, "Failed to hold flight", 500);
     }
 };
+
+exports.bookFlight = async (req, res) => {
+    try {
+        const {order_id} = req.params;
+        if (!order_id) {
+            return sendError(res, 'Missing required fields', 400);
+        }
+
+        const order = await flightController.bookFlight(order_id);
+        
+        if (order) {
+            return sendSuccess(res, "Booked flight successfully", {order});
+        } else {
+            return sendError(res, "Couldn't book flight", 400);
+        }
+    } catch (error) {
+        console.error(error);
+        return sendError(res, "Failed to book flight", 500);
+    }   
+}

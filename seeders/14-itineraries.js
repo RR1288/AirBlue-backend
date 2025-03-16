@@ -3,105 +3,135 @@ module.exports = {
     return queryInterface.bulkInsert('Itineraries', [
       {
         UserID: 1,  // John Doe
-        Bags: 2,
-        Cost: 500.00,
+        EventID: 1,
+
+        DuffelOrderID: "ord_sample",
+        DuffelPassID: "pas_sample",
+        DuffelOfferID: "off_sample",
+
+        BookingReference: "ABC123",
+        TotalCost: 500.00,
+        BaseCost: 450.00,
+        TaxCost: 50.00,
+
         ApprovalStatus: 'approved',
-        DateApproved: new Date(),
-        Active: true,
+
+        heldAt: new Date("2025-03-15"),
+        approvedAt: new Date("2025-03-16"),
+        expiresAt: new Date("2025-03-17"),
+
         createdAt: new Date(),
         updatedAt: new Date()
       },
       {
         UserID: 2,  // Jane Doe
-        Bags: 1,
-        Cost: 350.00,
-        ApprovalStatus: 'not submitted',
-        DateApproved: null,
-        Active: false,
-        createdAt: new Date(),
-        updatedAt: new Date()
-      },
-      {
-        UserID: 3,  // User 3
-        Bags: 3,
-        Cost: 700.00,
-        ApprovalStatus: 'approved',
-        DateApproved: new Date(),
-        Active: true,
-        createdAt: new Date(),
-        updatedAt: new Date()
-      },
-      {
-        UserID: 4,  // User 4
-        Bags: 1,
-        Cost: 400.00,
-        ApprovalStatus: 'not submitted',
-        DateApproved: null,
-        Active: false,
-        createdAt: new Date(),
-        updatedAt: new Date()
-      },
-      {
-        UserID: 5,  // User 5
-        Bags: 2,
-        Cost: 600.00,
-        ApprovalStatus: 'approved',
-        DateApproved: new Date(),
-        Active: true,
-        createdAt: new Date(),
-        updatedAt: new Date()
-      },
-      {
-        UserID: 6,  // User 6
-        Bags: 1,
-        Cost: 300.00,
-        ApprovalStatus: 'not submitted',
-        DateApproved: null,
-        Active: false,
-        createdAt: new Date(),
-        updatedAt: new Date()
-      },
-      {
-        UserID: 7,  // User 7
-        Bags: 4,
-        Cost: 900.00,
-        ApprovalStatus: 'approved',
-        DateApproved: new Date(),
-        Active: true,
-        createdAt: new Date(),
-        updatedAt: new Date()
-      },
-      {
-        UserID: 8,  // User 8
-        Bags: 2,
-        Cost: 550.00,
-        ApprovalStatus: 'not submitted',
-        DateApproved: null,
-        Active: false,
-        createdAt: new Date(),
-        updatedAt: new Date()
-      },
-      {
-        UserID: 9,  // User 9
-        Bags: 3,
-        Cost: 750.00,
+        EventID: 2,
+
+        DuffelOrderID: "ord_sample",
+        DuffelPassID: "pas_sample",
+        DuffelOfferID: "off_sample",
+
+        BookingReference: "ABC123",
+        TotalCost: 500.00,
+        BaseCost: 450.00,
+        TaxCost: 50.00,
+
         ApprovalStatus: 'pending',
-        DateApproved: new Date(),
-        Active: true,
+
+        heldAt: new Date("2025-03-15"),
+        approvedAt: new Date("2025-03-16"),
+        expiresAt: new Date("2025-03-17"),
+
         createdAt: new Date(),
         updatedAt: new Date()
       },
       {
-        UserID: 10, // User 10
-        Bags: 1,
-        Cost: 350.00,
+        UserID: 3,
+        EventID: 1,
+
+        DuffelOrderID: "ord_sample",
+        DuffelPassID: "pas_sample",
+        DuffelOfferID: "off_sample",
+
+        BookingReference: "ABC123",
+        TotalCost: 700.00,
+        BaseCost: 650.00,
+        TaxCost: 50.00,
+
         ApprovalStatus: 'denied',
-        DateApproved: null,
-        Active: false,
+
+        heldAt: new Date("2025-03-15"),
+        expiresAt: new Date("2025-03-17"),
+        cancelledAt: new Date("2025-03-17"),
+
         createdAt: new Date(),
         updatedAt: new Date()
       },
-    ]);
+      {
+        UserID: 4,
+        EventID: 3,
+
+        DuffelOrderID: "ord_sample",
+        DuffelPassID: "pas_sample",
+        DuffelOfferID: "off_sample",
+
+        BookingReference: "ABC123",
+        TotalCost: 700.00,
+        BaseCost: 650.00,
+        TaxCost: 50.00,
+
+        ApprovalStatus: 'pending',
+
+        heldAt: new Date("2025-03-15"),
+        expiresAt: new Date("2025-03-17"),
+
+        createdAt: new Date(),
+        updatedAt: new Date()
+      },
+      {
+        UserID: 5,
+        EventID: 1,
+
+        DuffelOrderID: "ord_sample",
+        DuffelPassID: "pas_sample",
+        DuffelOfferID: "off_sample",
+
+        BookingReference: "ABC123",
+        TotalCost: 700.00,
+        BaseCost: 650.00,
+        TaxCost: 50.00,
+
+        ApprovalStatus: 'approved',
+
+        heldAt: new Date("2025-03-15"),
+        expiresAt: new Date("2025-03-17"),
+        approvedAt: new Date("2025-03-17"),
+
+        createdAt: new Date(),
+        updatedAt: new Date()
+      },
+      {
+        UserID: 6,
+        EventID: 1,
+
+        DuffelOrderID: "ord_sample",
+        DuffelPassID: "pas_sample",
+        DuffelOfferID: "off_sample",
+
+        BookingReference: "ABC123",
+        TotalCost: 600.00,
+        BaseCost: 550.00,
+        TaxCost: 50.00,
+
+        ApprovalStatus: 'approved',
+
+        heldAt: new Date("2025-03-16"),
+        expiresAt: new Date("2025-03-18"),
+        approvedAt: new Date("2025-03-17"),
+
+        createdAt: new Date(),
+        updatedAt: new Date()
+      }]);
   },
 
   down: async (queryInterface) => {

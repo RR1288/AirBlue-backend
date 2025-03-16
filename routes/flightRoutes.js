@@ -205,13 +205,37 @@ router.get("/:offer_id", protect, flightService.fetchFlight);
  *                       example: "pas_0000ArlFyquQxuoVMa7UZE"
  *     responses:
  *       200:
- *         description: Successfully booked or held the offer
+ *         description: Successfully held the offer
  *       400:
- *         description: Invalid request or failed to book/hold offer
+ *         description: Invalid request or failed to hold offer
  *       500:
  *         description: Internal server error
  */
 router.post('/:offer_id/hold', protect, flightService.holdOffer);
+
+/**
+ * @swagger
+ * /flights/{order_id}/book:
+ *   post:
+ *     description: Pay an order in hold. 
+ *     tags:
+ *       - Flights
+ *     parameters:
+ *       - in: path
+ *         name: order_id
+ *         required: true
+ *         description: The ID of the order to pay
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Successfully booked the offer
+ *       400:
+ *         description: Invalid request or failed to book offer
+ *       500:
+ *         description: Internal server error
+ */
+router.post('/:order_id/book', protect, flightService.bookFlight);
 
 
 module.exports = router;
