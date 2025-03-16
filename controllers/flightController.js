@@ -4,6 +4,7 @@ exports.createOfferRequest = async ({
     origin,
     destination,
     departureDate,
+    returnDate,
     cabinClass,
 }) => {
     try {
@@ -21,10 +22,17 @@ exports.createOfferRequest = async ({
                 body: JSON.stringify({
                     data: {
                         slices: [
+                            // Departure
                             {
                                 origin,
                                 destination,
                                 departure_date: departureDate,
+                            },
+                            // Return 
+                            {
+                                destination,
+                                origin,
+                                departure_date: returnDate,
                             },
                         ],
                         passengers: [{type: "adult"}],
@@ -116,13 +124,14 @@ exports.fetchFlight = async (offer_id) => {
     }
 };
 
-exports.bookOfferOrHold = async (offer_id, passengers, payments) => {
+exports.holdOffer = async (offer_id, passengers) => {
     try {
         let body = {
             data: {
+                type: "hold",
                 selected_offers: [offer_id],
-                passengers: passengers,
-                payments: payments,
+                passengers: passengers
+                // payments: payments,
             },
         };
         body = JSON.stringify(body);
@@ -144,12 +153,29 @@ exports.bookOfferOrHold = async (offer_id, passengers, payments) => {
         if (response.ok) {
             const order = await response.json();
             console.log(order);
+            // Save into database
+            // Bags
+            // Total cost
+            // Approval status
+            // Date Approval
+            // Active?
+            // Duffel order ID
+
+            // Slices:
+            /**
+             * flight number
+             * dep airport
+             * arr airp
+             * dep time
+             * arr time
+             * airline/airlines?
+             */
             return order.data;
         } else {
-            throw new Error("Error booking flight. Response not OK");
+            throw new Error("Error holding flight. Response not OK");
         }
     } catch (error) {
         console.error(error);
-        throw new Error("Error booking flight");
+        throw new Error("Error holding flight");
     }
 };

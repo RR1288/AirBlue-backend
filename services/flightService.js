@@ -5,7 +5,7 @@ const {validateFlightParams} = require("../utils/validateFlightParams");
 exports.createRequest = async (req, res) => {
     try {
         // Validate request parameters
-        // Expects { origin, destination, departureDate, cabinClass }
+        // Expects { origin, destination, departureDate, returnDate, cabinClass }
         validateFlightParams(req.query);
 
         // Proceed with creating a request
@@ -65,23 +65,23 @@ exports.fetchFlight = async (req, res) => {
     }
 };
 
-exports.bookOfferOrHold = async (req, res) => {
+exports.holdOffer = async (req, res) => {
     try {
         const { offer_id } = req.params;
-        const { passengers, payments } = req.body;
+        const { passengers } = req.body;
 
-        if (!offer_id || !passengers || !payments) {
+        if (!offer_id || !passengers ) {
             return sendError(res, 'Missing required fields', 400);
         }
 
-        const order = await flightController.bookOfferOrHold(offer_id, passengers, payments );
+        const order = await flightController.holdOffer(offer_id, passengers );
         if (order) {
-            return sendSuccess(res, "Booked flight successfully", {order});
+            return sendSuccess(res, "Holded flight successfully", {order});
         } else {
-            return sendError(res, "Couldn't book flight", 400);
+            return sendError(res, "Couldn't hold flight", 400);
         }
     } catch (error) {
         console.error(error);
-        return sendError(res, "Failed to book flight", 500);
+        return sendError(res, "Failed to hold flight", 500);
     }
 };
