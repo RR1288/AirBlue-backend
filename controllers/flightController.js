@@ -1,9 +1,11 @@
 const DUFFEL_API_KEY = process.env.DUFFEL_API_KEY;
+const { Itinerary } = require("../models");
 
 exports.createOfferRequest = async ({
     origin,
     destination,
     departureDate,
+    returnDate,
     cabinClass,
 }) => {
     try {
@@ -21,10 +23,17 @@ exports.createOfferRequest = async ({
                 body: JSON.stringify({
                     data: {
                         slices: [
+                            // Departure
                             {
-                                origin,
-                                destination,
+                                origin: origin,
+                                destination: destination,
                                 departure_date: departureDate,
+                            },
+                            // Return 
+                            {
+                                origin: destination,
+                                destination: origin,
+                                departure_date: returnDate,
                             },
                         ],
                         passengers: [{type: "adult"}],
@@ -116,13 +125,14 @@ exports.fetchFlight = async (offer_id) => {
     }
 };
 
-exports.bookOfferOrHold = async (offer_id, passengers, payments) => {
+exports.holdOffer = async (user_id, offer_id, passengers) => {
     try {
         let body = {
             data: {
+                type: "hold",
                 selected_offers: [offer_id],
-                passengers: passengers,
-                payments: payments,
+                passengers: passengers
+                // payments: payments,
             },
         };
         body = JSON.stringify(body);
@@ -144,12 +154,89 @@ exports.bookOfferOrHold = async (offer_id, passengers, payments) => {
         if (response.ok) {
             const order = await response.json();
             console.log(order);
+            const data = order.data;
+            // Save into database
+            let itinerary = await Itinerary.create(
+                {
+                    UserID: user_id,
+                    // Save a json object?
+                    CheckedBags: data?.slices[0]?.segments[0]?.passengers[0]?.bagagges[0]?.quantity,
+                    CarryOnBags: data?.slices[0]?.segments[0]?.passengers[0]?.bagagges[1]?.quantity,
+                    DuffelID: data?.slices[0]?.segments[0]?.passengers[0]?.passenger_id,
+                    Cost: data.total_amount,
+                    // Just hold the ticket
+                    ApprovalStatus: 'hold',
+                    DateApproved: null,
+                    Active: true,
+                    createdAt: new Date(),
+                    updatedAt: new Date()
+                  },
+            );
+            // Bags
+            // Total cost
+            // Approval status
+            // Date Approval
+            // Active?
+            // Duffel order ID
+
+            // Slices:
+            /**
+             * flight number
+             * dep airport
+             * arr airp
+             * dep time
+             * arr time
+             * airline/airlines?
+             */
             return order.data;
         } else {
-            throw new Error("Error booking flight. Response not OK");
+            throw new Error("Error holding flight. Response not OK");
         }
+    } catch (error) {
+        console.error(error);
+        throw new Error("Error holding flight");
+    }
+};
+
+exports.bookFlight = async (orderID) => {
+    // assuming we will use "balance" as payment option
+    try {
+        // Check if order exists in DB
+        // Get amount from DB
+        let amount;
+        
+        
+        const response = await fetch("https://api.duffel.com/air/payments", {
+            method: "POST",
+            headers: {
+                Authorization: `Bearer ${DUFFEL_API_KEY}`,
+                "Content-Type": "application/json",
+                Accept: "application/json",
+                "Duffel-Version": "v1",
+            },
+            body: {
+                data: {
+                    order_id: orderID,
+                    payment : {
+                        type:"balance",
+                        amount: amount,
+                        currency: "USD"
+                    }
+                }
+            },
+        });
+        
+        console.log(response);
+        
+        if (response.ok){
+            const data = await response.json();
+            console.log(data);
+             
+        }
+        throw new Error("Error booking flight. Response not OK.");
+        
     } catch (error) {
         console.error(error);
         throw new Error("Error booking flight");
     }
-};
+}
