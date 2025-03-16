@@ -68,13 +68,14 @@ exports.fetchFlight = async (req, res) => {
 exports.holdOffer = async (req, res) => {
     try {
         const { offer_id } = req.params;
-        const { passengers } = req.body;
+        const { passengers, event_id } = req.body;
+        console.log(req.user);
+        
 
         if (!offer_id || !passengers ) {
             return sendError(res, 'Missing required fields', 400);
         }
-
-        const order = await flightController.holdOffer(offer_id, passengers );
+        const order = await flightController.holdOffer(req.user.UserID, event_id, offer_id, passengers );
         if (order) {
             return sendSuccess(res, "Holded flight successfully", {order});
         } else {

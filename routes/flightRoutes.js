@@ -172,6 +172,9 @@ router.get("/:offer_id", protect, flightService.fetchFlight);
  *           schema:
  *             type: object
  *             properties:
+ *               event_id: 
+ *                 type: integer
+ *                 example: 1
  *               passengers:
  *                 type: array
  *                 description: List of passengers

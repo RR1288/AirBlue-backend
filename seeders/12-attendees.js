@@ -16,7 +16,23 @@ module.exports = {
         createdAt: new Date(),
         updatedAt: new Date(),
         Confirmed: false,
-      }
+      },
+      {
+        UserID: 3,
+        EventID: 1,
+        EventGroupID: 1,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+        Confirmed: true,
+      },
+      {
+        UserID: 4,
+        EventID: 3,
+        EventGroupID: 3,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+        Confirmed: false,
+      },
     ]);
   },
   down: async (queryInterface) => {

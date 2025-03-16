@@ -1,5 +1,5 @@
 const DUFFEL_API_KEY = process.env.DUFFEL_API_KEY;
-const { Itinerary } = require("../models");
+const {Itinerary} = require("../models");
 
 exports.createOfferRequest = async ({
     origin,
@@ -29,7 +29,7 @@ exports.createOfferRequest = async ({
                                 destination: destination,
                                 departure_date: departureDate,
                             },
-                            // Return 
+                            // Return
                             {
                                 origin: destination,
                                 destination: origin,
@@ -125,13 +125,13 @@ exports.fetchFlight = async (offer_id) => {
     }
 };
 
-exports.holdOffer = async (user_id, offer_id, passengers) => {
+exports.holdOffer = async (user_id, event_id, offer_id, passengers) => {
     try {
         let body = {
             data: {
                 type: "hold",
                 selected_offers: [offer_id],
-                passengers: passengers
+                passengers: passengers,
                 // payments: payments,
             },
         };
@@ -156,28 +156,30 @@ exports.holdOffer = async (user_id, offer_id, passengers) => {
             console.log(order);
             const data = order.data;
             // Save into database
-            let itinerary = await Itinerary.create(
-                {
-                    UserID: user_id,
-                    // Save a json object?
-                    CheckedBags: data?.slices[0]?.segments[0]?.passengers[0]?.bagagges[0]?.quantity,
-                    CarryOnBags: data?.slices[0]?.segments[0]?.passengers[0]?.bagagges[1]?.quantity,
-                    DuffelID: data?.slices[0]?.segments[0]?.passengers[0]?.passenger_id,
-                    Cost: data.total_amount,
-                    // Just hold the ticket
-                    ApprovalStatus: 'hold',
-                    DateApproved: null,
-                    Active: true,
-                    createdAt: new Date(),
-                    updatedAt: new Date()
-                  },
-            );
-            // Bags
-            // Total cost
-            // Approval status
-            // Date Approval
-            // Active?
-            // Duffel order ID
+            let itinerary = await Itinerary.create({
+                UserID: user_id, 
+                EventID: event_id,
+
+                DuffelOrderID: data.id,
+                DuffelPassID:
+                    data?.slices[0]?.segments[0]?.passengers[0]?.passenger_id,
+                DuffelOfferID: offer_id,
+                BookingReference: data.booking_reference,
+                TotalCost: data.total_amount,
+                BaseCost: data.base_amount,
+                TaxCost: data.tax_amount,
+
+                ApprovalStatus: "pending",
+
+                heldAt: new Date(),
+
+                expiresAt: new Date(data.payment_status.payment_required_by),
+                createdAt: new Date(),
+                updatedAt: new Date(),
+            });
+            
+            console.log(itinerary);
+            
 
             // Slices:
             /**
@@ -204,8 +206,7 @@ exports.bookFlight = async (orderID) => {
         // Check if order exists in DB
         // Get amount from DB
         let amount;
-        
-        
+
         const response = await fetch("https://api.duffel.com/air/payments", {
             method: "POST",
             headers: {
@@ -217,26 +218,24 @@ exports.bookFlight = async (orderID) => {
             body: {
                 data: {
                     order_id: orderID,
-                    payment : {
-                        type:"balance",
+                    payment: {
+                        type: "balance",
                         amount: amount,
-                        currency: "USD"
-                    }
-                }
+                        currency: "USD",
+                    },
+                },
             },
         });
-        
+
         console.log(response);
-        
-        if (response.ok){
+
+        if (response.ok) {
             const data = await response.json();
             console.log(data);
-             
         }
         throw new Error("Error booking flight. Response not OK.");
-        
     } catch (error) {
         console.error(error);
         throw new Error("Error booking flight");
     }
-}
+};
