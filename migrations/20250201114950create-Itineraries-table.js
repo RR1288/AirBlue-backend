@@ -4,16 +4,42 @@
 module.exports = {
   up: async (queryInterface, Sequelize) => {
     await queryInterface.createTable('Itineraries', {
-      ItineraryID: { type: Sequelize.BIGINT, autoIncrement: true, primaryKey: true },
-      UserID: { type: Sequelize.BIGINT, references: { model: 'Users', key: 'UserID' }, allowNull: false },
-      Bags: { type: Sequelize.INTEGER, defaultValue: 1 },
-      Cost: { type: Sequelize.DECIMAL(6,2), allowNull: false },
-      ApprovalStatus: { type: Sequelize.ENUM('not submitted', 'pending', 'denied','approved'), defaultValue: 'not submitted', allowNull: false },
-      DateApproved: {type: Sequelize.DATE },
-      Active: { type: Sequelize.BOOLEAN, defaultValue: false, allowNull: false },
-      createdAt: { type: Sequelize.DATE, allowNull: false, defaultValue: Sequelize.NOW },
-      updatedAt: { type: Sequelize.DATE, allowNull: false, defaultValue: Sequelize.NOW },
-      deletedAt: {type: Sequelize.DATE , defaultValue: null}
+
+    ItineraryID: {
+        type: Sequelize.BIGINT,
+        autoIncrement: true,
+        primaryKey: true,
+    },
+    UserID: {
+        type: Sequelize.BIGINT,
+        references: {model: "Users", key: "UserID"},
+        allowNull: false,
+    },
+    EventID: {
+        type:Sequelize.BIGINT,
+        references: {model: "Events", key: "EventID"},
+        allowNull: false,
+    },
+
+    DuffelOrderID: {type: Sequelize.STRING(30), allowNull: false},
+    DuffelPassID: {type: Sequelize.STRING(30), allowNull: false},
+    DuffelOfferID: {type: Sequelize.STRING(30), allowNull: false},
+
+    BookingReference:{type: Sequelize.STRING(6)},
+    TotalCost: {type: Sequelize.DECIMAL(6,2), allowNull: false},
+    BaseCost: {type: Sequelize.DECIMAL(6,2), allowNull: false},
+    TaxCost: {type: Sequelize.DECIMAL(6,2), allowNull: false},
+
+    ApprovalStatus:{type: Sequelize.ENUM('pending', 'denied', 'approved', 'expired'), allowNull: false},
+    
+    heldAt:{type: Sequelize.DATE, defaultValue: null},     // User selects an offer
+    cancelledAt: {type: Sequelize.DATE, defaultValue: null}, // Planner denies flight
+    approvedAt: {type: Sequelize.DATE, defaultValue: null}, // Planner approves and pays the order
+    expiresAt: {type: Sequelize.DATE, defaultValue: null},  // If order is still on hold
+
+    createdAt:{type: Sequelize.DATE, allowNull: false, defaultValue: Sequelize.NOW},
+    updatedAt: {type: Sequelize.DATE, allowNull: false, defaultValue: Sequelize.NOW},
+    deletedAt:{type: Sequelize.DATE, defaultValue: null}
     });
   },
 
