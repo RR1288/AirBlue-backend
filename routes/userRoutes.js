@@ -213,6 +213,92 @@ router.post(
  */
 router.post("/updateUserInfo", protect, updateUserInfo);
 
+/**
+ * @swagger
+ * /users/send-reset-email:
+ *   post:
+ *     summary: create new user for end users who are not organization users
+ *     description: endpoint to create new users from the new user screen
+ *     tags:
+ *       - Users
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - email
+ *             properties:
+ *               email:
+ *                 type: string
+ *                 format: email
+ *                 example: test@exple.com
+ *     responses:
+ *       201:
+ *         description: email was successfully sent
+ *       400:
+ *         description: function was not succefully run
+ */
+router.post("/send-reset-email", resendResetEmailBasic);
+
+/**
+ * @swagger
+ * /users/send-reset-email-admin :
+ *   post:
+ *     summary: create new user for end users who are not organization users
+ *     description: endpoint to create new users from the new user screen
+ *     tags:
+ *       - Users
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - email
+ *             properties:
+ *               userID:
+ *                 type: integer
+ *                 example: 2
+ *     responses:
+ *       201:
+ *         description: email was successfully sent
+ *       400:
+ *         description: function was not succefully run
+ */
+router.post("/send-reset-email-admin", protect, checkOrganizationUser, checkUserInOrganization, sendResetEmailAdmin); //this function should later be shifted to actually changing the pa
+
+/**
+ * @swagger
+ * /users/reset-password:
+ *   post:
+ *     summary: create new user for end users who are not organization users
+ *     description: endpoint to create new users from the new user screen
+ *     tags:
+ *       - Users
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - password
+ *             properties:
+ *               password:
+ *                 type: string
+ *                 format: password
+ *                 example: SecurePassword123!
+ *     responses:
+ *       201:
+ *         description: email was successfully sent
+ *       400:
+ *         description: function was not succefully run
+ */
+router.post("/send-reset-email", protect, resetPassword);
+
 //get functions
 router.get(
     "/event-planners",

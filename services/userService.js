@@ -299,7 +299,55 @@ exports.disableUserNormalService = async (req, res) => {
         //if successful returns a success message
         return sendSuccess(res, "user successfully removed", 200);
     } catch (error) {
-        console.error(error);
         return sendError(res, "Something went wrong while removing user user");
     }
 };
+
+//password services
+exports.sendResetEmailBasic = async (req, res) => {
+    try {
+        let {email} = req.body
+        //validation
+        email = sanitizeEmail(email);
+        if (email === null)
+            return sendError(res, "invalid email", 400);
+        //run function
+        const success = false; //TODO write function
+        if (!success) return sendError(res, "failed to send email", 400);
+        return sendSuccess(res, "successfully sent password reset to user");
+
+    } catch (error) {
+        return sendError(res, "failed to send email");
+    }
+};
+
+exports.sendResetEmailAdmin = async (req, res) => {
+    try {
+        const {userID} = req.body
+        //validation
+        if (!validateUserID(userID))
+            return sendError(res, "User does not exist", 400);
+        //run function
+        const success = false; //TODO write function
+        if (!success) return sendError(res, "failed to send email", 400);
+        return sendSuccess(res, "successfully sent password reset to user");
+
+    } catch (error) {
+        return sendError(res, "failed to send email");
+    }
+};
+
+exports.resetPassword = async (req, res) => {
+    try{
+        let {password} = req.body;
+        password = sanitizePassword(password);
+        if (password === null) return sendError(res, "invalid password", 400);
+
+        const success = false; //TODO write function
+        if (!success) return sendError(res, "failed to reset password", 400);
+        return sendSuccess(res, "successfully reset password");
+    }catch(error){
+        return sendError(res, "could not reset password");
+    }
+};
+
