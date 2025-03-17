@@ -214,3 +214,12 @@ exports.updatePassword = async (userID, password) => {
         throw new Error("failed to update password");
     }
 };
+
+exports.sendUpdatePasswordEmail = async (email) => {
+    try {
+        
+    } catch (error) {
+        throw new Error("failed to send email");
+    }
+
+};
