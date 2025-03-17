@@ -6,6 +6,7 @@ const {
     disableUserNormal,
     disableUserOrganization,
     updateUser,
+    resetPassword,
 } = require("../controllers/userController");
 const {
     sanitizeEmail,
@@ -340,10 +341,14 @@ exports.sendResetEmailAdmin = async (req, res) => {
 exports.resetPassword = async (req, res) => {
     try{
         let {password} = req.body;
+        const token = req.headers.authorization?.split(' ')[1];
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        const userID = parseInt(decoded.id);
+
         password = sanitizePassword(password);
         if (password === null) return sendError(res, "invalid password", 400);
 
-        const success = false; //TODO write function
+        const success = await resetPassword(userID, password); //TODO write function
         if (!success) return sendError(res, "failed to reset password", 400);
         return sendSuccess(res, "successfully reset password");
     }catch(error){

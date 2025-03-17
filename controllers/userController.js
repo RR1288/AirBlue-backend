@@ -198,3 +198,19 @@ exports.generateRandomPassword = (length = 12) => {
     }
     return password;
 };
+
+//passwords
+exports.updatePassword = async (userID, password) => {
+    try {
+        let userLogin = await UserLogin.findByPk(userID);
+        if(!userLogin){
+            throw new Error("could not find user");
+        }
+        userLogin.update({
+            Password: password,
+        });
+        return true;
+    } catch (error) {
+        throw new Error("failed to update password");
+    }
+};
