@@ -35,6 +35,13 @@ const router = express.Router();
  *         required: true
  *         description: Departure date in YYYY-MM-DD format
  *       - in: query
+ *         name: returnDate
+ *         schema:
+ *           type: string
+ *           format: date
+ *         required: true
+ *         description: Return date in YYYY-MM-DD format
+ *       - in: query
  *         name: cabinClass
  *         schema:
  *           type: string
@@ -146,9 +153,9 @@ router.get("/:offer_id", protect, flightService.fetchFlight);
 
 /**
  * @swagger
- * /flights/{offer_id}/book:
+ * /flights/{offer_id}/hold:
  *   post:
- *     description: Book or hold a specific flight offer.
+ *     description: Hold a specific flight offer. Returns order ID.
  *     tags:
  *       - Flights
  *     parameters:
@@ -165,6 +172,9 @@ router.get("/:offer_id", protect, flightService.fetchFlight);
  *           schema:
  *             type: object
  *             properties:
+ *               event_id:
+ *                 type: integer
+ *                 example: 1
  *               passengers:
  *                 type: array
  *                 description: List of passengers
@@ -196,30 +206,95 @@ router.get("/:offer_id", protect, flightService.fetchFlight);
  *                     id:
  *                       type: string
  *                       example: "pas_0000ArlFyquQxuoVMa7UZE"
- *               payments:
- *                 type: array
- *                 description: Payment details
- *                 items:
- *                   type: object
- *                   properties:
- *                     type:
- *                       type: string
- *                       example: "balance"
- *                     currency:
- *                       type: string
- *                       example: "USD"
- *                     amount:
- *                       type: string
- *                       example: "335.54"
  *     responses:
  *       200:
- *         description: Successfully booked or held the offer
+ *         description: Successfully held the offer
  *       400:
- *         description: Invalid request or failed to book/hold offer
+ *         description: Invalid request or failed to hold offer
  *       500:
  *         description: Internal server error
  */
-router.post('/:offer_id/book', protect, flightService.bookOfferOrHold);
+router.post("/:offer_id/hold", protect, flightService.holdOffer);
 
+/**
+ * @swagger
+ * /flights/{order_id}/book:
+ *   post:
+ *     description: Pay an order in hold.
+ *     tags:
+ *       - Flights
+ *     parameters:
+ *       - in: path
+ *         name: order_id
+ *         required: true
+ *         description: The ID of the order to pay
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Successfully booked the offer
+ *       400:
+ *         description: Invalid request or failed to book offer
+ *       500:
+ *         description: Internal server error
+ */
+router.post(
+    "/:order_id/book",
+    protect,
+    authorizedRoles(Roles.PLANNER),
+    flightService.bookFlight
+);
+
+/**
+ * @swagger
+ * /flights/{itinerary_id}/declinePendingFlight:
+ *   post:
+ *     summary: Decline a pending flight itinerary and cancel on Duffel if applicable
+ *     description: Decline a flight itinerary that is currently pending. This endpoint will update the itinerary locally and cancel the booking in Duffel. Only event planners are allowed.
+ *     parameters:
+ *       - in: path
+ *         name: itinerary_id
+ *         description: The itinerary ID.
+ *         required: true
+ *         schema:
+ *           type: integer
+ *     responses:
+ *       200:
+ *         description: The itinerary has been successfully declined and cancelled on Duffel.
+ *       400:
+ *         description: Bad request (e.g. itinerary is not pending or cancellation fails).
+ */
+router.post(
+    "/:itinerary_id/declinePendingFlight",
+    protect,
+    authorizedRoles(Roles.PLANNER),
+    flightService.declinePendingFlight
+);
+
+/**
+ * @swagger
+ * /flights/{itinerary_id}/cancelApprovedFlight:
+ *   post:
+ *     summary: Cancel an approved flight itinerary in both local DB and Duffel
+ *     description: Cancel a flight itinerary that has been approved (and paid) by updating the local status and cancelling the booking in Duffel. Only event planners are allowed.
+ *     parameters:
+ *       - in: path
+ *         name: itinerary_id
+ *         description: The itinerary ID.
+ *         required: true
+ *         schema:
+ *           type: integer
+ *     responses:
+ *       200:
+ *         description: The itinerary has been successfully cancelled.
+ *       400:
+ *         description: Bad request (e.g. itinerary is not approved or cancellation fails).
+ */
+router.post(
+    "/:itinerary_id/cancelApprovedFlight",
+    protect,
+    authorizedRoles(Roles.PLANNER),
+    flightService.cancelApprovedFlight
+);
 
 module.exports = router;

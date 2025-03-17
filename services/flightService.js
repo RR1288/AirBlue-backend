@@ -1,11 +1,11 @@
 const flightController = require("../controllers/flightController");
 const {sendSuccess, sendError} = require("../utils/responseHelpers");
-const {validateFlightParams} = require("../utils/validateFlightParams");
+const {validateFlightParams} = require("../utils/flightUtils");
 
 exports.createRequest = async (req, res) => {
     try {
         // Validate request parameters
-        // Expects { origin, destination, departureDate, cabinClass }
+        // Expects { origin, destination, departureDate, returnDate, cabinClass }
         validateFlightParams(req.query);
 
         // Proceed with creating a request
@@ -52,7 +52,7 @@ exports.getOffers = async (req, res) => {
 
 exports.fetchFlight = async (req, res) => {
     try {
-        const { offer_id } = req.params;
+        const {offer_id} = req.params;
         const flight = await flightController.fetchFlight(offer_id);
         if (flight) {
             return sendSuccess(res, "Fetched flight successfully", {flight});
@@ -65,16 +65,40 @@ exports.fetchFlight = async (req, res) => {
     }
 };
 
-exports.bookOfferOrHold = async (req, res) => {
+exports.holdOffer = async (req, res) => {
     try {
-        const { offer_id } = req.params;
-        const { passengers, payments } = req.body;
+        const {offer_id} = req.params;
+        const {passengers, event_id} = req.body;
 
-        if (!offer_id || !passengers || !payments) {
-            return sendError(res, 'Missing required fields', 400);
+        if (!offer_id || !passengers) {
+            return sendError(res, "Missing required fields", 400);
+        }
+        const order = await flightController.holdOffer(
+            req.user.UserID,
+            event_id,
+            offer_id,
+            passengers
+        );
+        if (order) {
+            return sendSuccess(res, "Holded flight successfully", {order});
+        } else {
+            return sendError(res, "Couldn't hold flight", 400);
+        }
+    } catch (error) {
+        console.error(error);
+        return sendError(res, "Failed to hold flight", 500);
+    }
+};
+
+exports.bookFlight = async (req, res) => {
+    try {
+        const {order_id} = req.params;
+        if (!order_id) {
+            return sendError(res, "Missing required fields", 400);
         }
 
-        const order = await flightController.bookOfferOrHold(offer_id, passengers, payments );
+        const order = await flightController.bookFlight(order_id);
+
         if (order) {
             return sendSuccess(res, "Booked flight successfully", {order});
         } else {
@@ -83,5 +107,40 @@ exports.bookOfferOrHold = async (req, res) => {
     } catch (error) {
         console.error(error);
         return sendError(res, "Failed to book flight", 500);
+    }
+};
+
+exports.declinePendingFlight = async (req, res) => {
+    try {
+        const itineraryId = req.params.itinerary_id;
+        const updatedItinerary = await flightController.declinePendingFlight(
+            itineraryId
+        );
+        if(updatedItinerary) {
+            return sendSuccess(res, "Declined pending flight successfully", {updatedItinerary});
+        } else {
+            return sendError(res, "Couldn't decline the flight", 400);
+        }
+
+    } catch (error) {
+        console.error(error);
+        return sendError(res, "Couldn't decline the flight", 400);
+    }
+};
+
+exports.cancelApprovedFlight = async (req, res) => {
+    try {
+        const itineraryId = req.params.itinerary_id;
+        const updatedItinerary = await flightController.cancelApprovedFlight(
+            itineraryId
+        );
+        if(updatedItinerary) {
+            return sendSuccess(res, "Cancelled approved flight successfully", {updatedItinerary});
+        } else {
+            return sendError(res, "Couldn't cancel the flight", 400);
+        }
+    } catch (error) {
+        console.error(error);
+        return sendError(res, "Couldn't cancel the flight", 400);
     }
 };
