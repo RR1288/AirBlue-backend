@@ -48,8 +48,6 @@ router.post("/2fa/setup", protect, authController.setup2FA);
  *   post:
  *     summary: Verify the 2FA TOTP code for the authenticated user
  *     tags: [Auth]
- *     security:
- *       - bearerAuth: []
  *     requestBody:
  *       required: true
  *       content:

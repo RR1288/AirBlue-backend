@@ -38,17 +38,24 @@ exports.login = async (req, res) => {
         const isMatch = await bcrypt.compare(password, userPass.trim());
         if (!isMatch) return sendError(res, "Invalid credentials", 400);
 
+        // Prepare additional user info to return
+        const userInfo = {
+            userId: user.UserID,
+            username: user.UserName,
+            roles:  user.UserOrganizations[0].Roles || []
+        };
+
         // If 2FA is enabled
         if (user.UserLogin.two_fa_enabled) {
             return sendSuccess(res, "2FA required", {
                 two_fa_required: true,
-                userId: user.id,
+                ...userInfo,
             });
         }
 
         // Else just generate jwt token
         const token = generateToken(user);
-        return sendSuccess(res, "Login successful", {token: token});
+        return sendSuccess(res, "Login successful", {token: token, ...userInfo});
     } catch (err) {
         console.error(err);
         return sendError(res, "Server error", 500);

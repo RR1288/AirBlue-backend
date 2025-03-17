@@ -280,7 +280,6 @@ exports.disableUserOrganization = async (req, res) => {
         //if successful returns a success message
         return sendSuccess(res, "user successfully removed", 200);
     } catch (error) {
-        console.error(error);
         return sendError(res, "Something went wrong while removing user user");
     }
 };
