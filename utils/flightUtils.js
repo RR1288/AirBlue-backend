@@ -30,4 +30,10 @@ const validateFlightParams = ({ origin, destination, departureDate, returnDate, 
   }
 };
 
-module.exports = { validateFlightParams };
+const parseDuration = (duration) => {
+  const match = duration.match(/PT(\d+H)?(\d+M)?/);
+  const hours = match[1] ? parseInt(match[1].replace("H", ""), 10) : 0;
+  const minutes = match[2] ? parseInt(match[2].replace("M", ""), 10) : 0;
+  return hours * 60 + minutes; // Convert to total minutes
+};
+module.exports = { validateFlightParams, parseDuration };

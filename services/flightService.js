@@ -1,6 +1,6 @@
 const flightController = require("../controllers/flightController");
 const {sendSuccess, sendError} = require("../utils/responseHelpers");
-const {validateFlightParams} = require("../utils/validateFlightParams");
+const {validateFlightParams} = require("../utils/flightUtils");
 
 exports.createRequest = async (req, res) => {
     try {
@@ -68,9 +68,7 @@ exports.fetchFlight = async (req, res) => {
 exports.holdOffer = async (req, res) => {
     try {
         const { offer_id } = req.params;
-        const { passengers, event_id } = req.body;
-        console.log(req.user);
-        
+        const { passengers, event_id } = req.body;        
 
         if (!offer_id || !passengers ) {
             return sendError(res, 'Missing required fields', 400);

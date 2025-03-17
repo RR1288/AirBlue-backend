@@ -28,7 +28,7 @@ module.exports = {
       {
         UserID: 4,
         EventID: 3,
-        EventGroupID: 3,
+        EventGroupID: 1,
         createdAt: new Date(),
         updatedAt: new Date(),
         Confirmed: false,
