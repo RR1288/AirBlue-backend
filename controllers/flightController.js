@@ -1,6 +1,6 @@
 const DUFFEL_API_KEY = process.env.DUFFEL_API_KEY;
 const {Itinerary, Slice, Segment, sequelize} = require("../models");
-const {parseDuration} = require("../utils/flightUtils")
+const {parseDuration} = require("../utils/flightUtils");
 
 exports.createOfferRequest = async ({
     origin,
@@ -159,7 +159,6 @@ exports.holdOffer = async (user_id, event_id, offer_id, passengers) => {
         const order = await response.json();
         const data = order.data;
         console.log(data);
-        
 
         // Save itinerary
         const itinerary = await Itinerary.create(
@@ -188,20 +187,18 @@ exports.holdOffer = async (user_id, event_id, offer_id, passengers) => {
 
         // Save slices
         for (const slice of data.slices) {
-            console.log("SLICE: ", slice);            
-            
+            console.log("SLICE: ", slice);
+
             const sliceRecord = await Slice.create(
                 {
                     ItineraryID: itinerary.ItineraryID,
                     OriginAirport: slice?.origin?.name || "", // using airport name if available
                     OriginCity: slice?.origin?.city_name || "",
                     OriginIATA: slice?.origin?.iata_code,
-                    
+
                     DestinationAirport: slice?.destination?.name || "",
-                    DestinationCity:
-                        slice?.destination?.city_name || "",
-                    DestinationIATA:
-                        slice?.destination?.iata_code,
+                    DestinationCity: slice?.destination?.city_name || "",
+                    DestinationIATA: slice?.destination?.iata_code,
                     Duration: parseDuration(slice.duration), // Duffel returns duration in minutes
                     createdAt: new Date(),
                     updatedAt: new Date(),
@@ -209,7 +206,7 @@ exports.holdOffer = async (user_id, event_id, offer_id, passengers) => {
                 {transaction}
             );
             console.log(sliceRecord);
-            
+
             if (!sliceRecord) {
                 throw new Error("Could not save Slice");
             }
@@ -217,7 +214,7 @@ exports.holdOffer = async (user_id, event_id, offer_id, passengers) => {
             // Loop through each segment of the current slice
             for (const segment of slice.segments) {
                 console.log("SEGMENT: ", segment);
-                
+
                 const segmentRecord = await Segment.create(
                     {
                         SliceID: sliceRecord.SliceID,
@@ -312,3 +309,120 @@ exports.bookFlight = async (orderID) => {
         throw new Error("Error booking flight");
     }
 };
+
+exports.declinePendingFlight = async (itineraryId) => {
+    return cancelOrDeclineFlight(itineraryId, "decline");
+};
+
+exports.cancelApprovedFlight = async (itineraryId) => {
+    return cancelOrDeclineFlight(itineraryId, "cancel");
+};
+
+async function cancelOrDeclineFlight(itineraryId, action) {
+    const itinerary = await Itinerary.findByPk(itineraryId);
+    if (!itinerary) {
+        throw new Error("Itinerary not found");
+    }
+
+    // Action-specific status checks
+    if (action === "decline" && itinerary.ApprovalStatus !== "pending") {
+        throw new Error("Only pending itineraries can be declined");
+    }
+    if (action === "cancel" && itinerary.ApprovalStatus !== "approved") {
+        throw new Error("Only approved itineraries can be cancelled");
+    }
+
+    // Ensure there is a Duffel order to cancel.
+    if (!itinerary.DuffelOrderID) {
+        throw new Error("No Duffel order associated with this itinerary");
+    }
+    
+    // Communicate with Duffel using our multi-step cancellation flow.
+    const reason =
+    action === "decline"
+    ? "Declined by event planner"
+    : "Cancelled by event planner";
+    const duffelCancellation = await cancelOrder(
+        itinerary.DuffelOrderID,
+        reason
+    );
+    
+    if (!duffelCancellation) {
+        throw new Error("Could not cancel itinerary");
+    }
+    
+    // Update the local itinerary status based on action.
+    itinerary.ApprovalStatus = "denied";
+    itinerary.cancelledAt = new Date();
+
+    return await itinerary.save();
+}
+
+async function cancelOrder(orderId, reason) {
+    const headers = {
+        Authorization: `Bearer ${DUFFEL_API_KEY}`,
+        "Content-Type": "application/json",
+        Accept: "application/json",
+        "Duffel-Version": "v1",
+    };
+    // Step 1: Request a cancellation quote
+    const createUrl = "https://api.duffel.com/air/order_cancellations";
+    const createPayload = JSON.stringify({
+        data: {order_id: orderId},
+    });
+
+    const createResponse = await fetch(createUrl, {
+        method: "POST",
+        headers,
+        body: createPayload,
+    });
+
+    if (!createResponse.ok) {
+        let errorDetail = createResponse.statusText;
+        try {
+            const errorData = await createResponse.json();
+            errorDetail = errorData.error || errorDetail;
+        } catch (e) {}
+        throw new Error(
+            `Duffel cancellation quote request failed: ${errorDetail}`
+        );
+    }
+
+    const cancellationQuote = await createResponse.json();
+
+    // Step 2: Validate the cancellation quote
+    const expiresAt = new Date(cancellationQuote.data.expires_at);
+    if (expiresAt < new Date()) {
+        throw new Error("Cancellation quote has expired, please try again.");
+    }
+
+    // Log refund amount
+    console.log(cancellationQuote.data);
+
+    // Step 3: Confirm the cancellation
+    const confirmUrl = `https://api.duffel.com/air/order_cancellations/${cancellationQuote.data.id}/actions/confirm`;
+    const confirmResponse = await fetch(confirmUrl, {
+        method: "POST",
+        headers,
+    });
+
+    if (!confirmResponse.ok) {
+        let errorDetail = confirmResponse.statusText;
+        try {
+            const errorData = await confirmResponse.json();
+            errorDetail = errorData.error || errorDetail;
+        } catch (e) {}
+        throw new Error(
+            `Duffel cancellation confirmation failed: ${errorDetail}`
+        );
+    }
+
+    const confirmedCancellation = await confirmResponse.json();
+
+    // Step 4: Validate that cancellation was confirmed
+    if (!confirmedCancellation.data.confirmed_at) {
+        throw new Error("Cancellation was not confirmed by Duffel.");
+    }
+
+    return confirmedCancellation.data;
+}

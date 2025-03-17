@@ -172,7 +172,7 @@ router.get("/:offer_id", protect, flightService.fetchFlight);
  *           schema:
  *             type: object
  *             properties:
- *               event_id: 
+ *               event_id:
  *                 type: integer
  *                 example: 1
  *               passengers:
@@ -214,13 +214,13 @@ router.get("/:offer_id", protect, flightService.fetchFlight);
  *       500:
  *         description: Internal server error
  */
-router.post('/:offer_id/hold', protect, flightService.holdOffer);
+router.post("/:offer_id/hold", protect, flightService.holdOffer);
 
 /**
  * @swagger
  * /flights/{order_id}/book:
  *   post:
- *     description: Pay an order in hold. 
+ *     description: Pay an order in hold.
  *     tags:
  *       - Flights
  *     parameters:
@@ -238,7 +238,63 @@ router.post('/:offer_id/hold', protect, flightService.holdOffer);
  *       500:
  *         description: Internal server error
  */
-router.post('/:order_id/book', protect, flightService.bookFlight);
+router.post(
+    "/:order_id/book",
+    protect,
+    authorizedRoles(Roles.PLANNER),
+    flightService.bookFlight
+);
 
+/**
+ * @swagger
+ * /flights/{itinerary_id}/declinePendingFlight:
+ *   post:
+ *     summary: Decline a pending flight itinerary and cancel on Duffel if applicable
+ *     description: Decline a flight itinerary that is currently pending. This endpoint will update the itinerary locally and cancel the booking in Duffel. Only event planners are allowed.
+ *     parameters:
+ *       - in: path
+ *         name: itinerary_id
+ *         description: The itinerary ID.
+ *         required: true
+ *         schema:
+ *           type: integer
+ *     responses:
+ *       200:
+ *         description: The itinerary has been successfully declined and cancelled on Duffel.
+ *       400:
+ *         description: Bad request (e.g. itinerary is not pending or cancellation fails).
+ */
+router.post(
+    "/:itinerary_id/declinePendingFlight",
+    protect,
+    authorizedRoles(Roles.PLANNER),
+    flightService.declinePendingFlight
+);
+
+/**
+ * @swagger
+ * /flights/{itinerary_id}/cancelApprovedFlight:
+ *   post:
+ *     summary: Cancel an approved flight itinerary in both local DB and Duffel
+ *     description: Cancel a flight itinerary that has been approved (and paid) by updating the local status and cancelling the booking in Duffel. Only event planners are allowed.
+ *     parameters:
+ *       - in: path
+ *         name: itinerary_id
+ *         description: The itinerary ID.
+ *         required: true
+ *         schema:
+ *           type: integer
+ *     responses:
+ *       200:
+ *         description: The itinerary has been successfully cancelled.
+ *       400:
+ *         description: Bad request (e.g. itinerary is not approved or cancellation fails).
+ */
+router.post(
+    "/:itinerary_id/cancelApprovedFlight",
+    protect,
+    authorizedRoles(Roles.PLANNER),
+    flightService.cancelApprovedFlight
+);
 
 module.exports = router;
