@@ -6,6 +6,9 @@ const {
     disableUserOrganization,
     disableUserNormalService,
     updateUserInfo,
+    sendResetEmailAdmin,
+    sendResetEmailBasic,
+    resetPassword
 } = require("../services/userService");
 const {protect} = require("../middleware/authMiddleware");
 const {authorizedRoles} = require("../middleware/roleMiddleware");
@@ -240,7 +243,7 @@ router.post("/updateUserInfo", protect, updateUserInfo);
  *       400:
  *         description: function was not succefully run
  */
-router.post("/send-reset-email", resendResetEmailBasic);
+router.post("/send-reset-email", sendResetEmailBasic);
 
 /**
  * @swagger
