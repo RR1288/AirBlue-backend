@@ -1,6 +1,6 @@
 // eventServiceCreate.test.js
 
-//Set up constants
+// Set up constants
 const { createEvent, getAvailableEventTypes } = require('../services/eventService');
 const { sendSuccess, sendError } = require('../utils/responseHelpers');
 const { validateUserID } = require("../utils/UserSanitizations");
@@ -16,14 +16,17 @@ jest.mock('../utils/UserSanitizations');
 jest.mock("../utils/eventSanitization");
 jest.mock("../utils/eventTypeSantization");
 jest.mock("../utils/OrganizationSanitization"); 
-jest.mock('../controllers/eventController');
+jest.mock('../controllers/eventController', () => ({
+    createEvent: jest.fn(), 
+    getEventTypes: jest.fn(), 
+  }));
 jest.mock('jsonwebtoken');
 
-//Start Testing
+// Start Testing
 describe('Event Service Create Tests', () => {
     let req, res;
 
-    // Suppress console logs. I dont wanna see all that stuff in the terminal when running the tests
+    // Suppress console logs
     beforeAll(() => {
         console.log = jest.fn();
         console.error = jest.fn();
@@ -49,10 +52,10 @@ describe('Event Service Create Tests', () => {
         };
     });
 
-    //Testing for createEvent
+    // Testing for createEvent
     describe('createEvent', () => {
 
-        //Test 1: Error if fields are missing
+        // Test 1: Error if fields are missing
         it('Should return error if required fields are missing', async () => {
             // Simulate missing name
             req.body.name = undefined;
@@ -62,7 +65,7 @@ describe('Event Service Create Tests', () => {
             expect(sendError).toHaveBeenCalledWith(res, "missing required inputs");
         });
 
-        //Test 2: Error if a user is invalid
+        // Test 2: Error if a user is invalid
         it('Should return error if user is invalid', async () => {
             jwt.verify.mockReturnValue({ id: '1', OrganizationID: '1' });
             validateUserID.mockReturnValue(false);  // Mock invalid user
@@ -72,7 +75,7 @@ describe('Event Service Create Tests', () => {
             expect(sendError).toHaveBeenCalledWith(res, "User does not exist", 404);
         });
 
-        //Test 3: Error if organization is invalid
+        // Test 3: Error if organization is invalid
         it('Should return error if organization is invalid', async () => {
             jwt.verify.mockReturnValue({ id: '1', OrganizationID: '1' });
             validateUserID.mockReturnValue(true);
@@ -84,7 +87,7 @@ describe('Event Service Create Tests', () => {
             expect(sendError).toHaveBeenCalledWith(res, "Organization does not exist", 404);
         });
 
-        //Test 4: Error if event name is not allowed
+        // Test 4: Error if event name is not allowed
         it('should return error if event name is invalid', async () => {
             jwt.verify.mockReturnValue({ id: '1', OrganizationID: '1' });
             validateUserID.mockReturnValue(true);
@@ -96,7 +99,7 @@ describe('Event Service Create Tests', () => {
             expect(sendError).toHaveBeenCalledWith(res, "event Name is invalid", 400);
         });
 
-        //Test 5: Error if date is invalid
+        // Test 5: Error if date is invalid
         it('Should return error if start date is invalid', async () => {
             jwt.verify.mockReturnValue({ id: '1', OrganizationID: '1' });
             validateUserID.mockReturnValue(true);
@@ -109,7 +112,7 @@ describe('Event Service Create Tests', () => {
             expect(sendError).toHaveBeenCalledWith(res, "invalid start date", 400);
         });
 
-        //Test 6: Error if event tpe isn't found
+        // Test 6: Error if event type isn't found
         it('Should return error if event type is not found', async () => {
             jwt.verify.mockReturnValue({ id: '1', OrganizationID: '1' });
             validateUserID.mockReturnValue(true);
@@ -123,7 +126,7 @@ describe('Event Service Create Tests', () => {
             expect(sendError).toHaveBeenCalledWith(res, "event type not found", 404);
         });
 
-        //Test 7: Success if all is good
+        // Test 7: Success if all is good
         it('Should return success if event is created successfully', async () => {
             jwt.verify.mockReturnValue({ id: '1', OrganizationID: '1' });
             validateUserID.mockReturnValue(true);
@@ -131,14 +134,16 @@ describe('Event Service Create Tests', () => {
             sanitizeEventName.mockReturnValue('Event Test');
             sanitizeDate.mockReturnValue('2030-03-15T10:00:00Z');
             validateEventType.mockReturnValue(true);
-            createEventController.mockResolvedValue(1);  // Mock event creation
+
+            // Ensure `createEventController` is mocked properly
+            createEventController.mockResolvedValue(1);  // Mock event creation successfully
 
             await createEvent(req, res);
 
             expect(sendSuccess).toHaveBeenCalledWith(res, "User registered successfully", 1);
         });
 
-        //Test 8: General graceful errors
+        // Test 8: General graceful errors
         it('should handle server errors gracefully', async () => {
             jwt.verify.mockImplementation(() => { throw new Error('token error'); });
 
@@ -148,10 +153,10 @@ describe('Event Service Create Tests', () => {
         });
     });
 
-    //Tests for getAvailableEventTypes funciton
+    // Tests for getAvailableEventTypes function
     describe('getAvailableEventTypes', () => {
 
-        //Test 9: Error if organization is invalid
+        // Test 9: Error if organization is invalid
         it('Should return error if organization is invalid', async () => {
             jwt.verify.mockReturnValue({ OrganizationID: '1' });
             validateOrganizationID.mockReturnValue(false); // Mock invalid organization
@@ -161,7 +166,7 @@ describe('Event Service Create Tests', () => {
             expect(sendError).toHaveBeenCalledWith(res, "Organization does not exist", 404);
         });
 
-        //Test 10: Return the event types
+        // Test 10: Return the event types
         it('Should return event types successfully', async () => {
             jwt.verify.mockReturnValue({ OrganizationID: '1' });
             validateOrganizationID.mockReturnValue(true);
@@ -172,7 +177,7 @@ describe('Event Service Create Tests', () => {
             expect(sendSuccess).toHaveBeenCalledWith(res, "successfully got event types", [{ id: 1, name: 'Conference' }]);
         });
 
-        //Test 11: Error if can't get event types
+        // Test 11: Error if can't get event types
         it('Should return error if failed to get event types', async () => {
             jwt.verify.mockReturnValue({ OrganizationID: '1' });
             validateOrganizationID.mockReturnValue(true);
@@ -183,7 +188,7 @@ describe('Event Service Create Tests', () => {
             expect(sendError).toHaveBeenCalledWith(res, "failed to get event types", 400);
         });
 
-        //Test 12: General graceful errors
+        // Test 12: General graceful errors
         it('Should handle server errors gracefully', async () => {
             jwt.verify.mockImplementation(() => { throw new Error('token error'); });
 

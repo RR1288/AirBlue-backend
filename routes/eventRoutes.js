@@ -249,70 +249,6 @@ router.get("/event-types", protect, authorizedRoles(Roles.PLANNER), checkOrganiz
 
 /**
  * @swagger
- * /events/attendees/{eventId}:
- *   get:
- *     summary: Get a list of attendees for an event.
- *     description: Retrieve all attendees for a given event.
- *     tags:
- *       - Events
- *     parameters:
- *       - in: path
- *         name: eventId
- *         required: true
- *         description: The ID of the event
- *         schema:
- *           type: string
- *     responses:
- *       200:
- *         description: Successfully retrieved the attendees list
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 success:
- *                   type: boolean
- *                   example: true
- *                 message:
- *                   type: string
- *                   example: Attendees fetched successfully
- *                 data:
- *                   type: array
- *                   items:
- *                     type: object
- *                     properties:
- *                       id:
- *                         type: string
- *                         example: "usr_00001"
- *                       name:
- *                         type: string
- *                         example: "John Doe"
- *                       email:
- *                         type: string
- *                         example: "johndoe@exmple.com"
- *                       event:
- *                         type: object
- *                         properties:
- *                           id:
- *                             type: string
- *                             example: "evt_00001"
- *                           title:
- *                             type: string
- *                             example: "Tech Conference 2025"
- *       400:
- *         description: Bad request - Event ID is required
- *       500:
- *         description: Internal server error
- */
-router.get(
-    "/attendees/:eventId",
-    protect,
-    authorizedRoles(Roles.ADMIN, Roles.PLANNER),
-    EventService.getAttendees
-);
-
-/**
- * @swagger
  * /events/event-planners/{eventId}:
  *   get:
  *     summary: Get event planners for a given event.
@@ -438,5 +374,29 @@ router.get(
     authorizedRoles(Roles.ADMIN),
     EventService.getFinanceUsers
 );
+
+/**
+ * @swagger
+ * /events/invitations/accept:
+ *   post:
+ *     summary: Accept an event invitation
+ *     tags:
+ *       - Events
+ *     parameters:
+ *       - in: query
+ *         name: invitation
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Invitation Token received in the invitation link
+ *     responses:
+ *       200:
+ *         description: Invitation accepted successfully
+ *       400:
+ *         description: Invalid or expired invitation token
+ *       500:
+ *         description: Internal server error
+ */
+router.post("/invitations/accept", protect, EventService.acceptInvitation);
 
 module.exports = router;

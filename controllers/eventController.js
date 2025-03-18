@@ -1,4 +1,5 @@
-const { User, Organization, Event, EventGroup, EventStaff, Attendee, EventTypes, OrganizationEventType, DefaultEventType, sequelize, Sequelize } = require("../models");
+const { User, Organization, Event, EventGroup, EventStaff, Attendee, EventTypes, OrganizationEventType, DefaultEventType, sequelize, Sequelize, Invitation } = require("../models");
+const { Op } = require("sequelize");
 
 /*
 CREATE EVENT
@@ -80,6 +81,7 @@ exports.getEventTypes = async (organizationID) => {
     }
 }
 
+
 exports.getAttendees = async (eventId) => {
     return await Attendee.findAll({
         where: { EventID: eventId },
@@ -103,10 +105,60 @@ exports.getEventStaffByRole = async (eventId, role) => {
         ],
     });
 };
+
+exports.processInvitationAcceptance = async (invitationToken) => {
+    try {
+        // Find the invitation using the token
+        const invitation = await Invitation.findOne({
+            where: {
+                token: invitationToken,
+                status: "pending",
+                expiresAt: { [Op.gt]: new Date() }, // Ensure it's not expired
+            },
+        });
+
+        if (!invitation) {
+            return false; // Invalid or expired
+        }
+
+        // Find the user
+        let user = await User.findByPk(invitation.UserID);
+
+        if (!user) {
+            return false; // User should have created an account before accepting
+        }
+
+        // Check if user is already an attendee
+        const existingAttendee = await Attendee.findOne({
+            where: { EventID: invitation.EventID, UserID: user.UserID, EventGroupID: invitation.EventGroupID },
+        });
+
+        if (existingAttendee) {
+            return true; // User is already an attendee
+        }
+        
+        // Add user to Attendees table
+        await Attendee.create({
+            EventID: invitation.EventID,
+            UserID: user.UserID,
+            Confirmed: "t", //  TODO: might not need this column
+            EventGroupID: invitation.EventGroupID,
+            
+        });
+      
+
+        // Mark invitation as accepted
+        invitation.update({ status: "accepted" });
+        return true;
+    } catch (error) {
+        throw new Error("Error processing invitation");
+    }
+};
 exports.getEventStaff = async (userID, eventID) => {
     try{
         return await EventStaff.findAll({where: {EventID: eventID, UserID: userID}});
     }catch(error){
+        console.error("Error processing invitation acceptance:", error);
         throw new Error("failed to find entry in event staff");
     }
 };
