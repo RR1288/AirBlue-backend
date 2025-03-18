@@ -10,9 +10,9 @@ const jwt = require('jsonwebtoken');
 
 exports.createEvent = async (req, res) => {
     try {
-        let {name, startDate, endDate, description, typeID} = req.body;
+        let {name, startDate, endDate, description, typeID, location, maxAttendees} = req.body;
         //make sure required inputs have been sent
-        if(!name || !startDate || !endDate || !typeID) return sendError(res, "missing required inputs");
+        if(!name || !startDate || !endDate || !typeID || !location || !maxAttendees) return sendError(res, "missing required inputs");
         //pull organizationID and userID from token
         const token = req.headers.authorization?.split(' ')[1];
         const decoded = jwt.verify(token, process.env.JWT_SECRET);
@@ -22,19 +22,22 @@ exports.createEvent = async (req, res) => {
         //sanitization and validation
         if (!validateUserID(userID)) {return sendError(res, "User does not exist", 404);}
         if (!validateOrganizationID(organizationID)) return sendError(res, "Organization does not exist", 404);
+        if (typeof(maxAttendees) !== "number" || maxAttendees < 0) return sendError(res, "bad value for max attendees", 400);
+        
         name = sanitizeEventName(name);
         if (name === null) return sendError(res, "event Name is invalid", 400);
         startDate = sanitizeDate(startDate);
         if (startDate === null) return sendError(res, "invalid start date", 400);
         endDate = sanitizeDate(endDate);
         if (endDate === null) return sendError(res, "invalid start date", 400);
+
         
         if(!description){
             description = '';
         }else if (!sanitizeEventDescription(description) === null) return sendError(res, "invalid description", 400);
         if (!(await validateEventType(typeID, organizationID))) return sendError(res, "event type not found", 404)
         //run function to create user
-        const eventID = await createEvent(userID, name, startDate, endDate, description, typeID, organizationID );
+        const eventID = await createEvent(userID, name, startDate, endDate, description, typeID, organizationID, location, maxAttendees);
         if (!eventID) return sendError(req, "failed to create event", 404);
         // return eventID to user on success
         return sendSuccess(res, "User registered successfully", eventID);

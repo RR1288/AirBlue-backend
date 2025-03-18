@@ -12,6 +12,8 @@ module.exports = (sequelize, DataTypes) => {
         EventEndDate: DataTypes.DATE,
         ExpectedAttendees: DataTypes.INTEGER,
         EventFlightBudget: DataTypes.DECIMAL(12,2),
+        MaxAttendees:  DataTypes.INTEGER,
+        Location:  DataType.STRING(50), 
         TypeID: {
             type: DataTypes.BIGINT,
             references: {model: "EventTypes", key: "TypeID"},
