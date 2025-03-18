@@ -13,7 +13,7 @@ module.exports = (sequelize, DataTypes) => {
         ExpectedAttendees: DataTypes.INTEGER,
         EventFlightBudget: DataTypes.DECIMAL(12,2),
         MaxAttendees:  DataTypes.INTEGER,
-        Location:  DataType.STRING(50), 
+        Location:  DataTypes.STRING(50), 
         TypeID: {
             type: DataTypes.BIGINT,
             references: {model: "EventTypes", key: "TypeID"},
