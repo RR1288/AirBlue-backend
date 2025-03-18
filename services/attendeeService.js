@@ -1,7 +1,8 @@
 const { sendSuccess, sendError } = require("../utils/responseHelpers");
 const AttendeeController = require("../controllers/attendeeController");
 const {sanitizeEmail} = require("../utils/UserSanitizations");
-const {validateEventID} = require("../utils/eventSanitization")
+const {validateEventID} = require("../utils/eventSanitization");
+const {deleteCSV, processCSV} = require("../utils/csvReader");
 /**
  * Invite an attendee by email.
  */
@@ -31,15 +32,16 @@ exports.inviteAttendee = async (req, res) => {
 exports.inviteAttendeesCsv = async (req, res) => {
   try {
     //declare passed in values
+    if (! req.path) return sendError(res, "no file given", 400);
     const {eventId, eventGroupId} = req.body;
     //decalare the csv path here
-
+    let filepath = req.file.path;
     //validation
     if (!validateEventID(eventId)) return sendError(res, "invalid eventId", 400);
     if (false) return sendError(res, "invalid eventGroupId");
 
     //converts the csv input into a list of basic user informaiton
-    let csvItems = [];//TODO implement the csv reader here
+    let csvItems = processCSV(filepath);
     let successfulInvites = 0;
     let failedInvites = 0;
     //loop through the preivously created list to 
@@ -72,7 +74,7 @@ exports.inviteAttendeesCsv = async (req, res) => {
     //return the process as a failer
     return sendError(res, "failed to add attendees through input file");
   } finally {
-    //run function to delete the csv
+    deleteCSV(filepath);
   }
 }
 

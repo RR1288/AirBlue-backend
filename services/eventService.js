@@ -37,7 +37,7 @@ exports.createEvent = async (req, res) => {
         const eventID = await createEvent(userID, name, startDate, endDate, description, typeID, organizationID );
         if (!eventID) return sendError(req, "failed to create event", 404);
         // return eventID to user on success
-        return sendSuccess(res, "User registered successfully", eventID);
+        return sendSuccess(res, "event created successfully", eventID);
     } catch (err) {
         return sendError(res, "server error");
     }
