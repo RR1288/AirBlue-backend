@@ -86,6 +86,8 @@ describe('Event Functions', () => {
       const description = "Test event description";
       const typeID = 2;
       const organizationID = 3;
+      const location = "Williamsport, PA";
+      const maxAttendees = 500;
 
       // Simulate an error in the transaction
       Event.create.mockRejectedValue(new Error('Event creation failed'));

@@ -1,7 +1,7 @@
 const { sendSuccess, sendError } = require('../utils/responseHelpers');
 const { validateOrganizationID } = require("../utils/OrganizationSanitization");
 const { createEvent, getEventTypes } = require("../controllers/eventController");
-const { sanitizeEventName, sanitizeEventDescription, sanitizeDate, sanitizeTotalBudget, sanitizeFlightBudget, validateEventID} = require("../utils/eventSanitization");
+const { sanitizeEventName, sanitizeEventDescription, sanitizeDate, sanitizeTotalBudget, sanitizeFlightBudget, validateEventID, sanitizeLocation} = require("../utils/eventSanitization");
 const { validateUserID } = require("../utils/UserSanitizations");
 const { validateEventType} = require("../utils/eventTypeSantization");
 const { sanitizeGroupFlightBudget, sanitizeGroupName} = require("../utils/sanitizeEventGroup");
@@ -10,9 +10,9 @@ const jwt = require('jsonwebtoken');
 
 exports.createEvent = async (req, res) => {
     try {
-        let {name, startDate, endDate, description, typeID} = req.body;
+        let {name, startDate, endDate, description, typeID, location, maxAttendees} = req.body;
         //make sure required inputs have been sent
-        if(!name || !startDate || !endDate || !typeID) return sendError(res, "missing required inputs");
+        if(!name || !startDate || !endDate || !typeID || !location || !maxAttendees) return sendError(res, "missing required inputs");
         //pull organizationID and userID from token
         const token = req.headers.authorization?.split(' ')[1];
         const decoded = jwt.verify(token, process.env.JWT_SECRET);
@@ -22,19 +22,23 @@ exports.createEvent = async (req, res) => {
         //sanitization and validation
         if (!validateUserID(userID)) {return sendError(res, "User does not exist", 404);}
         if (!validateOrganizationID(organizationID)) return sendError(res, "Organization does not exist", 404);
+        if (typeof(maxAttendees) !== "number" || maxAttendees < 0) return sendError(res, "bad value for max attendees", 400);
+        location = sanitizeLocation(location);
+        if (location === null) return sendError(res, "invalid locaiton", 400);
         name = sanitizeEventName(name);
         if (name === null) return sendError(res, "event Name is invalid", 400);
         startDate = sanitizeDate(startDate);
         if (startDate === null) return sendError(res, "invalid start date", 400);
         endDate = sanitizeDate(endDate);
         if (endDate === null) return sendError(res, "invalid start date", 400);
+
         
         if(!description){
             description = '';
         }else if (!sanitizeEventDescription(description) === null) return sendError(res, "invalid description", 400);
         if (!(await validateEventType(typeID, organizationID))) return sendError(res, "event type not found", 404)
         //run function to create user
-        const eventID = await createEvent(userID, name, startDate, endDate, description, typeID, organizationID );
+        const eventID = await createEvent(userID, name, startDate, endDate, description, typeID, organizationID, location, maxAttendees);
         if (!eventID) return sendError(req, "failed to create event", 404);
         // return eventID to user on success
         return sendSuccess(res, "User registered successfully", eventID);
@@ -162,20 +166,6 @@ exports.getAvailableEventTypes = async (req, res) =>{
 
 }
 
-exports.getAttendees = async (req, res) => {
-    try {
-        const {eventId} = req.params;
-        if (!eventId) {
-            return sendError(res, "Event ID is required", 400);
-        }
-
-        const attendees = await EventController.getAttendees(eventId);
-        return sendSuccess(res, attendees, "Attendees fetched successfully");
-    } catch (error) {
-        return sendError(res, error.message, 500);
-    }
-};
-
 exports.getEventPlanners = async (req, res) => {
     try {
         const {eventId} = req.params;
@@ -211,5 +201,26 @@ exports.getFinanceUsers = async (req, res) => {
     } catch (error) {
         console.error(error);
         return sendError(res, "Could not fetch finance users", 500);
+    }
+};
+
+exports.acceptInvitation = async (req, res) => {
+    try {
+        const {invitation} = req.query;
+
+        if (!invitation) {
+            return sendError(res, "Invitation token is required", 400);
+        }
+
+        const result = await EventController.processInvitationAcceptance(invitation);
+
+        if (!result) {
+            return sendError(res, "Invalid or expired invitation", 400);
+        }
+
+        return sendSuccess(res, "Invitation accepted successfully");
+    } catch (error) {
+        //console.error(error);
+        return sendError(res, "Internal server error", 500);
     }
 };
