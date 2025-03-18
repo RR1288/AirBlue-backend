@@ -90,7 +90,7 @@ router.post("/invite/:eventId", protect, authorizedRoles(Roles.PLANNER, Roles.PL
  *             type: object
  *             required:
  *               - file
- *             properties: file:
+ *             properties:
  *               file:
  *                 type: string
  *                 format: binary

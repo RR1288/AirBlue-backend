@@ -38,8 +38,3 @@ exports.deleteCSV = async (filepath) =>{
     if (err) throw new Error('failed to delete csv');
   });
 }
-// Call the function with the path to your CSV and the event ID
-processCSVAndAddUsers('../tests/userTest.csv', 1) // Replace with actual CSV file path and event ID
-  .catch((err) => {
-    console.error('Error processing CSV:', err);
-  });
