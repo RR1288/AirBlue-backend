@@ -6,6 +6,7 @@ const userRoutes = require("./routes/userRoutes");
 const authRoutes = require("./routes/authRoutes");
 const flightRoutes = require("./routes/flightRoutes");
 const eventRoutes = require("./routes/eventRoutes");
+const attendeeRoutes = require("./routes/attendeeRoutes");
 const setupSwagger = require("./swagger"); // Import Swagger setup
 
 dotenv.config(); // Load environment variables
@@ -22,6 +23,7 @@ app.use("/users", userRoutes);
 app.use("/auth", authRoutes);
 app.use("/flights", flightRoutes);
 app.use("/events", eventRoutes);
+app.use("/attendees", attendeeRoutes);
 
 // Root route
 app.get("/", (req, res) => {

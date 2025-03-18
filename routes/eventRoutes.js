@@ -1,73 +1,260 @@
 const express = require("express");
+const { protect } = require("../middleware/authMiddleware");
 const router = express.Router();
-const {protect} = require("../middleware/authMiddleware");
-const {authorizedRoles} = require("../middleware/roleMiddleware");
-const {Roles} = require("../utils/Roles.js");
+const { Roles } = require('../utils/Roles.js');
+const { authorizedRoles, checkUserAuthorizedRoles} = require("../middleware/roleMiddleware.js");
+const { checkOrganizationUser, checkUserInOrganization} = require("../middleware/organizationMiddleware.js");
+const {  createEvent, getAvailableEventTypes, } = require("../services/eventService.js");
 const EventService = require("../services/eventService");
+const { setEventBudget } = require("../services/financeService.js");
+const { InEventStaffFinance,  InEventStaffPlanner, checkEventOrganization , hasFinancePlanner, hasBudget} = require("../middleware/eventMiddleware.js");
 
 /**
  * @swagger
- * /events/attendees/{eventId}:
- *   get:
- *     summary: Get a list of attendees for an event.
- *     description: Retrieve all attendees for a given event.
+ * /events/create-event:
+ *   post:
+ *     summary: create a new event for your organization
+ *     description: endpoint to create new event in your organization
  *     tags:
  *       - Events
- *     parameters:
- *       - in: path
- *         name: eventId
- *         required: true
- *         description: The ID of the event
- *         schema:
- *           type: string
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - name
+ *               - startDate
+ *               - endDate
+ *               - typeID
+ *               - location
+ *               - maxAttendees
+ *             properties:
+ *               name:
+ *                 type: string
+ *                 example: board of directors meeting
+ *               startDate:
+ *                 type: string
+ *                 example: 2025-05-23
+ *               endDate:
+ *                 type: string
+ *                 example: 2025-05-26
+ *               typeID:
+ *                 type: integer
+ *                 example: 2
+ *               description:
+ *                 type: string
+ *                 example: meeting to discuss current finances with the board of directors
+ *               location:
+ *                 type: string
+ *                 example: Rochester, NY
+ *               maxAttendees:
+ *                 type: integer
+ *                 example: 200
+ * 
+ *               
+ *     responses:
+ *       201:
+ *         description: user successfully created
+ *       400:
+ *         description: Bad request invalid input
+*/
+router.post('/create-event', protect, authorizedRoles(Roles.PLANNER), checkOrganizationUser,  createEvent);
+
+
+/**
+ * @swagger
+ * /events/set-budget:
+ *   post:
+ *     summary: updates the event budget
+ *     description: endpoint to update the event budget
+ *     tags:
+ *       - Events
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - eventID
+ *               - totalBudget
+ *               - flightBudget
+ *             properties:
+ *               eventID:
+ *                 type: integer
+ *                 example: 1
+ *               totalBudget:
+ *                 type: number
+ *                 example: 400000.12
+ *               flightBudget:
+ *                 type: number
+ *                 example: 50000.99
+ *               
+ *     responses:
+ *       201:
+ *         description: user successfully created
+ *       400:
+ *         description: Bad request invalid input
+*/
+router.post("/set-budget", protect, authorizedRoles(Roles.FINANCE), InEventStaffFinance, checkOrganizationUser, setEventBudget);
+
+/**
+ * @swagger
+ * /events/join-eventstaff-finance:
+ *   post:
+ *     summary: updates the event budget
+ *     description: endpoint to update the event budget
+ *     tags:
+ *       - Events
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - eventID
+ *             properties:
+ *               eventID:
+ *                 type: integer
+ *                 example: 1
+ *               
+ *     responses:
+ *       201:
+ *         description: user successfully created
+ *       400:
+ *         description: Bad request invalid input
+*/
+router.post("/join-eventstaff-finance", protect, authorizedRoles(Roles.FINANCE), checkOrganizationUser, checkEventOrganization , hasFinancePlanner, EventService.joinEventFinance);
+
+/**
+ * @swagger
+ * /events/add-eventstaff-finance:
+ *   post:
+ *     summary: adds a user as an event staff finance user
+ *     description: endpoint to add a user as an event staff finance user
+ *     tags:
+ *       - Events
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - eventID
+ *               - userID
+ *             properties:
+ *               eventID:
+ *                 type: integer
+ *                 example: 1
+ *               userID:
+ *                 type: integer
+ *                 example: 1
+ *               
+ *     responses:
+ *       201:
+ *         description: user successfully created
+ *       400:
+ *         description: Bad request invalid input
+*/
+router.post("/add-eventstaff-finance", protect, authorizedRoles(Roles.FINANCE), checkOrganizationUser, checkUserInOrganization, InEventStaffFinance, checkEventOrganization, checkUserAuthorizedRoles(Roles.FINANCE), EventService.addEventFinance);
+
+/**
+ * @swagger
+ * /events/add-eventstaff-planner:
+ *   post:
+ *     summary: allows eventstaff users in an events staff table to add new event planners
+ *     description: endpoint that allows eventstaff users in an events staff table to add new event planners
+ *     tags:
+ *       - Events
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - eventID
+ *               - userID
+ *             properties:
+ *               eventID:
+ *                 type: integer
+ *                 example: 1
+ *               userID:
+ *                 type: integer
+ *                 example: 1
+ *               
+ *     responses:
+ *       201:
+ *         description: user successfully created
+ *       400:
+ *         description: Bad request invalid input
+*/
+router.post("/add-eventstaff-planner", protect, authorizedRoles(Roles.FINANCE), checkOrganizationUser, checkUserInOrganization, InEventStaffPlanner, checkEventOrganization, checkUserAuthorizedRoles(Roles.PLANNER), EventService.addEventPlanner);
+
+/**
+ * @swagger
+ * /events/create-event-group:
+ *   post:
+ *     summary: function for event planners users to create eventGroups to assign to attendees
+ *     description: endpoint that allows event planners to create eventGroups to assign to attendees
+ *     tags:
+ *       - Events
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - eventID
+ *               - name
+ *               - budget
+ *             properties:
+ *               eventID:
+ *                 type: integer
+ *                 example: 1
+ *               name:
+ *                 type: string
+ *                 example: standard
+ *               budget:
+ *                 type: number
+ *                 example: 200.45
+ *    
+ *               
+ *     responses:
+ *       201:
+ *         description: user successfully created
+ *       400:
+ *         description: Bad request invalid input
+*/
+router.post("/create-event-group", protect,authorizedRoles(Roles.PLANNER), checkOrganizationUser, InEventStaffPlanner, checkEventOrganization, hasBudget, EventService.createEventGroup);
+//get methods
+
+/**
+ * @swagger
+ * /events/event-types:
+ *   get:
+ *     summary: Retrieve a list of event types avaiable to you
+ *     description: Fetch all event planners from the database.
+ *     tags:
+ *       - Events
  *     responses:
  *       200:
- *         description: Successfully retrieved the attendees list
+ *         description: Successfully retrieved event types
  *         content:
  *           application/json:
  *             schema:
- *               type: object
- *               properties:
- *                 success:
- *                   type: boolean
- *                   example: true
- *                 message:
- *                   type: string
- *                   example: Attendees fetched successfully
- *                 data:
- *                   type: array
- *                   items:
- *                     type: object
- *                     properties:
- *                       id:
- *                         type: string
- *                         example: "usr_00001"
- *                       name:
- *                         type: string
- *                         example: "John Doe"
- *                       email:
- *                         type: string
- *                         example: "johndoe@exmple.com"
- *                       event:
- *                         type: object
- *                         properties:
- *                           id:
- *                             type: string
- *                             example: "evt_00001"
- *                           title:
- *                             type: string
- *                             example: "Tech Conference 2025"
- *       400:
- *         description: Bad request - Event ID is required
+ *               type: array
+ *       404:
+ *         description: No event planners found
  *       500:
  *         description: Internal server error
  */
-router.get(
-    "/attendees/:eventId",
-    protect,
-    authorizedRoles(Roles.ADMIN, Roles.PLANNER),
-    EventService.getAttendees
-);
+router.get("/event-types", protect, authorizedRoles(Roles.PLANNER), checkOrganizationUser, getAvailableEventTypes);
 
 /**
  * @swagger
@@ -196,5 +383,29 @@ router.get(
     authorizedRoles(Roles.ADMIN),
     EventService.getFinanceUsers
 );
+
+/**
+ * @swagger
+ * /events/invitations/accept:
+ *   post:
+ *     summary: Accept an event invitation
+ *     tags:
+ *       - Events
+ *     parameters:
+ *       - in: query
+ *         name: invitation
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Invitation Token received in the invitation link
+ *     responses:
+ *       200:
+ *         description: Invitation accepted successfully
+ *       400:
+ *         description: Invalid or expired invitation token
+ *       500:
+ *         description: Internal server error
+ */
+router.post("/invitations/accept", protect, EventService.acceptInvitation);
 
 module.exports = router;

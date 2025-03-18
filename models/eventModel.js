@@ -8,8 +8,12 @@ module.exports = (sequelize, DataTypes) => {
         EventName: DataTypes.STRING(50),
         EventDescription: DataTypes.STRING(200),
         EventTotalBudget: DataTypes.DECIMAL(12,2),
+        EventStartDate: DataTypes.DATE,
+        EventEndDate: DataTypes.DATE,
         ExpectedAttendees: DataTypes.INTEGER,
         EventFlightBudget: DataTypes.DECIMAL(12,2),
+        MaxAttendees:  DataTypes.INTEGER,
+        Location:  DataTypes.STRING(50), 
         TypeID: {
             type: DataTypes.BIGINT,
             references: {model: "EventTypes", key: "TypeID"},

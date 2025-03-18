@@ -12,6 +12,8 @@ module.exports = {
       EventTotalBudget: { type: Sequelize.DECIMAL(14,2), defaultValue: 0 },
       ExpectedAttendees: { type: Sequelize.INTEGER, defaultValue: 0 },
       EventFlightBudget: { type: Sequelize.DECIMAL(14,2), defaultValue: 0 },
+      MaxAttendees: {type: Sequelize.INTEGER, allowNull: false},
+      Location: {type: Sequelize.STRING(50), allowNull: false},
       TypeID: { type: Sequelize.BIGINT, references: { model: 'EventTypes', key: 'TypeID' }, allowNull: false },
       OrganizationID: { type: Sequelize.BIGINT, references: { model: 'Organizations', key: 'OrganizationID' }, allowNull: false },
       createdAt: { type: Sequelize.DATE, allowNull: false, defaultValue: Sequelize.NOW },
