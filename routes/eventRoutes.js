@@ -28,6 +28,8 @@ const { InEventStaffFinance,  InEventStaffPlanner, checkEventOrganization , hasF
  *               - startDate
  *               - endDate
  *               - typeID
+ *               - location
+ *               - maxAttendees
  *             properties:
  *               name:
  *                 type: string
@@ -44,6 +46,13 @@ const { InEventStaffFinance,  InEventStaffPlanner, checkEventOrganization , hasF
  *               description:
  *                 type: string
  *                 example: meeting to discuss current finances with the board of directors
+ *               location:
+ *                 type: string
+ *                 example: Rochester, NY
+ *               maxAttendees:
+ *                 type: integer
+ *                 example: 200
+ * 
  *               
  *     responses:
  *       201:
