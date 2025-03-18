@@ -1,7 +1,7 @@
 const { sendSuccess, sendError } = require('../utils/responseHelpers');
 const { validateOrganizationID } = require("../utils/OrganizationSanitization");
 const { createEvent, getEventTypes } = require("../controllers/eventController");
-const { sanitizeEventName, sanitizeEventDescription, sanitizeDate, sanitizeTotalBudget, sanitizeFlightBudget, validateEventID} = require("../utils/eventSanitization");
+const { sanitizeEventName, sanitizeEventDescription, sanitizeDate, sanitizeTotalBudget, sanitizeFlightBudget, validateEventID, sanitizeLocation} = require("../utils/eventSanitization");
 const { validateUserID } = require("../utils/UserSanitizations");
 const { validateEventType} = require("../utils/eventTypeSantization");
 const { sanitizeGroupFlightBudget, sanitizeGroupName} = require("../utils/sanitizeEventGroup");
@@ -23,7 +23,8 @@ exports.createEvent = async (req, res) => {
         if (!validateUserID(userID)) {return sendError(res, "User does not exist", 404);}
         if (!validateOrganizationID(organizationID)) return sendError(res, "Organization does not exist", 404);
         if (typeof(maxAttendees) !== "number" || maxAttendees < 0) return sendError(res, "bad value for max attendees", 400);
-        
+        location = sanitizeLocation(location);
+        if (location === null) return sendError(res, "invalid locaiton", 400);
         name = sanitizeEventName(name);
         if (name === null) return sendError(res, "event Name is invalid", 400);
         startDate = sanitizeDate(startDate);
