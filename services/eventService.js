@@ -216,7 +216,7 @@ exports.acceptInvitation = async (req, res) => {
 
         return sendSuccess(res, "Invitation accepted successfully");
     } catch (error) {
-        console.error(error);
+        //console.error(error);
         return sendError(res, "Internal server error", 500);
     }
 };
