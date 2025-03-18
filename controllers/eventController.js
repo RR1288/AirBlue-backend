@@ -1,10 +1,11 @@
-const { User, Event, EventStaff, Attendee, Invitation, OrganizationEventType, DefaultEventType, sequelize, Sequelize } = require("../models");
+const { User, Organization, Event, EventGroup, EventStaff, Attendee, EventTypes, OrganizationEventType, DefaultEventType, sequelize, Sequelize, Invitation } = require("../models");
 const { Op } = require("sequelize");
+
 /*
 CREATE EVENT
 this function
 */
-exports.createEvent = async (userId, name, startDate, endDate, description, typeID, organizationID) => {
+exports.createEvent = async (userId, name, startDate, endDate, description, typeID, organizationID, location, maxAttendees) => {
     try {
         let event;
         await sequelize.transaction(async () => {
@@ -15,9 +16,12 @@ exports.createEvent = async (userId, name, startDate, endDate, description, type
                 EventEndDate: endDate,
                 EventDescription: description,
                 TypeID: typeID,
-                OrganizationID: organizationID
+                OrganizationID: organizationID,
+                Location: location,
+                MaxAttendees: maxAttendees
             });
             //add the creating user to the event staff as an eventplanner
+            this.addToEventStaff(userId, event.EventID, 'E');
         });
         //returns the event Id on success
         return event.EventID;
@@ -26,6 +30,19 @@ exports.createEvent = async (userId, name, startDate, endDate, description, type
         throw new Error("Event creation failed");
     }
 }
+
+exports.createEventGroup = async (eventID, name, budget) => {
+    try{
+    const eventGroup  = await EventGroup.create({
+        Name: name,
+        EventID: eventID,
+        flightBudget: budget
+    });
+    return 
+} catch(error){
+    throw new Error("failed to make event group");
+}
+};
 
 
 //gets eventByID
@@ -123,25 +140,33 @@ exports.processInvitationAcceptance = async (invitationToken) => {
             console.error("User is already an attendee");
             return true; // User is already an attendee
         }
-
+        
         // Add user to Attendees table
         await Attendee.create({
             EventID: invitation.EventID,
             UserID: user.UserID,
             Confirmed: true,
             EventGroupID: invitation.EventGroupID,
+            
         });
+      
 
         // Mark invitation as accepted
-        await invitation.update({ status: "accepted" });
+        invitation.update({ status: "accepted" });
         return true;
 
     } catch (error) {
-        console.error("Error processing invitation acceptance:", error);
         throw new Error("Error processing invitation");
     }
 };
-
+exports.getEventStaff = async (userID, eventID) => {
+    try{
+        return await EventStaff.findAll({where: {EventID: eventID, UserID: userID}});
+    }catch(error){
+        console.error("Error processing invitation acceptance:", error);
+        throw new Error("failed to find entry in event staff");
+    }
+};
 
 exports.setEventBudget = async (eventID, totalBudget, flightBudget) => {
     try {
@@ -157,6 +182,38 @@ exports.setEventBudget = async (eventID, totalBudget, flightBudget) => {
         return true;
     } catch (error) {
         throw new Error("failed to add budget");
+    }
+
+};
+
+exports.appendRoleToEventStaff = async (userID, eventID, role) => {
+try {
+    //get the users entry for event staff
+    let staff = await EventStaff.findOne({
+        where: { EventID: eventID, UserID: userID },
+    });
+    //create a new value for the roleID in event staff
+    let newRole = staff.RoleID + role;
+    //update event staff with the new value for RoleID
+    staff.update({RoleID: newRole});
+    //return true on success
+    return true;
+} catch (error) {
+    console.log(error);
+    throw new Error("failed to append role to eventstaff entry for user");
+}
+};
+
+exports.addToEventStaff = async (userID, eventID, role) => {
+    try {
+        const eventStaff = await EventStaff.create({
+            UserID: userID,
+            EventID: eventID,
+            RoleID: role
+        });
+        return true;
+    } catch (error) {
+        throw new Error("failed to add user to event staff");
     }
 
 };

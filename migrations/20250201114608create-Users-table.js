@@ -30,4 +30,7 @@ module.exports = {
             deletedAt: {type: Sequelize.DATE , defaultValue: null}
         });
     },
+    down: async (queryInterface, Sequelize) => {
+        await queryInterface.dropTable('Users');
+      },
   }

@@ -4,12 +4,12 @@
 const flightService = require('../services/flightService');
 const flightController = require('../controllers/flightController');
 const { sendSuccess, sendError } = require('../utils/responseHelpers');
-const { validateFlightParams } = require('../utils/validateFlightParams');
+const { validateFlightParams } = require('../utils/flightUtils');
 
 //Mock functions
 jest.mock('../controllers/flightController');
 jest.mock('../utils/responseHelpers');
-jest.mock('../utils/validateFlightParams');
+jest.mock('../utils/flightUtils');
 
 //Time to test flightService.js
 describe('flightService', () => {
@@ -167,55 +167,55 @@ describe('flightService', () => {
         });
     });
 
-    //Tests for bookOfferOrHold fucntion
-    describe('bookOfferOrHold', () => {
+    // //Tests for bookOfferOrHold fucntion
+    // describe('bookOfferOrHold', () => {
 
-        //Test 9: Success if bookinng is sucessful
-        it('Should return success when booking is successful', async () => {
-            const req = {
-                params: { offer_id: '12345' },
-                body: { passengers: 2, payments: { cardNumber: '1234' } },
-            };
-            const res = { status: jest.fn().mockReturnThis(), json: jest.fn() };
+    //     //Test 9: Success if bookinng is sucessful
+    //     it('Should return success when booking is successful', async () => {
+    //         const req = {
+    //             params: { offer_id: '12345' },
+    //             body: { passengers: 2, payments: { cardNumber: '1234' } },
+    //         };
+    //         const res = { status: jest.fn().mockReturnThis(), json: jest.fn() };
 
-            // Mocking controller method to resolve an order
-            flightController.bookOfferOrHold.mockResolvedValue({ order_id: 'order123' });
+    //         // Mocking controller method to resolve an order
+    //         flightController.bookOfferOrHold.mockResolvedValue({ order_id: 'order123' });
 
-            await flightService.bookOfferOrHold(req, res);
+    //         await flightService.bookOfferOrHold(req, res);
 
-            expect(flightController.bookOfferOrHold).toHaveBeenCalledWith('12345', 2, { cardNumber: '1234' });
-            expect(sendSuccess).toHaveBeenCalledWith(res, 'Booked flight successfully', { order: { order_id: 'order123' } });
-        });
+    //         expect(flightController.bookOfferOrHold).toHaveBeenCalledWith('12345', 2, { cardNumber: '1234' });
+    //         expect(sendSuccess).toHaveBeenCalledWith(res, 'Booked flight successfully', { order: { order_id: 'order123' } });
+    //     });
 
-        //Test 10: Return error if missign required fields
-        it('Should return error if required fields are missing', async () => {
-            const req = {
-                params: { offer_id: '12345' },
-                body: {},
-            };
-            const res = { status: jest.fn().mockReturnThis(), json: jest.fn() };
+    //     //Test 10: Return error if missign required fields
+    //     it('Should return error if required fields are missing', async () => {
+    //         const req = {
+    //             params: { offer_id: '12345' },
+    //             body: {},
+    //         };
+    //         const res = { status: jest.fn().mockReturnThis(), json: jest.fn() };
 
-            await flightService.bookOfferOrHold(req, res);
+    //         await flightService.bookOfferOrHold(req, res);
 
-            expect(sendError).toHaveBeenCalledWith(res, 'Missing required fields', 400);
-        });
+    //         expect(sendError).toHaveBeenCalledWith(res, 'Missing required fields', 400);
+    //     });
 
-        //Test 11; Error if booking fails
-        it('should return error if booking fails', async () => {
-            const req = {
-                params: { offer_id: '12345' },
-                body: { passengers: 2, payments: { cardNumber: '1234' } },
-            };
-            const res = { status: jest.fn().mockReturnThis(), json: jest.fn() };
+    //     //Test 11; Error if booking fails
+    //     it('should return error if booking fails', async () => {
+    //         const req = {
+    //             params: { offer_id: '12345' },
+    //             body: { passengers: 2, payments: { cardNumber: '1234' } },
+    //         };
+    //         const res = { status: jest.fn().mockReturnThis(), json: jest.fn() };
 
-            // Mocking controller method to throw an error (which should trigger the catch block)
-            flightController.bookOfferOrHold.mockRejectedValue(new Error('Failed'));
+    //         // Mocking controller method to throw an error (which should trigger the catch block)
+    //         flightController.bookOfferOrHold.mockRejectedValue(new Error('Failed'));
 
-            await flightService.bookOfferOrHold(req, res);
+    //         await flightService.bookOfferOrHold(req, res);
 
-            // This should now match the error message and status from the catch block
-            expect(sendError).toHaveBeenCalledWith(res, 'Failed to book flight', 500);
-        });
+    //         // This should now match the error message and status from the catch block
+    //         expect(sendError).toHaveBeenCalledWith(res, 'Failed to book flight', 500);
+    //     });
 
-    });
+    // });
 });

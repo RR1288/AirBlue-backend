@@ -1,6 +1,7 @@
 const validator = require("validator");
 const { validateOrganizationID } = require("./OrganizationSanitization");
 const{getEventByID} = require("../controllers/eventController");
+const { start } = require("repl");
 
 function startSanitizeString(input){
     if (typeof input !== 'string') return null;
@@ -19,6 +20,12 @@ async function  validateEventID(eventID){
     }catch(error){
         return false;
     }
+}
+
+function sanitizeLocation(location) {
+    let sanitizedLocation = startSanitizeString(location);
+    if (sanitizeLocation === null) return null;
+    return sanitizedLocation;
 }
 
 function sanitizeEventName(name){
@@ -75,4 +82,4 @@ function sanitizeFlightBudget(budget){
     return sanitizedBudget;
 }
 
-module.exports = {sanitizeDate, sanitizeEventName, sanitizeEventDescription, sanitizeFlightBudget, sanitizeTotalBudget, validateEventID}
+module.exports = {sanitizeDate, sanitizeEventName, sanitizeEventDescription, sanitizeFlightBudget, sanitizeTotalBudget, validateEventID, sanitizeLocation}
