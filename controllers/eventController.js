@@ -1,4 +1,4 @@
-const { User, Organization, Event, EventGroup, EventStaff, Attendee, EventTypes, OrganizationEventType, DefaultEventType, sequelize, Sequelize } = require("../models");
+const { User, Organization, Event, EventGroup, EventStaff, Attendee, EventTypes, OrganizationEventType, DefaultEventType, sequelize, Sequelize, Invitation } = require("../models");
 const { Op } = require("sequelize");
 
 /*
@@ -136,21 +136,21 @@ exports.processInvitationAcceptance = async (invitationToken) => {
         if (existingAttendee) {
             return true; // User is already an attendee
         }
-
+        
         // Add user to Attendees table
         await Attendee.create({
             EventID: invitation.EventID,
             UserID: user.UserID,
             Confirmed: "t", //  TODO: might not need this column
             EventGroupID: invitation.EventGroupID,
+            
         });
+      
 
         // Mark invitation as accepted
-        await invitation.update({ status: "accepted" });
-
+        invitation.update({ status: "accepted" });
         return true;
     } catch (error) {
-        console.error("Error processing invitation acceptance:", error);
         throw new Error("Error processing invitation");
     }
 };
@@ -158,6 +158,7 @@ exports.getEventStaff = async (userID, eventID) => {
     try{
         return await EventStaff.findAll({where: {EventID: eventID, UserID: userID}});
     }catch(error){
+        console.error("Error processing invitation acceptance:", error);
         throw new Error("failed to find entry in event staff");
     }
 };
