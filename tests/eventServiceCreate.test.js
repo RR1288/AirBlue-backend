@@ -40,6 +40,8 @@ describe('Event Service Create Tests', () => {
                 startDate: '2025-03-15T10:00:00Z',
                 endDate: '2025-03-16T10:00:00Z',
                 typeID: 1,
+                location: "Rochester, NY",
+                maxAttendees: 500,
             },
             headers: {
                 authorization: 'Bearer fakeToken'
