@@ -2,7 +2,7 @@ const fs = require('fs');
 const Papa = require('papaparse');
 
 // Function to process CSV and check users in the database
-exports.processCSVAndAddUsers = async (filePath) => {
+exports.processCSV = async (filePath) => {
   // Read the CSV file asynchronously using PapaParse
   fs.readFile(filePath, 'utf8', async (err, data) => {
     if (err) {
