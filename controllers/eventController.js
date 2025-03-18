@@ -5,7 +5,7 @@ const { Op } = require("sequelize");
 CREATE EVENT
 this function
 */
-exports.createEvent = async (userId, name, startDate, endDate, description, typeID, organizationID) => {
+exports.createEvent = async (userId, name, startDate, endDate, description, typeID, organizationID, location, maxAttendees) => {
     try {
         let event;
         await sequelize.transaction(async t => {
@@ -16,7 +16,9 @@ exports.createEvent = async (userId, name, startDate, endDate, description, type
                 EventEndDate: endDate,
                 EventDescription: description,
                 TypeID: typeID,
-                OrganizationID: organizationID
+                OrganizationID: organizationID,
+                Location: location,
+                MaxAttendees: maxAttendees
             });
             //add the creating user to the event staff as an eventplanner
             this.addToEventStaff(userId, event.EventID, 'E');
