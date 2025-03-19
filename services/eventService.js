@@ -14,13 +14,10 @@ exports.createEvent = async (req, res) => {
         //make sure required inputs have been sent
         if(!name || !startDate || !endDate || !typeID || !location || !maxAttendees) return sendError(res, "missing required inputs");
         //pull organizationID and userID from token
-        // const token = req.headers.authorization?.split(' ')[1];
-        // const decoded = jwt.verify(token, process.env.JWT_SECRET);
-        // const userID = parseInt(decoded.id);
-        // const organizationID = parseInt(decoded.OrganizationID);
-
-        const userID = parseInt(req.user.id);
-        const organizationID = parseInt(req.user.OrganizationID);
+        const token = req.headers.authorization?.split(' ')[1];
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        const userID = parseInt(decoded.id);
+        const organizationID = parseInt(decoded.OrganizationID);
 
         //sanitization and validation
         if (!validateUserID(userID)) {return sendError(res, "User does not exist", 404);}

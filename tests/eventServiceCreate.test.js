@@ -1,7 +1,4 @@
-const EventController = require("../controllers/eventController");
-const { User, Invitation, Attendee, Event } = require('../models');
-const { createEvent } = require('../services/eventService');  // Adjust the path as needed
-const { sendError, sendSuccess } = require('../utils/responseHelpers');
+// eventServiceCreate.test.js
 
 // Set up constants
 const { createEvent, getAvailableEventTypes } = require('../services/eventService');
@@ -51,12 +48,11 @@ describe('Event Service Create Tests', () => {
             },
         };
 
-    // Create a mock req object
-    req = {
-      body: {},
-      user: { id: '1', OrganizationID: '2' },  // Mock user data (adjust as needed)
-    };
-  });
+        res = {
+            sendSuccess: sendSuccess,
+            sendError: sendError
+        };
+    });
 
     // Testing for createEvent
     describe('createEvent', () => {
@@ -66,21 +62,20 @@ describe('Event Service Create Tests', () => {
             // Simulate missing name
             req.body.name = undefined;
 
-    await createEvent(req, res);  // Call the controller
+            await createEvent(req, res);
 
-    // Assert that sendError was called with status 400 and the correct message
-    expect(sendError).toHaveBeenCalledWith(res, "missing required inputs");
-  });
+            expect(sendError).toHaveBeenCalledWith(res, "missing required inputs");
+        });
 
         // Test 2: Error if a user is invalid
         it('Should return error if user is invalid', async () => {
             jwt.verify.mockReturnValue({ id: '1', OrganizationID: '1' });
             validateUserID.mockReturnValue(false);  // Mock invalid user
 
-    await createEvent(req, res);
+            await createEvent(req, res);
 
-    expect(sendError).toHaveBeenCalledWith(res, "missing required inputs");
-  });
+            expect(sendError).toHaveBeenCalledWith(res, "User does not exist", 404);
+        });
 
         // Test 3: Error if organization is invalid
         it('Should return error if organization is invalid', async () => {
@@ -89,10 +84,10 @@ describe('Event Service Create Tests', () => {
             validateEventType.mockReturnValue(true);
             validateOrganizationID.mockReturnValue(false); // Mock invalid organization
 
-    await createEvent(req, res);
+            await createEvent(req, res);
 
-    expect(sendError).toHaveBeenCalledWith(res, "missing required inputs");
-  });
+            expect(sendError).toHaveBeenCalledWith(res, "Organization does not exist", 404);
+        });
 
         // Test 4: Error if event name is not allowed
         it('should return error if event name is invalid', async () => {
@@ -101,10 +96,10 @@ describe('Event Service Create Tests', () => {
             validateOrganizationID.mockReturnValue(true);
             sanitizeEventName.mockReturnValue(null);  // Mock invalid name
 
-    await createEvent(req, res);
+            await createEvent(req, res);
 
-    expect(sendError).toHaveBeenCalledWith(res, "missing required inputs");
-  });
+            expect(sendError).toHaveBeenCalledWith(res, "event Name is invalid", 400);
+        });
 
         // Test 5: Error if date is invalid
         it('Should return error if start date is invalid', async () => {
@@ -114,10 +109,10 @@ describe('Event Service Create Tests', () => {
             sanitizeEventName.mockReturnValue('Event Test');
             sanitizeDate.mockReturnValue(null);
 
-    await createEvent(req, res);
+            await createEvent(req, res);
 
-    expect(sendError).toHaveBeenCalledWith(res, "missing required inputs");
-  });
+            expect(sendError).toHaveBeenCalledWith(res, "invalid start date", 400);
+        });
 
         // Test 6: Error if event type isn't found
         it('Should return error if event type is not found', async () => {
