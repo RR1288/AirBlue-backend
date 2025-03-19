@@ -65,7 +65,7 @@ router.post("/invite/:eventId", protect, authorizedRoles(Roles.PLANNER, Roles.PL
 
 /**
  * @swagger
- * /attendees/invite/csv:
+ * /attendees/invite-csv:
  *   post:
  *     summary: Invite a group of attendee by email for a given event provided a CSV.
  *     description: |
@@ -120,7 +120,7 @@ router.post("/invite/:eventId", protect, authorizedRoles(Roles.PLANNER, Roles.PL
  *       500:
  *         description: Internal server error.
  */
-router.post("/invite/:eventId", protect, authorizedRoles(Roles.PLANNER, Roles.PLANNER), upload.single('attendees'), AttendeeService.inviteAttendeesCsv);
+router.post("/invite-csv", protect, authorizedRoles(Roles.PLANNER, Roles.PLANNER), upload.single('file'), AttendeeService.inviteAttendeesCsv);
 
 
 /**

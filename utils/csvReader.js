@@ -1,36 +1,33 @@
 const fs = require('fs');
-const Papa = require('papaparse');
+const readline = require('readline');
 
 // Function to process CSV and check users in the database
 exports.processCSV = async (filePath) => {
-  // Read the CSV file asynchronously using PapaParse
-  fs.readFile(filePath, 'utf8', async (err, data) => {
-    if (err) {
-      console.error('Error reading the file:', err);
-      return;
-    }
+  try{
+    let results = [];
+    const stream = fs.createReadStream(filePath);
+    const r1 = readline.createInterface({ input: stream, crlfDelay: Infinity });
 
-    // Parse the CSV data
-    Papa.parse(data, {
-      header: true,  // Assumes the first row contains headers
-      skipEmptyLines: true,
-      complete: async (result) => {
-        // Process each row of data
-        let invitees = [];
-        for (const row of result.data) {
-          // Assuming the CSV has these columns: Email, FirstName, LastName, Country
-          const { email, firstName, lastName } = row;
-          console.log(result.data);
-          invitees.push({Email: email, FirstName: firstName, LastName: lastName});
-          
-        }
-        console.log('CSV file processed successfully.');
-      },
-      error: (error) => {
-        console.error('Error parsing CSV:', error);
+    for await (let line of r1 ) {
+      const values = line.split(",");
+      if (values.length >= 2){
+        results.push({
+          Email: values[0].trim(),
+          FirstName: values[1].trim(),
+          LastName: values[2].trim(),
+        });
+      }else if (values.length > 0){
+        results.push({
+          Email: values[0].trim(),
+          FirstName: '',
+          LastName: '',
+        });
       }
-    });
-  });
+    };
+    return results;
+  }catch(error){
+    throw new Error("failed to read csv");
+  }
 };
 
 exports.deleteCSV = async (filepath) =>{

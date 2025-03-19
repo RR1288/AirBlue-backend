@@ -30,25 +30,24 @@ exports.inviteAttendee = async (req, res) => {
  * 
  */
 exports.inviteAttendeesCsv = async (req, res) => {
+  let filepath = req.file.path;
   try {
     //declare passed in values
     if (! req.path) return sendError(res, "no file given", 400);
     const {eventId, eventGroupId} = req.body;
-    //decalare the csv path here
-    let filepath = req.file.path;
     //validation
     if (!validateEventID(eventId)) return sendError(res, "invalid eventId", 400);
     if (false) return sendError(res, "invalid eventGroupId");
 
     //converts the csv input into a list of basic user informaiton
-    let csvItems = processCSV(filepath);
+    let csvItems = await processCSV(filepath);
     let successfulInvites = 0;
     let failedInvites = 0;
     //loop through the preivously created list to 
     for (let i = 0; i < csvItems.length; i++) {
       try {
         //check if the email is missing or invalid
-        let email = sanitizeEmail(csvItems[i].email);
+        let email = sanitizeEmail(csvItems[i].Email);
         //if it is missing add the entry to the failed entries list and continue
         if(!email || email === null){
           //add the object to the list of failedInvites
@@ -63,19 +62,20 @@ exports.inviteAttendeesCsv = async (req, res) => {
 
 
       } catch (error) {// if a failure happens and the code errors out just add the entry to the list of failed adds
+        console.log(error);
         failedInvites += 1;
         csvItems[i].success = false;
       }
     }
     //if no errors have occured combine the succesfulInvites and failedInvites into on object and send succeess
-    let combinedSuccessFailed
-    return sendSuccess(res, "successfully ran function with "+successfulInvites+" users successfully invited and "+failedInvites+" failed invites");
+    await deleteCSV(filepath);
+    return sendSuccess(res, "successfully ran function with "+successfulInvites+" users successfully invited and "+failedInvites+" failed invites", csvItems);
   } catch (error) {
     //return the process as a failer
-    return sendError(res, "failed to add attendees through input file");
-  } finally {
     deleteCSV(filepath);
-  }
+    return sendError(res, "failed to add attendees through input file");
+    
+  } 
 }
 
 /**
