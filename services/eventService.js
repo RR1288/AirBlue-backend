@@ -6,7 +6,7 @@ const { validateUserID } = require("../utils/UserSanitizations");
 const { validateEventType} = require("../utils/eventTypeSantization");
 const { sanitizeGroupFlightBudget, sanitizeGroupName} = require("../utils/sanitizeEventGroup");
 const EventController = require("../controllers/eventController");
-const jwt = require('jsonwebtoken');
+const jwt = require("jsonwebtoken");
 
 exports.createEvent = async (req, res) => {
     try {
@@ -27,8 +27,11 @@ exports.createEvent = async (req, res) => {
         if (location === null) return sendError(res, "invalid locaiton", 400);
         name = sanitizeEventName(name);
         if (name === null) return sendError(res, "event Name is invalid", 400);
+
         startDate = sanitizeDate(startDate);
-        if (startDate === null) return sendError(res, "invalid start date", 400);
+        if (startDate === null)
+            return sendError(res, "invalid start date", 400);
+
         endDate = sanitizeDate(endDate);
         if (endDate === null) return sendError(res, "invalid start date", 400);
 
@@ -45,7 +48,7 @@ exports.createEvent = async (req, res) => {
     } catch (err) {
         return sendError(res, "server error");
     }
-}
+};
 
 
 exports.joinEventFinance =  async (req, res) => { //consider making the function call addEventFinance instead
@@ -148,23 +151,24 @@ Get Methods
 */
 
 //this function returns to a user every event type that is available to their organization
-exports.getAvailableEventTypes = async (req, res) =>{
+exports.getAvailableEventTypes = async (req, res) => {
     try {
-        const token = req.headers.authorization?.split(' ')[1];
+        const token = req.headers.authorization?.split(" ")[1];
         const decoded = jwt.verify(token, process.env.JWT_SECRET);
         const organizationID = parseInt(decoded.OrganizationID);
         //validation
-        if (!validateOrganizationID(organizationID)) return sendError(res, "Organization does not exist", 404);
+        if (!validateOrganizationID(organizationID))
+            return sendError(res, "Organization does not exist", 404);
 
         const eventTypes = await getEventTypes(organizationID);
-        if (!eventTypes) return sendError(res, "failed to get event types", 400);
+        if (!eventTypes)
+            return sendError(res, "failed to get event types", 400);
 
         return sendSuccess(res, "successfully got event types", eventTypes);
     } catch (error) {
         return sendError(res, "server error");
     }
-
-}
+};
 
 exports.getEventPlanners = async (req, res) => {
     try {
@@ -212,7 +216,9 @@ exports.acceptInvitation = async (req, res) => {
             return sendError(res, "Invitation token is required", 400);
         }
 
-        const result = await EventController.processInvitationAcceptance(invitation);
+        const result = await EventController.processInvitationAcceptance(
+            invitation
+        );
 
         if (!result) {
             return sendError(res, "Invalid or expired invitation", 400);
