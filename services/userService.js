@@ -6,7 +6,9 @@ const {
     disableUserNormal,
     disableUserOrganization,
     updateUser,
-    resetPassword,
+    updatePassword,
+    sendUpdatePasswordEmail,
+    getUserByID
 } = require("../controllers/userController");
 const {
     sanitizeEmail,
@@ -304,31 +306,37 @@ exports.disableUserNormalService = async (req, res) => {
 };
 
 //password services
+
+
 exports.sendResetEmailBasic = async (req, res) => {
     try {
         let {email} = req.body
         //validation
         email = sanitizeEmail(email);
+        //this function never sends error since there is no protect so anyone can run it
         if (email === null)
-            return sendError(res, "invalid email", 400);
+            return sendSuccess(res, "successfully sent password reset to user");
         //run function
-        const success = false; //TODO write function
-        if (!success) return sendError(res, "failed to send email", 400);
+        const success = sendUpdatePasswordEmail(email);
+        //does not check if it succeeded or failed since this 
         return sendSuccess(res, "successfully sent password reset to user");
 
     } catch (error) {
-        return sendError(res, "failed to send email");
+        return sendSuccess(res, "successfully sent password reset to user");
     }
 };
 
-exports.sendResetEmailAdmin = async (req, res) => {
+exports.updatePasswordAdmin = async (req, res) => {
     try {
-        const {userID} = req.body
+        let {userID, password} = req.body
         //validation
         if (!validateUserID(userID))
             return sendError(res, "User does not exist", 400);
         //run function
-        const success = false; //TODO write function
+        password = sanitizePassword(password);
+        if (password === null) return sendError(res, "invalid password", 400);
+
+        const success = await updatePassword(userID, password);
         if (!success) return sendError(res, "failed to send email", 400);
         return sendSuccess(res, "successfully sent password reset to user");
 
@@ -347,10 +355,11 @@ exports.resetPassword = async (req, res) => {
         password = sanitizePassword(password);
         if (password === null) return sendError(res, "invalid password", 400);
 
-        const success = await resetPassword(userID, password); //TODO write function
+        const success = await updatePassword(userID, password); //TODO write function
         if (!success) return sendError(res, "failed to reset password", 400);
         return sendSuccess(res, "successfully reset password");
     }catch(error){
+        console.log(error);
         return sendError(res, "could not reset password");
     }
 };

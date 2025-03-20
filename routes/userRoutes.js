@@ -6,7 +6,7 @@ const {
     disableUserOrganization,
     disableUserNormalService,
     updateUserInfo,
-    sendResetEmailAdmin,
+    updatePasswordAdmin,
     sendResetEmailBasic,
     resetPassword
 } = require("../services/userService");
@@ -19,6 +19,8 @@ const {
 } = require("../middleware/organizationMiddleware.js");
 const router = express.Router();
 const {Roles} = require("../utils/Roles.js");
+const { updateExpression } = require("@babel/types");
+const { updatePassword } = require("../controllers/userController.js");
 
 /**
  * @swagger
@@ -247,10 +249,10 @@ router.post("/send-reset-email", sendResetEmailBasic);
 
 /**
  * @swagger
- * /users/send-reset-email-admin :
+ * /users/reset-password-admin :
  *   post:
- *     summary: create new user for end users who are not organization users
- *     description: endpoint to create new users from the new user screen
+ *     summary: reset and organization users password as an administrative user for an organization
+ *     description: reset and organization users password as an administrative user for an organization
  *     tags:
  *       - Users
  *     requestBody:
@@ -260,18 +262,23 @@ router.post("/send-reset-email", sendResetEmailBasic);
  *           schema:
  *             type: object
  *             required:
- *               - email
+ *               - userID
+ *               - password
  *             properties:
  *               userID:
  *                 type: integer
  *                 example: 2
+ *               password:
+ *                 type: string
+ *                 example: securepassword123!
+ *  
  *     responses:
  *       201:
  *         description: email was successfully sent
  *       400:
  *         description: function was not succefully run
  */
-router.post("/send-reset-email-admin", protect, checkOrganizationUser, checkUserInOrganization, sendResetEmailAdmin); //this function should later be shifted to actually changing the pa
+router.post("/reset-password-admin", protect, checkOrganizationUser, checkUserInOrganization, updatePasswordAdmin); //this function should later be shifted to actually changing the pa
 
 /**
  * @swagger
@@ -300,7 +307,7 @@ router.post("/send-reset-email-admin", protect, checkOrganizationUser, checkUser
  *       400:
  *         description: function was not succefully run
  */
-router.post("/send-reset-email", protect, resetPassword);
+router.post("/reset-password", protect, resetPassword);
 
 //get functions
 router.get(
