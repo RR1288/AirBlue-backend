@@ -36,4 +36,4 @@ function sanitizeGroupName(name){
     return SanitizedName;
 }
 
-module.exports = {sanitizeGroupFlightBudget, sanitizeGroupName};
+module.exports = {sanitizeGroupFlightBudget, sanitizeGroupName, validateEventGroup};

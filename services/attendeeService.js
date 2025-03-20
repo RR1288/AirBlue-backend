@@ -2,6 +2,7 @@ const {sendSuccess, sendError} = require("../utils/responseHelpers");
 const AttendeeController = require("../controllers/attendeeController");
 const {sanitizeEmail} = require("../utils/UserSanitizations");
 const {validateEventID} = require("../utils/eventSanitization");
+const {validateEventGroup} = require("../utils/sanitizeEventGroup");
 const {deleteCSV, processCSV} = require("../utils/csvReader");
 /**
  * Invite an attendee by email.
