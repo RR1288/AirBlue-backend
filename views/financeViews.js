@@ -1,4 +1,4 @@
-const {Itinerary, Event, EventStaff} = require("../models");
+const {Itinerary, Event, EventStaff, Sequelize} = require("../models");
 const EventController = require("../controllers/eventController");
 const { Op } = require("sequelize");
 
@@ -21,6 +21,7 @@ exports.getEventsFinance = async(organizationId, userId) =>{
                     ['Location', 'location'],
                     ['EventDescription', 'description'],
                     ['EventTotalBudget', 'eventBudget'],
+                    ['EventFlightBudget', 'flightBudget'],
                     ["MaxAttendees", 'maxAttendees'],
                     
                 ],
@@ -65,6 +66,7 @@ exports.getJoinableEventsFinance = async(organizationId) =>{
                     ['Location', 'location'],
                     ['EventDescription', 'description'],
                     ['EventTotalBudget', 'eventBudget'],
+                    ['EventFlightBudget', 'flightBudget'],
                     ["MaxAttendees", 'maxAttendees'],
                     
                 ],
@@ -73,7 +75,7 @@ exports.getJoinableEventsFinance = async(organizationId) =>{
         //check to see if eventShows up in list of events with finance users
         for (let i = 0; i < events.length; i++){
             //get the id from the event
-            let eventId = praseInt(events[i].id);
+            let eventId = parseInt(events[i].dataValues.id);
             //check to see if event has a finance user
             if (EventController.getEventStaffByRole(eventId, 'F') === null){
                 //if it does not have a finance user it should add the financeUser field to the object and then push it to the results array

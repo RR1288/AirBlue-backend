@@ -1,6 +1,8 @@
 const { sendSuccess, sendError } = require('../utils/responseHelpers');
 const { setEventBudget } = require('../controllers/eventController');
-const FinanceViews = require('../views/financeViews')
+const FinanceViews = require('../views/financeViews');
+const { validateUserID } = require("../utils/UserSanitizations");
+const { validateOrganizationID } = require("../utils/OrganizationSanitization");
 const {sanitizeFlightBudget, sanitizeTotalBudget, validateEventID} = require("../utils/eventSanitization");
 const jwt = require("jsonwebtoken");
 exports.setEventBudget = async (req, res) => {
@@ -37,12 +39,12 @@ exports.getAllEventsFinance = async (req, res) => {
         if (!validateOrganizationID(organizationID)) return sendError(res, "Organization does not exist", 404);
 
         //run primary functions in the view
-        let eventsUserIsIn = FinanceViews.getEventsFinance(organizationID, userID);
-        let eventsJoinable = FinanceViews.getJoinableEventsFinance(organizationID);
+        let eventsUserIsIn = await FinanceViews.getEventsFinance(organizationID, userID);
+        let eventsJoinable = await FinanceViews.getJoinableEventsFinance(organizationID);
         if (!eventsUserIsIn) return sendError(res, 'failed to get events the user is in', 400);
         if (!eventsJoinable) return sendError(res, 'failed to get joinable events');
-        return [...eventsUserIsIn, ...eventsJoinable];
-        
+        let combined = [...eventsUserIsIn, ...eventsJoinable];
+        return sendSuccess(res, "successfully got events", combined);
 
     } catch (error) {
         return sendError(res, 'failed to get events', 400);
