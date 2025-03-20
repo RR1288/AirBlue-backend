@@ -13,7 +13,7 @@ const transporter = nodemailer.createTransport({
 });
 
 // Function to send password reset email
-function sendPasswordResetEmail(userEmail) {
+function sendPasswordResetEmail(userEmail, link) {
   // URL to the password reset page, including the reset token as a query parameter
   // Replace stickbug link with ${resetURL} (line 88) whenever that gets made
   //const resetUrl = `https://yourwebsite.com/reset-password?token=some-reset-token`; // Replace with real token when available

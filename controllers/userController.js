@@ -5,8 +5,9 @@ const {
     Sequelize,
     sequelize,
 } = require("../models");
+const emailSender = require("../utils/emailSender");
 const bcrypt = require("bcryptjs");
-
+const crypto = require("crypto");
 exports.getAllEventPlanners = async (req, res) => {
     try {
         const eventPlanners = await User.findAll({
@@ -207,8 +208,10 @@ exports.updatePassword = async (userID, password) => {
         if(!userLogin){
             throw new Error("could not find user");
         }
-        userLogin.update({
+        userLogin.update({//updates the password
             Password: password,
+            token: null,
+            LastPasswordChange: Date.now()
         });
         return true;
     } catch (error) {
@@ -218,7 +221,16 @@ exports.updatePassword = async (userID, password) => {
 
 exports.sendUpdatePasswordEmail = async (email) => {
     try {
-        
+        //retrieve user login by the users email
+        const user = await User.findOne({where: {Email: email}});
+        if (!user){throw new Error('user does not exist');}
+        let login = UserLogin.findByPk(parseInt(user.dataValues.UserID));
+        login.token = crypto.randomBytes(16).toString("hex");
+        login.update();
+
+        //creating link for the email utils
+        let resetLink = `https://yourwebsite.com/reset-password?token=${login.token}`;
+        await emailSender.sendPasswordResetEmail(email, resetLink);
     } catch (error) {
         throw new Error("failed to send email");
     }
