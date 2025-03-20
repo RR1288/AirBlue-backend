@@ -1,0 +1,256 @@
+const express = require("express");
+const router = express.Router();
+const AttendeeService = require("../services/attendeeService");
+const { protect } = require("../middleware/authMiddleware");
+const { authorizedRoles } = require("../middleware/roleMiddleware");
+const { Roles } = require("../utils/Roles");
+
+/**
+ * @swagger
+ * /attendees/invite/{eventId}:
+ *   post:
+ *     summary: Invite an attendee by email for a given event (Event Planner only).
+ *     description: |
+ *       The system checks if the provided email exists. 
+ *       If it does, it sends an invitation link to accept the invitation.
+ *       If not, it sends an account creation invitation link.
+ *       A pending invitation record is created in either case.
+ *     tags:
+ *       - Attendees
+ *     parameters:
+ *       - in: path
+ *         name: eventId
+ *         required: true
+ *         description: The ID of the event.
+ *         schema:
+ *           type: integer
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               email:
+ *                 type: string
+ *                 example: "invitee@example.com"
+ *               eventGroupId:
+ *                 type: integer
+ *                 example: 1
+ *     responses:
+ *       200:
+ *         description: Invitation sent successfully.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 invitationId:
+ *                   type: integer
+ *                   example: 1
+ *                 invitedEmail:
+ *                   type: string
+ *                   example: "invitee@example.com"
+ *                 status:
+ *                   type: string
+ *                   example: "pending"
+ *       400:
+ *         description: Bad request – missing required parameters.
+ *       500:
+ *         description: Internal server error.
+ */
+router.post("/invite/:eventId", protect, authorizedRoles(Roles.PLANNER, Roles.PLANNER), AttendeeService.inviteAttendee);
+
+/**
+ * @swagger
+ * /attendees/{eventId}:
+ *   get:
+ *     summary: Get accepted attendees and pending invitations for an event (Event Planner only).
+ *     description: |
+ *       Returns two lists:
+ *         - Attendees: Users who have accepted the invitation (with full user info).
+ *         - Pending Invitations: Invitations that are pending, without revealing if the user exists.
+ *     tags:
+ *       - Attendees
+ *     parameters:
+ *       - in: path
+ *         name: eventId
+ *         required: true
+ *         description: The ID of the event.
+ *         schema:
+ *           type: integer
+ *     responses:
+ *       200:
+ *         description: Attendees and pending invitations fetched successfully.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 attendees:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       id:
+ *                         type: integer
+ *                         example: 5
+ *                       name:
+ *                         type: string
+ *                         example: "Alice Johnson"
+ *                       email:
+ *                         type: string
+ *                         example: "alice@example.com"
+ *                 pendingInvitations:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       invitationId:
+ *                         type: integer
+ *                         example: 6
+ *                       invitedEmail:
+ *                         type: string
+ *                         example: "invitee@example.com"
+ *                       status:
+ *                         type: string
+ *                         example: "pending"
+ *       400:
+ *         description: Bad request – missing event ID.
+ *       500:
+ *         description: Internal server error.
+ */
+router.get("/:eventId", protect, authorizedRoles(Roles.PLANNER, Roles.ADMIN), AttendeeService.getAttendees);
+
+
+/**
+ * @swagger
+ * /attendees/invite/revoke:
+ *   delete:
+ *     summary: Revoke invitations for an event  (Event Planner only).
+ *     description: >
+ *       An event planner may revoke invitations only if they are assigned to that event.
+ *     tags:
+ *       - Attendees
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               eventId:
+ *                 type: integer
+ *                 example: 1
+ *               invitationIds:
+ *                 type: array
+ *                 example: [1, 2, 3]
+ *                 items:
+ *                   type: integer
+ *                 description: "Array of invitation ids to revoke."
+ *                  
+ *     responses:
+ *       200:
+ *         description: Invitation revoked successfully.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 message:
+ *                   type: string
+ *                   example: Invitations revoked successfully.
+ *       400:
+ *         description: Bad request – missing required fields.
+ *       403:
+ *         description: Unauthorized – not allowed to remove this attendee.
+ *       500:
+ *         description: Internal server error.
+ */
+router.delete("/invite/revoke", protect, authorizedRoles(Roles.PLANNER), AttendeeService.revokeInvitations );
+
+/**
+ * @swagger
+ * /attendees/remove:
+ *   delete:
+ *     summary: Remove confirmed attendees from an event (Event Planner only).
+ *     tags:
+ *       - Attendees
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               eventId:
+ *                 type: integer
+ *                 example: 1
+ *               userIds:
+ *                 type: array
+ *                 example: [9, 10, 11]
+ *                 items:
+ *                   type: integers
+ *                 description: "Array of user IDs to remove from the event."
+ *     responses:
+ *       200:
+ *         description: Attendees removed successfully.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 message:
+ *                   type: string
+ *                   example: Attendees removed successfully.
+ *       400:
+ *         description: Missing required fields.
+ *       403:
+ *         description: Unauthorized.
+ *       500:
+ *         description: Internal server error.
+ */
+router.delete("/remove", protect, authorizedRoles(Roles.PLANNER), AttendeeService.removeConfirmedAttendees);
+
+/**
+ * @swagger
+ * /attendees/cancel:
+ *   delete:
+ *     summary: Cancel your own pending invitation (End user only).
+ *     tags:
+ *       - Attendees
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               eventId:
+ *                 type: integer
+ *                 example: 1
+ *     responses:
+ *       200:
+ *         description: Invitation canceled successfully.
+ *       400:
+ *         description: Missing required fields.
+ *       403:
+ *         description: Unauthorized or no pending invitation found.
+ *       500:
+ *         description: Internal server error.
+ */
+router.delete("/cancel", protect, AttendeeService.cancelOwnParticipation);
+
+module.exports = router;

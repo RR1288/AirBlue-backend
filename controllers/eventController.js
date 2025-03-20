@@ -1,13 +1,14 @@
-const { User, Organization, Event, EventGroup, EventStaff, Attendee, EventTypes, OrganizationEventType, DefaultEventType, sequelize, Sequelize } = require("../models");
+const { User, Organization, Event, EventGroup, EventStaff, Attendee, EventTypes, OrganizationEventType, DefaultEventType, sequelize, Sequelize, Invitation } = require("../models");
+const { Op } = require("sequelize");
 
 /*
 CREATE EVENT
 this function
 */
-exports.createEvent = async (userId, name, startDate, endDate, description, typeID, organizationID) => {
+exports.createEvent = async (userId, name, startDate, endDate, description, typeID, organizationID, location, maxAttendees) => {
     try {
         let event;
-        await sequelize.transaction(async t => {
+        await sequelize.transaction(async () => {
             //create the event
             event = await Event.create({
                 EventName: name,
@@ -15,7 +16,9 @@ exports.createEvent = async (userId, name, startDate, endDate, description, type
                 EventEndDate: endDate,
                 EventDescription: description,
                 TypeID: typeID,
-                OrganizationID: organizationID
+                OrganizationID: organizationID,
+                Location: location,
+                MaxAttendees: maxAttendees
             });
             //add the creating user to the event staff as an eventplanner
             this.addToEventStaff(userId, event.EventID, 'E');
@@ -55,7 +58,7 @@ returns a list of event types that the user can assign to an event
 exports.getEventTypes = async (organizationID) => {
     try {
         let typeList = [];
-        await sequelize.transaction(async t => {
+        await sequelize.transaction(async () => {
             //get a list of all default eventTypes
             let defaultEventTypes = await DefaultEventType.findAll({
                 attributes: ['TypeID', 'Name'],
@@ -103,10 +106,64 @@ exports.getEventStaffByRole = async (eventId, role) => {
         ],
     });
 };
+
+exports.processInvitationAcceptance = async (invitationToken) => {
+    try {
+        // Find the invitation using the token
+        const invitation = await Invitation.findOne({
+            where: {
+                token: invitationToken,
+                status: "pending",
+                expiresAt: { [Op.gt]: new Date() }, // Ensure it's not expired
+            },
+        });
+
+        if (!invitation) {
+            console.error("Invitation not found");
+            throw new Error("Invitation not found");
+        }
+
+        // Find the user
+        let user = await User.findByPk(invitation.UserID);
+
+        if (!user) {
+            console.error("User not found");
+            throw new Error("User not found"); // User should have created an account before accepting
+        }
+
+        // Check if user is already an attendee
+        const existingAttendee = await Attendee.findOne({
+            where: { EventID: invitation.EventID, UserID: user.UserID, EventGroupID: invitation.EventGroupID },
+        });
+
+        if (existingAttendee) {
+            console.error("User is already an attendee");
+            return true; // User is already an attendee
+        }
+        
+        // Add user to Attendees table
+        await Attendee.create({
+            EventID: invitation.EventID,
+            UserID: user.UserID,
+            Confirmed: true,
+            EventGroupID: invitation.EventGroupID,
+            
+        });
+      
+
+        // Mark invitation as accepted
+        invitation.update({ status: "accepted" });
+        return true;
+
+    } catch (error) {
+        throw new Error("Error processing invitation");
+    }
+};
 exports.getEventStaff = async (userID, eventID) => {
     try{
         return await EventStaff.findAll({where: {EventID: eventID, UserID: userID}});
     }catch(error){
+        console.error("Error processing invitation acceptance:", error);
         throw new Error("failed to find entry in event staff");
     }
 };
