@@ -42,7 +42,7 @@ exports.inviteAttendeesCsv = async (req, res) => {
     if (!eventId || !eventGroupId) return sendError(res, "missing inputs", 400);
     //validation
     if (!validateEventID(eventId)) return sendError(res, "invalid eventId", 400);
-    if (false) return sendError(res, "invalid eventGroupId");
+    if (!validateEventGroup(eventId, eventGroupId)) return sendError(res, "invalid eventGroupId");
 
     //converts the csv input into a list of basic user informaiton
     let csvItems = await processCSV(filepath);
