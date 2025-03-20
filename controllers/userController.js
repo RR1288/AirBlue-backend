@@ -76,6 +76,7 @@ exports.registerUserFull = async (
     }
 };
 
+//TODO remove all records of this function since it is no longer needed
 exports.registerBasic = async (email, firstname, lastname, country) => {
     try {
         if (!email) {
