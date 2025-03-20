@@ -167,6 +167,9 @@ exports.getEventStaff = async (userID, eventID) => {
         throw new Error("failed to find entry in event staff");
     }
 };
+exports.getEventByOrganization = async (organizationId) =>{
+    return await Event.findAll({where: {OrganizationID: organizationId}});
+}
 
 exports.setEventBudget = async (eventID, totalBudget, flightBudget) => {
     try {
