@@ -85,7 +85,7 @@ function sendPasswordResetEmail(userEmail, link) {
             <h1>Airblue Password Reset Request</h1>
             <p>Hello there,</p>
             <p>We received a request to reset your password. Click the link below to reset it:</p>
-            <a href="https://www.youtube.com/watch?v=tCBy8mx0BjY">Reset your password</a>
+            <a href="${link}">Reset your password</a>
             <p>If you didn’t request this, please ignore this email.</p>
             <footer>
               <p>Thanks, <br> The Airblue Team</p>
