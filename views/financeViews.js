@@ -40,7 +40,7 @@ exports.getEventsFinance = async(organizationId, userId) =>{
         add functionality to add the userName instead of id for the financeUser field
         add functiosn to return info for statistics
          */ 
-
+        if (!events || events === null) return [];
         return events;
     } catch (error) {
         throw new Error("failed to get events");
@@ -48,11 +48,10 @@ exports.getEventsFinance = async(organizationId, userId) =>{
 };
 
 /**
- *  this function queries events to get all events that the finance user is involved in
+ *  this function queries events to get all events that have no finance users
  * @param {*} organizationId 
- * @param {*} userId 
  */
-exports.getJoinableEventsFinance = async(organizationId, userId) =>{
+exports.getJoinableEventsFinance = async(organizationId) =>{
     try {
         let results = [];
         //get all events where the finance user is a part of
