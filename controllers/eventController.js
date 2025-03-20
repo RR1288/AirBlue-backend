@@ -5,10 +5,10 @@ const { Op } = require("sequelize");
 CREATE EVENT
 this function
 */
-exports.createEvent = async (userId, name, startDate, endDate, description, typeID, organizationID) => {
+exports.createEvent = async (userId, name, startDate, endDate, description, typeID, organizationID, location, maxAttendees) => {
     try {
         let event;
-        await sequelize.transaction(async t => {
+        await sequelize.transaction(async () => {
             //create the event
             event = await Event.create({
                 EventName: name,
@@ -16,7 +16,9 @@ exports.createEvent = async (userId, name, startDate, endDate, description, type
                 EventEndDate: endDate,
                 EventDescription: description,
                 TypeID: typeID,
-                OrganizationID: organizationID
+                OrganizationID: organizationID,
+                Location: location,
+                MaxAttendees: maxAttendees
             });
             //add the creating user to the event staff as an eventplanner
             this.addToEventStaff(userId, event.EventID, 'E');
@@ -56,7 +58,7 @@ returns a list of event types that the user can assign to an event
 exports.getEventTypes = async (organizationID) => {
     try {
         let typeList = [];
-        await sequelize.transaction(async t => {
+        await sequelize.transaction(async () => {
             //get a list of all default eventTypes
             let defaultEventTypes = await DefaultEventType.findAll({
                 attributes: ['TypeID', 'Name'],
@@ -80,7 +82,6 @@ exports.getEventTypes = async (organizationID) => {
         console.log(error);
     }
 }
-
 
 exports.getAttendees = async (eventId) => {
     return await Attendee.findAll({
@@ -118,14 +119,16 @@ exports.processInvitationAcceptance = async (invitationToken) => {
         });
 
         if (!invitation) {
-            return false; // Invalid or expired
+            console.error("Invitation not found");
+            throw new Error("Invitation not found");
         }
 
         // Find the user
         let user = await User.findByPk(invitation.UserID);
 
         if (!user) {
-            return false; // User should have created an account before accepting
+            console.error("User not found");
+            throw new Error("User not found"); // User should have created an account before accepting
         }
 
         // Check if user is already an attendee
@@ -134,6 +137,7 @@ exports.processInvitationAcceptance = async (invitationToken) => {
         });
 
         if (existingAttendee) {
+            console.error("User is already an attendee");
             return true; // User is already an attendee
         }
         
@@ -141,7 +145,7 @@ exports.processInvitationAcceptance = async (invitationToken) => {
         await Attendee.create({
             EventID: invitation.EventID,
             UserID: user.UserID,
-            Confirmed: "t", //  TODO: might not need this column
+            Confirmed: true,
             EventGroupID: invitation.EventGroupID,
             
         });
@@ -150,6 +154,7 @@ exports.processInvitationAcceptance = async (invitationToken) => {
         // Mark invitation as accepted
         invitation.update({ status: "accepted" });
         return true;
+
     } catch (error) {
         throw new Error("Error processing invitation");
     }
