@@ -44,6 +44,9 @@ exports.createEventGroup = async (eventID, name, budget) => {
 }
 };
 
+exports.getEventGroup = async (eventId, groupId) => {
+    return await EventGroup.findOne({where: {EventID: eventId, EventGroupID: groupId}});
+}
 
 //gets eventByID
 exports.getEventByID = async (eventID) => {
