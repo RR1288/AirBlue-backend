@@ -16,7 +16,6 @@ exports.inviteAttendee = async (req, res) => {
     const invitation = await AttendeeController.inviteAttendee(eventId, email, eventGroupId);
     return sendSuccess(res, "Invitation sent successfully", { invitation });
   } catch (error) {
-    console.error(error);
     return sendError(res, "Could not send invitation", 500);
   }
 };
@@ -33,8 +32,9 @@ exports.inviteAttendeesCsv = async (req, res) => {
   let filepath = req.file.path;
   try {
     //declare passed in values
-    if (! req.path) return sendError(res, "no file given", 400);
-    const {eventId, eventGroupId} = req.body;
+    if (! filepath ) return sendError(res, "no file given", 400);
+    const {eventId, eventGroupId} = req.query;
+    if (!eventId || !eventGroupId) return sendError(res, "missing inputs", 400);
     //validation
     if (!validateEventID(eventId)) return sendError(res, "invalid eventId", 400);
     if (false) return sendError(res, "invalid eventGroupId");
@@ -55,7 +55,7 @@ exports.inviteAttendeesCsv = async (req, res) => {
           csvItems[i].success = false;
           continue;
         }else{ //else pass the email in to inviteAttendee function
-          const invitation = await AttendeeController.inviteAttendee(eventId, email, eventGroupId);
+          const invitation = await AttendeeController.inviteAttendee(parseInt(eventId), email, parseInt(eventGroupId));
           successfulInvites += 1;
           csvItems[i].success = true;
         }

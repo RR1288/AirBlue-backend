@@ -76,8 +76,14 @@ router.post("/invite/:eventId", protect, authorizedRoles(Roles.PLANNER, Roles.PL
  *     tags:
  *       - Attendees
  *     parameters:
- *       - in: path
+ *       - in: query
  *         name: eventId
+ *         required: true
+ *         description: The ID of the event.
+ *         schema:
+ *           type: integer
+ *       - in: query
+ *         name: eventGroupId
  *         required: true
  *         description: The ID of the event.
  *         schema:
