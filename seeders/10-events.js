@@ -32,14 +32,17 @@ module.exports = {
         createdAt: new Date(),
         updatedAt: new Date()
       },
+      // Event 3 has no finance users assigned
       {
         EventName: 'Startup Pitch Event',
         EventDescription: 'A pitch event where startups present their innovative ideas to investors.',
         EventStartDate: new Date('2025-03-20T10:00:00Z'),
         EventEndDate: new Date('2025-03-20T17:00:00Z'),
-        EventTotalBudget: 150000.00,
+        // EventTotalBudget: 150000.00,
+        EventTotalBudget: 0,
         ExpectedAttendees: 300,
-        EventFlightBudget: 30000.00,
+        // EventFlightBudget: 30000.00,
+        EventFlightBudget: 0,
         MaxAttendees:  300,
         Location: 'rochester NY',
         TypeID: 3,

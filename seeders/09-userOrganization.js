@@ -20,7 +20,7 @@ module.exports = {
             },
             {
                 UserID: 3,
-                OrganizationID: 2,
+                OrganizationID: 3,
                 Roles: "F", // Finance
                 updatedAt: new Date(),
                 createdAt: new Date(),
@@ -28,7 +28,7 @@ module.exports = {
             },
             {
                 UserID: 4,
-                OrganizationID: 1,
+                OrganizationID: 2,
                 updatedAt: new Date(),
                 createdAt: new Date(),
                 StillActive: true,

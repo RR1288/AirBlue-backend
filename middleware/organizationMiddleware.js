@@ -34,7 +34,7 @@ exports.checkUserInOrganization = async (req, res, next) => {
         if (!user) return sendError(res, "User not found in organization", 400);
         next();
     } catch (error) {
-        console.error(err);
+        console.error(error);
         return sendError(res, "user not in organization", 401);
     }
 };
