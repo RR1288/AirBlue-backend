@@ -221,20 +221,22 @@ exports.updatePassword = async (userID, password) => {
 
 exports.sendUpdatePasswordEmail = async (email) => {
     try {
-        //retrieve user login by the users email
-        const user = await User.findOne({where: {Email: email}});
-        let login = await UserLogin.findByPk(parseInt(user.dataValues.UserID));
-        console.log(login);
-        login.token = crypto.randomBytes(16).toString("hex");
-        login.update();
-
-        //creating link for the email utils
-        let resetLink = `https://yourwebsite.com/reset-password?token=${login.token}`;
-        await emailSender.sendPasswordResetEmail(email, resetLink);
-
-        return true;//this should only ever fail in the worst case
+      const user = await User.findOne({ where: { Email: email } });
+      if (!user) {
+        throw new Error("User not found");
+      }
+  
+      let login = await UserLogin.findByPk(user.dataValues.UserID);
+      login.token = crypto.randomBytes(16).toString("hex");
+      await login.update();
+  
+      let resetLink = `https://yourwebsite.com/reset-password?token=${login.token}`;
+      await emailSender.sendPasswordResetEmail(email, resetLink);
+  
+      return true;
     } catch (error) {
-        return new Error("failed to send email");
+      console.error(error);
+      throw new Error("failed to send email"); // Ensure rejection with a proper error message
     }
-
-};
+  };
+  
