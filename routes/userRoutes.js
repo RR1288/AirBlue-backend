@@ -6,6 +6,9 @@ const {
     disableUserOrganization,
     disableUserNormalService,
     updateUserInfo,
+    updatePasswordAdmin,
+    sendResetEmailBasic,
+    resetPassword
 } = require("../services/userService");
 const {protect} = require("../middleware/authMiddleware");
 const {authorizedRoles} = require("../middleware/roleMiddleware");
@@ -16,6 +19,8 @@ const {
 } = require("../middleware/organizationMiddleware.js");
 const router = express.Router();
 const {Roles} = require("../utils/Roles.js");
+const { updateExpression } = require("@babel/types");
+const { updatePassword } = require("../controllers/userController.js");
 
 /**
  * @swagger
@@ -212,6 +217,97 @@ router.post(
  *         description: Bad request invalid input
  */
 router.post("/updateUserInfo", protect, updateUserInfo);
+
+/**
+ * @swagger
+ * /users/send-reset-email:
+ *   post:
+ *     summary: create new user for end users who are not organization users
+ *     description: endpoint to create new users from the new user screen
+ *     tags:
+ *       - Users
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - email
+ *             properties:
+ *               email:
+ *                 type: string
+ *                 format: email
+ *                 example: test@exple.com
+ *     responses:
+ *       201:
+ *         description: email was successfully sent
+ *       400:
+ *         description: function was not succefully run
+ */
+router.post("/send-reset-email", sendResetEmailBasic);
+
+/**
+ * @swagger
+ * /users/reset-password-admin :
+ *   post:
+ *     summary: reset and organization users password as an administrative user for an organization
+ *     description: reset and organization users password as an administrative user for an organization
+ *     tags:
+ *       - Users
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - userID
+ *               - password
+ *             properties:
+ *               userID:
+ *                 type: integer
+ *                 example: 2
+ *               password:
+ *                 type: string
+ *                 example: securepassword123!
+ *  
+ *     responses:
+ *       201:
+ *         description: email was successfully sent
+ *       400:
+ *         description: function was not succefully run
+ */
+router.post("/reset-password-admin", protect, checkOrganizationUser, checkUserInOrganization, updatePasswordAdmin); //this function should later be shifted to actually changing the pa
+
+/**
+ * @swagger
+ * /users/reset-password:
+ *   post:
+ *     summary: create new user for end users who are not organization users
+ *     description: endpoint to create new users from the new user screen
+ *     tags:
+ *       - Users
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - password
+ *             properties:
+ *               password:
+ *                 type: string
+ *                 format: password
+ *                 example: SecurePassword123!
+ *     responses:
+ *       201:
+ *         description: email was successfully sent
+ *       400:
+ *         description: function was not succefully run
+ */
+router.post("/reset-password", protect, resetPassword);
 
 //get functions
 router.get(

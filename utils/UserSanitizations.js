@@ -34,7 +34,7 @@ function sanitizeEmail(email) {
 
     //validation
     if (!validator.isEmail(sanitizedEmail)) return null;
-
+    if (sanitizedEmail.length > 320) return null;
     return sanitizedEmail;
 }
 //Name
@@ -47,7 +47,7 @@ function sanitizeName(name) {
     //validation
     const nameRegex = /^[a-zA-Z\s\-]/;
     if (!nameRegex.test(sanitizedName)) return null;
-
+    if (sanitizedName.length > 50) return null;
     return sanitizedName;
 }
 //password
@@ -59,6 +59,7 @@ function sanitizePassword(password) {
     const passwordRegex = /^[a-zA-Z!@#$%^&*]/;
     //validation
     if (!passwordRegex.test(password)) return null;
+    if (password.length > 80) return null;
 
     return sanitizedPassword;
 }
@@ -83,7 +84,7 @@ function sanitizeCountry(country) {
 
     //validation
     if (!validator.isAlpha(sanitizedCountry)) return null;
-
+    if (sanitizeCountry.length > 56) return null;
     return sanitizedCountry;
 }
 //city
@@ -94,6 +95,8 @@ function sanitizeCity(city) {
 
     //validation
     if (!validator.isAlpha(sanitizedCity)) return null;
+    if (sanitizedCity.length > 85) return null;
+    return sanitizedCity;
 }
 //state
 function sanitizeState(state) {

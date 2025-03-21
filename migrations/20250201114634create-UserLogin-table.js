@@ -16,9 +16,10 @@ module.exports = {
       LastMFAChange: { type: Sequelize.DATE, defaultValue: Sequelize.NOW, allowNull: true },
       two_fa_enabled: { type: Sequelize.BOOLEAN, defaultValue: false, allowNull: false },
       two_fa_secret: { type: Sequelize.CHAR(32), allowNull: true },
+      token: {type: Sequelize.STRING,allowNull: true,},
       createdAt: { type: Sequelize.DATE, allowNull: false, defaultValue: Sequelize.NOW },
       updatedAt: { type: Sequelize.DATE, allowNull: false, defaultValue: Sequelize.NOW },
-      deletedAt: {type: Sequelize.DATE , defaultValue: null}
+      deletedAt: { type: Sequelize.DATE, defaultValue: null }
     });
   },
 

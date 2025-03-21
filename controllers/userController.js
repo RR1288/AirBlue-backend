@@ -5,8 +5,9 @@ const {
     Sequelize,
     sequelize,
 } = require("../models");
+const emailSender = require("../utils/emailSender");
 const bcrypt = require("bcryptjs");
-
+const crypto = require("crypto");
 exports.getAllEventPlanners = async (req, res) => {
     try {
         const eventPlanners = await User.findAll({
@@ -76,6 +77,7 @@ exports.registerUserFull = async (
     }
 };
 
+//TODO remove all records of this function since it is no longer needed
 exports.registerBasic = async (email, firstname, lastname, country) => {
     try {
         if (!email) {
@@ -198,3 +200,43 @@ exports.generateRandomPassword = (length = 12) => {
     }
     return password;
 };
+
+//passwords
+exports.updatePassword = async (userID, password) => {
+    try {
+        let userLogin = await UserLogin.findByPk(userID);
+        if(!userLogin){
+            throw new Error("could not find user");
+        }
+        userLogin.update({//updates the password
+            Password: password,
+            token: null,
+            LastPasswordChange: Date.now()
+        });
+        return true;
+    } catch (error) {
+        throw new Error("failed to update password");
+    }
+};
+
+exports.sendUpdatePasswordEmail = async (email) => {
+    try {
+      const user = await User.findOne({ where: { Email: email } });
+      if (!user) {
+        throw new Error("User not found");
+      }
+  
+      let login = await UserLogin.findByPk(user.dataValues.UserID);
+      login.token = crypto.randomBytes(16).toString("hex");
+      await login.update();
+  
+      let resetLink = `https://yourwebsite.com/reset-password?token=${login.token}`;
+      await emailSender.sendPasswordResetEmail(email, resetLink);
+  
+      return true;
+    } catch (error) {
+      console.error(error);
+      throw new Error("failed to send email"); // Ensure rejection with a proper error message
+    }
+  };
+  
