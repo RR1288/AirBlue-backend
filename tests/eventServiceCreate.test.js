@@ -142,7 +142,7 @@ describe('Event Service Create Tests', () => {
 
             await createEvent(req, res);
 
-            expect(sendSuccess).toHaveBeenCalledWith(res, "User registered successfully", 1);
+            expect(sendSuccess).toHaveBeenCalledWith(res, "event created successfully", 1);
         });
 
         // Test 8: General graceful errors
