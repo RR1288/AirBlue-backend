@@ -32,16 +32,16 @@ exports.createEvent = async (userId, name, startDate, endDate, description, type
 }
 
 exports.createEventGroup = async (eventID, name, budget) => {
-    try{
-    const eventGroup  = await EventGroup.create({
-        Name: name,
-        EventID: eventID,
-        flightBudget: budget
-    });
-    return 
-} catch(error){
-    throw new Error("failed to make event group");
-}
+    try {
+        const eventGroup = await EventGroup.create({
+            Name: name,
+            EventID: eventID,
+            flightBudget: budget
+        });
+        return
+    } catch (error) {
+        throw new Error("failed to make event group");
+    }
 };
 
 
@@ -84,13 +84,17 @@ exports.getEventTypes = async (organizationID) => {
 }
 
 exports.getAttendees = async (eventId) => {
-    return await Attendee.findAll({
-        where: { EventID: eventId },
-        include: [
-            { model: User, attributes: ["UserID", "FName", "LName", "Email"] },
-            { model: Event, attributes: ["EventID", "EventName"] },
-        ],
-    });
+    try {
+        return await Attendee.findAll({
+            where: { EventID: eventId },
+            include: [
+                { model: User, attributes: ["UserID", "FName", "LName", "Email"] },
+                { model: Event, attributes: ["EventID", "EventName"] },
+            ],
+        });
+    } catch (error) {
+        throw new Error('failed to run query')
+    }
 };
 
 /**
@@ -98,13 +102,17 @@ exports.getAttendees = async (eventId) => {
  * The role to filter by ('E' for Event Planner, 'F' for Finance).
  */
 exports.getEventStaffByRole = async (eventId, role) => {
-    return await EventStaff.findAll({
-        where: { EventID: eventId, RoleID: { [Sequelize.Op.like]: `%${role}%` } },
-        include: [
-            { model: User, attributes: ["UserID", "FName", "LName", "Email"] },
-            { model: Event, attributes: ["EventID", "EventName"] },
-        ],
-    });
+    try {
+        return await EventStaff.findAll({
+            where: { EventID: eventId, RoleID: { [Sequelize.Op.like]: `%${role}%` } },
+            include: [
+                { model: User, attributes: ["UserID", "FName", "LName", "Email"] },
+                { model: Event, attributes: ["EventID", "EventName"] },
+            ],
+        });
+    } catch (error) {
+        throw new Error('failed to run query')
+    }
 };
 
 exports.processInvitationAcceptance = async (invitationToken) => {
@@ -140,16 +148,16 @@ exports.processInvitationAcceptance = async (invitationToken) => {
             console.error("User is already an attendee");
             return true; // User is already an attendee
         }
-        
+
         // Add user to Attendees table
         await Attendee.create({
             EventID: invitation.EventID,
             UserID: user.UserID,
             Confirmed: true,
             EventGroupID: invitation.EventGroupID,
-            
+
         });
-      
+
 
         // Mark invitation as accepted
         invitation.update({ status: "accepted" });
@@ -160,13 +168,20 @@ exports.processInvitationAcceptance = async (invitationToken) => {
     }
 };
 exports.getEventStaff = async (userID, eventID) => {
-    try{
-        return await EventStaff.findAll({where: {EventID: eventID, UserID: userID}});
-    }catch(error){
+    try {
+        return await EventStaff.findAll({ where: { EventID: eventID, UserID: userID } });
+    } catch (error) {
         console.error("Error processing invitation acceptance:", error);
         throw new Error("failed to find entry in event staff");
     }
 };
+exports.getEventByOrganization = async (organizationId) => {
+    try {
+        return await Event.findAll({ where: { OrganizationID: organizationId } });
+    } catch (error) {
+        throw new Error('failed to run query')
+    }
+}
 
 exports.setEventBudget = async (eventID, totalBudget, flightBudget) => {
     try {
@@ -187,21 +202,21 @@ exports.setEventBudget = async (eventID, totalBudget, flightBudget) => {
 };
 
 exports.appendRoleToEventStaff = async (userID, eventID, role) => {
-try {
-    //get the users entry for event staff
-    let staff = await EventStaff.findOne({
-        where: { EventID: eventID, UserID: userID },
-    });
-    //create a new value for the roleID in event staff
-    let newRole = staff.RoleID + role;
-    //update event staff with the new value for RoleID
-    staff.update({RoleID: newRole});
-    //return true on success
-    return true;
-} catch (error) {
-    console.log(error);
-    throw new Error("failed to append role to eventstaff entry for user");
-}
+    try {
+        //get the users entry for event staff
+        let staff = await EventStaff.findOne({
+            where: { EventID: eventID, UserID: userID },
+        });
+        //create a new value for the roleID in event staff
+        let newRole = staff.RoleID + role;
+        //update event staff with the new value for RoleID
+        staff.update({ RoleID: newRole });
+        //return true on success
+        return true;
+    } catch (error) {
+        console.log(error);
+        throw new Error("failed to append role to eventstaff entry for user");
+    }
 };
 
 exports.addToEventStaff = async (userID, eventID, role) => {

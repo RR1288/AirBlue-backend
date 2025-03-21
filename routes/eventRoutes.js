@@ -6,7 +6,7 @@ const { authorizedRoles, checkUserAuthorizedRoles} = require("../middleware/role
 const { checkOrganizationUser, checkUserInOrganization} = require("../middleware/organizationMiddleware.js");
 const {  createEvent, getAvailableEventTypes, } = require("../services/eventService.js");
 const EventService = require("../services/eventService");
-const { setEventBudget } = require("../services/financeService.js");
+const { setEventBudget, getAllEventsFinance } = require("../services/financeService.js");
 const { InEventStaffFinance,  InEventStaffPlanner, checkEventOrganization , hasFinancePlanner, hasBudget} = require("../middleware/eventMiddleware.js");
 
 /**
@@ -337,7 +337,7 @@ router.get(
  *           type: string
  *     responses:
  *       200:
- *         description: Finance users fetched successfully.
+ *         description: events have been successfully collected
  *         content:
  *           application/json:
  *             schema:
@@ -384,6 +384,29 @@ router.get(
     EventService.getFinanceUsers
 );
 
+/**
+ * @swagger
+ * /events/getAllEventsFinanceView:
+ *   get:
+ *     summary: gets all events a finance user is in or can join
+ *     description: uses the users organizationID from token and userID to query the event and eventstaff table for all events where they are either in the event or can join the event
+ *     tags:
+ *       - Events
+ *     responses:
+ *       200:
+ *         description: a list of events from a given organization that a finance user is either assigned to or can join
+ * 
+ *       400:
+ *         description: userID or organizationID are invalid.
+ *       500:
+ *         description: Internal server error.
+ */
+router.get(
+    "/getAllEventsFinanceView",
+    protect,
+    authorizedRoles(Roles.FINANCE),
+    getAllEventsFinance
+);
 /**
  * @swagger
  * /events/invitations/accept:
