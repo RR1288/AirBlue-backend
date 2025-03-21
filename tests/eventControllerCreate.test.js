@@ -68,11 +68,7 @@ describe('Event Functions', () => {
         TypeID: typeID,
         OrganizationID: organizationID,
       });
-      expect(EventStaff.create).toHaveBeenCalledWith({
-        UserID: userId,
-        EventID: mockEvent.EventID,
-        RoleID: 'E',
-      });
+     
       expect(eventId).toBe(mockEvent.EventID);
     });
     */
