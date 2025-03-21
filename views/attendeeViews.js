@@ -2,35 +2,39 @@ const {Attendee, Event, Itinerary, Slice, Segment, Sequelize} = require('../mode
 
 exports.getEvents = async (userId) => {
     try {
-        const events = Event.findAll({
+        console.log("USERID: " +userId);
+        const events = await Attendee.findAll({
             attributes: [
-                ['EventName', 'title'],
-                ['EventStartDate', 'startDate'],
-                ['EventEndDate', 'endDate'],
-                ['Location', 'location'],
-                ['EventDescription', 'description'],
+                ['UserID', 'id'],
             ],
             include: [
                 {
-                    model: Attendee,
-                    attributes: [['UserID', 'id']],
+                    model: Event,
+                    attributes: [
+                        ['EventName', 'title'],
+                        ['EventStartDate', 'startDate'],
+                        ['EventEndDate', 'endDate'],
+                        ['Location', 'location'],
+                        ['EventDescription', 'description'],
+                    ],
                     required: true,
-                    where: {UserID: userId}
-                }
+                },
             ],
+            where: {UserID: userId}
             
         });
         //if no events then return a blank array
         if(!events) return [];
         return events;
     } catch (error) {
+        console.log(error);
         throw new Error('failed to get events');
     }
 };
 
 exports.getEventStatus = async (eventId, userId) => {
     try {
-        const events = Attendee.findOne({
+        const events = await Attendee.findOne({
             attributes: [
                 
             ],
@@ -49,6 +53,7 @@ exports.getEventStatus = async (eventId, userId) => {
         if(!events) return [];
         return events;
     } catch (error) {
+        console.log(error);
         throw new Error('failed to get events');
     }
 };
