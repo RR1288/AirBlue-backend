@@ -95,7 +95,7 @@ describe("UserController", () => {
       expect(mockUserLogin.token).toBeDefined(); // Ensure token was set
 
       // Ensure the email sending function was called
-      expect(emailSender.sendPasswordResetEmail).toHaveBeenCalledWith(
+      await expect(emailSender.sendPasswordResetEmail).toHaveBeenCalledWith(
         email,
         expect.stringContaining("reset-password?token=")
       );
