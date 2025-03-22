@@ -91,7 +91,6 @@ exports.getJoinableEventsFinance = async(organizationId) =>{
 
         return results;
     } catch (error) {
-        console.log(error);
         throw new Error("failed to get events");
     }
 };

@@ -10,7 +10,7 @@ module.exports = (sequelize, DataTypes) => {
             references: {model: "Events", key: "EventID"},
         },
         Name: DataTypes.STRING(30),
-        FlightBudget: DataTypes.DECIMAL(4,2),
+        FlightBudget: DataTypes.DECIMAL(6,2),
         createdAt: DataTypes.DATE,
         updatedAt: DataTypes.DATE,
         deletedAt: DataTypes.DATE
