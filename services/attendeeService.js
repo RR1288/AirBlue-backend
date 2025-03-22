@@ -216,7 +216,7 @@ exports.removeConfirmedAttendees = async (req, res) => {
 exports.getAttendeeEvents = async (req, res) => {
   try {
     const requesterId = parseInt(req.user.id);
-    if (!userValidation.validateUserID(requesterId)) return sendError(res, 'user does not exist', 400);
+    if (!await userValidation.validateUserID(requesterId)) return sendError(res, 'user does not exist', 400);
     let events = await AttendeeViews.getEvents((requesterId));
     if (!events) return sendError(res, 'unable to retrieve events', 400); 
 
