@@ -1,10 +1,13 @@
 const express = require("express");
+const multer = require("multer");
 const router = express.Router();
+const upload = multer({dest: 'upload/'});
 const AttendeeService = require("../services/attendeeService");
 const {getAttendeeEvents} = require("../services/attendeeService");
 const { protect } = require("../middleware/authMiddleware");
 const { authorizedRoles } = require("../middleware/roleMiddleware");
 const { Roles } = require("../utils/Roles");
+const { hasBudget } = require("../middleware/eventMiddleware");
 
 /**
  * @swagger
@@ -60,7 +63,73 @@ const { Roles } = require("../utils/Roles");
  *       500:
  *         description: Internal server error.
  */
-router.post("/invite/:eventId", protect, authorizedRoles(Roles.PLANNER, Roles.PLANNER), AttendeeService.inviteAttendee);
+router.post("/invite/:eventId", protect, authorizedRoles(Roles.PLANNER, Roles.PLANNER),hasBudget , AttendeeService.inviteAttendee);
+
+/**
+ * @swagger
+ * /attendees/invite-csv:
+ *   post:
+ *     summary: Invite a group of attendee by email for a given event provided a CSV.
+ *     description: |
+ *       The system checks if the provided email exists. 
+ *       If it does, it sends an invitation link to accept the invitation.
+ *       If not, it sends an account creation invitation link.
+ *       A pending invitation record is created in either case.
+ *     tags:
+ *       - Attendees
+ *     parameters:
+ *       - in: query
+ *         name: eventId
+ *         required: true
+ *         description: The ID of the event.
+ *         schema:
+ *           type: integer
+ *       - in: query
+ *         name: eventGroupId
+ *         required: true
+ *         description: The ID of the event.
+ *         schema:
+ *           type: integer
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         multipart/form-data:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - file
+ *             properties:
+ *               file:
+ *                 type: string
+ *                 format: binary
+ *                 description: CSV file containing attendee data.
+ *     responses:
+ *       200:
+ *         description: Invitation sent successfully.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               properties:
+ *                 Email: 
+ *                   type: string
+ *                   example: "johndoes@example.com"
+ *                 FirstName: 
+ *                   type: string
+ *                   example: "John"
+ *                 LastName: 
+ *                   type: string
+ *                   example: "Doe"
+ *                 Success: 
+ *                   type: boolean
+ *                   example: true
+ *       400:
+ *         description: Bad request – missing required parameters.
+ *       500:
+ *         description: Internal server error.
+ */
+router.post("/invite-csv", protect, authorizedRoles(Roles.PLANNER, Roles.PLANNER),hasBudget ,upload.single('file'), AttendeeService.inviteAttendeesCsv);
+
 
 /**
  * @swagger

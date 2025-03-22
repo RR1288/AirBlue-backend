@@ -10,7 +10,11 @@ module.exports = (sequelize, DataTypes) => {
       two_fa_secret: DataTypes.CHAR(32),
       createdAt: DataTypes.DATE,
       updatedAt: DataTypes.DATE,
-      deletedAt: DataTypes.DATE
+      deletedAt: DataTypes.DATE,
+      token: {
+        type: DataTypes.STRING,
+        allowNull: true, // Token for invitation link generation
+      },
     },{
       sequelize,
       paranoid: true

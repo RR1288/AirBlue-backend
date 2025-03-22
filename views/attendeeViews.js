@@ -41,7 +41,7 @@ exports.getEventStatus = async (eventId, userId) => {
             include: [
                 {
                     model: Itinerary,
-                    attributes: [['ApprovalStatus', 'status']],
+                    attributes: [['ApprovalStatus', 'status'], ['TotalCost', 'cost']],
                     required: true,
                     where: {UserID: userId, EventID: eventId}
                 }

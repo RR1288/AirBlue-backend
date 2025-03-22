@@ -76,7 +76,23 @@ module.exports = {
         OrganizationID: 5,
         createdAt: new Date(),
         updatedAt: new Date()
+      },
+      {
+        EventName: 'Charity Gala 2025',
+        EventDescription: 'A glamorous charity gala to raise funds for a noble cause.',
+        EventStartDate: new Date('2025-07-10T18:00:00Z'),
+        EventEndDate: new Date('2025-07-10T23:59:59Z'),
+        EventTotalBudget: 250000.00,
+        ExpectedAttendees: 1000,
+        EventFlightBudget: 40000.00,
+        MaxAttendees:  2000,
+        Location: 'rochester NY',
+        TypeID: 5,
+        OrganizationID: 1,
+        createdAt: new Date(),
+        updatedAt: new Date()
       }
+
     ]);
   },
 
