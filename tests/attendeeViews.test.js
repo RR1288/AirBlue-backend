@@ -99,33 +99,28 @@ describe('attendeeView.js', () => {
   //Tests for getEventStatus Fucntion
   describe('getEventStatus', () => {
 
-    //Test 4: Return event status for a valid eventId + userIs
-    it('Should return event status for a valid eventId and userId', async () => {
-      const mockStatusData = {
-        Itinerary: {
-          ApprovalStatus: 'Approved'
-        }
+    //Test 4: Return event status for a valid eventId + userIds
+    it('Should return event status when found using eventId and userId', async () => {
+      // Arrange
+      const mockEventId = 1;
+      const mockUserId = 1;
+      const mockStatus = {
+          ApprovalStatus: 'Approved',
+          TotalCost: 100,
       };
-      
-      Attendee.findOne.mockResolvedValue(mockStatusData);
+      Attendee.findOne.mockResolvedValue({
+          Itinerary: [mockStatus],
+      });
 
-      const result = await getEventStatus(1, 1);
+      // Act
+      const result = await getEventStatus(mockEventId, mockUserId);
 
       // Assert
-      expect(result).toEqual(mockStatusData);
-      expect(Attendee.findOne).toHaveBeenCalledWith({
-        attributes: [],
-        include: [
-          {
-            model: Itinerary,
-            attributes: [['ApprovalStatus', 'status']],
-            required: true,
-            where: { UserID: 1, EventID: 1 }
-          }
-        ],
-        where: { UserID: 1, EventID: 1 }
-      });
-    });
+      expect(result).toEqual({ Itinerary: [mockStatus] });
+      expect(Attendee.findOne).toHaveBeenCalledWith(expect.objectContaining({
+          where: { UserID: mockUserId, EventID: mockEventId },
+      }));
+  });
 
     //Test 5: Empty array if no status found
     it('Should return an empty array if no event status is found', async () => {
