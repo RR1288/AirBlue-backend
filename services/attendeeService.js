@@ -225,17 +225,3 @@ exports.getAttendeeEvents = async (req, res) => {
     return sendError(res, 'failed to get events');
   }
 };
-
-exports.getAttendeeFlightStatus = async (req, res) => {
-  try {
-    const requesterId = parseInt(req.user.id);
-    const {eventID} = req.body;
-    if (!userValidation.validateUserID(requesterId)) return sendError(res, 'user does not exist', 400);
-    let info = await AttendeeViews.getEventStatus(eventID, requesterId);
-    if (!info) return sendError(res, 'unable to retrieve the flight status info for attendee', 400); 
-
-    return sendSuccess(res, 'successfully got flight status info ', info);
-  } catch (error) {
-    return sendError(res, 'failed to get flight status info');
-  }
-}

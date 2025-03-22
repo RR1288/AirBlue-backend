@@ -22,7 +22,6 @@ exports.getEvents = async (userId) => {
                 {
                     model: Itinerary,
                     attributes: [['ApprovalStatus', 'status'], ['TotalCost', 'cost']],
-                    where: {UserID: userId, EventID: eventId}
                 },
                 {
                     model: EventGroup,
