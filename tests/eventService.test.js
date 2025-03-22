@@ -25,8 +25,9 @@ describe("eventService", () => {
     console.error = jest.fn();
   });
 
-  beforeEach(() => {
-    jest.clearAllMocks(); // Reset all mocks before each test
+  beforeEach(async () => {
+    // Reset mocks before each test
+    await jest.clearAllMocks();
   });
 
   

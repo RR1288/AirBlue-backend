@@ -23,8 +23,8 @@ jest.mock('crypto');
 
 //Testing time
 describe('attendeeController', () => {
-  afterEach(() => {
-    jest.clearAllMocks();
+  afterEach(async () => {
+    await jest.clearAllMocks();
   });
 
   //Tests for inviteAttendee

@@ -94,8 +94,6 @@ exports.revokeInvitations = async (
         const event = await Event.findByPk(eventId);
         if (!event) throw new Error("Event not found");
 
-        
-
         // 2. Check authorization
         const isAuthorized = await checkPlannerAuthorization(
             requesterRole,
@@ -108,27 +106,45 @@ exports.revokeInvitations = async (
             throw new Error("Not authorized");
         }
 
-        // 3. Destroy invitations
-        const revoked = [];
-        for (const invitationId of invitationIds) {
-            const invitation = await Invitation.findOne({
-                where: {
-                    EventID: eventId,
-                    InvitationID: invitationId,
-                    status: "pending",
-                },
-            });
-            if (invitation) {
-                await invalidInvitation(invitation);
+        // 3. Fetch all pending invitations for the provided invitationIds
+        const invitations = await Invitation.findAll({
+            where: {
+                EventID: eventId,
+                InvitationID: { [Op.in]: invitationIds },
+                status: "pending",
+            },
+        });
+
+        // 4. If no invitations are found, return false
+        if (invitations.length === 0) return false;
+
+        // 5. Use a transaction to ensure consistency when invalidating and deleting invitations
+        const transaction = await sequelize.transaction();
+
+        try {
+            const revoked = [];
+
+            for (const invitation of invitations) {
+                // Mark invitation as invalid and destroy it within the transaction
+                await invalidInvitation(invitation, transaction); // Pass transaction
                 revoked.push(invitation.InvitationID);
             }
+
+            // Commit transaction after all deletions are successful
+            await transaction.commit();
+            return revoked; // Return the IDs of revoked invitations
+        } catch (error) {
+            // If something goes wrong, rollback the transaction
+            await transaction.rollback();
+            console.error("Error in revoking invitations:", error);
+            throw new Error("Error processing revocation");
         }
-        return revoked.length > 0 ? revoked : false;
     } catch (error) {
         console.error("Error in service:", error);
         throw new Error("Error processing request");
     }
 };
+
 
 /**
  * Cancel the logged-in user's own pending invitation or attendance.
@@ -229,8 +245,8 @@ exports.checkPlannerAuthorization = async (
     }
 };
 
-exports.invalidInvitation = async (invitation) => {
+exports.invalidInvitation = async (invitation, transaction) => {
     invitation.expiresAt = new Date.now(); // Invalid invitation
-    await invitation.save(); // Save before deleting it
-    await invitation.destroy();
+    await invitation.save({transaction}); // Save before deleting it
+    await invitation.destroy({transaction});
 };

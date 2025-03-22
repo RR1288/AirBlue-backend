@@ -63,7 +63,7 @@ exports.registerUserFull = async (
                 Email: email,
                 CreationDate: Date.now(),
                 LastEdited: Date.now(),
-            });
+            }, { transaction: t });
 
             await UserLogin.create({
                 UserID: user.UserID,
@@ -72,7 +72,7 @@ exports.registerUserFull = async (
                 two_fa_secret: null,
                 LastPasswordChange: Date.now(),
                 LastMFAChange: null,
-            });
+            }, { transaction: t });
         });
         return {userId: user.UserID};
     } catch (err) {
@@ -106,7 +106,7 @@ exports.registerBasic = async (email, firstname, lastname, country) => {
                 KTN: null,
                 CreationDate: Date.now(),
                 LastEdited: Date.now(),
-            });
+            }, { transaction: t });
 
             let password = exports.generateRandomPassword();
             password = await bcrypt.hash(password, 10);
@@ -118,7 +118,7 @@ exports.registerBasic = async (email, firstname, lastname, country) => {
                 two_fa_secret: null,
                 LastPasswordChange: Date.now(),
                 LastMFAChange: null,
-            });
+            }, { transaction: t });
         });
         return {userId: user.id};
     } catch (err) {
@@ -138,7 +138,7 @@ exports.setOrganization = async (roles, organizationID, userID) => {
                 StillAcitve: true,
                 updatedAt: Date.now(),
                 createdAt: Date.now(),
-            });
+            }, { transaction: t });
         });
         return true;
     } catch (err) {
@@ -170,10 +170,8 @@ exports.updateUser = async (userId, firstname, lastname, state, city, ktn) => {
 exports.disableUserOrganization = async (userID, organizationID) => {
     try {
         await sequelize.transaction(async (t) => {
-            await User.destroy({where: {UserID: userID}});
-            await UserOrganization.destroy({
-                where: {UserID: userID, OrganizationID: organizationID},
-            });
+            await User.destroy({where: {UserID: userID}, transaction: t});
+            await UserOrganization.destroy({ where: { UserID: userID, OrganizationID: organizationID }, transaction: t });
         });
         return true;
     } catch (err) {
@@ -185,7 +183,7 @@ exports.disableUserOrganization = async (userID, organizationID) => {
 exports.disableUserNormal = async (userID) => {
     try {
         await sequelize.transaction(async (t) => {
-            await User.destroy({where: {UserID: userID}});
+            await User.destroy({where: {UserID: userID}, transaction:t});
         });
         return true;
     } catch (err) {

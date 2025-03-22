@@ -113,8 +113,8 @@ describe('Event Service Tests', () => {
 
       await addEventFinance(req, mockRes);
 
-      expect(EventController.getEventStaff).toHaveBeenCalledWith(1, 123);
-      expect(EventController.addToEventStaff).toHaveBeenCalledWith(1, 123, 'F');
+      await expect(EventController.getEventStaff).toHaveBeenCalledWith(1, 123);
+      await expect(EventController.addToEventStaff).toHaveBeenCalledWith(1, 123, 'F');
       expect(sendSuccess).toHaveBeenCalledWith(mockRes, 'successfully added user to event staff as a finance user');
     });
 
@@ -140,8 +140,8 @@ describe('Event Service Tests', () => {
 
       await addEventPlanner(req, mockRes);
 
-      expect(EventController.getEventStaff).toHaveBeenCalledWith(1, 123);
-      expect(EventController.addToEventStaff).toHaveBeenCalledWith(1, 123, 'E');
+      await expect(EventController.getEventStaff).toHaveBeenCalledWith(1, 123);
+      await expect(EventController.addToEventStaff).toHaveBeenCalledWith(1, 123, 'E');
       expect(sendSuccess).toHaveBeenCalledWith(mockRes, 'successfully added user to event staff as a finance user');
     });
 

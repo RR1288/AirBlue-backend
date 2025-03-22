@@ -53,7 +53,7 @@ describe('attendeeController', () => {
 
       // Assert
       expect(result).toEqual(expectedResult);
-      expect(User.findOne).toHaveBeenCalledWith({
+      await expect(User.findOne).toHaveBeenCalledWith({
         where: { Email: { [Op.iLike]: email } },
       });
       await expect(Invitation.create).toHaveBeenCalledWith(expect.objectContaining({

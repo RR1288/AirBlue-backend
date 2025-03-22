@@ -22,8 +22,8 @@ beforeAll(() => {
 
 //Testing time
 describe("UserController", () => {
-  afterEach(() => {
-    jest.clearAllMocks();
+  afterEach(async () => {
+    await jest.clearAllMocks();
   });
 
   //Tests for updatePassword
@@ -95,7 +95,7 @@ describe("UserController", () => {
       expect(mockUserLogin.token).toBeDefined(); // Ensure token was set
 
       // Ensure the email sending function was called
-      await expect(emailSender.sendPasswordResetEmail).toHaveBeenCalledWith(
+      expect(emailSender.sendPasswordResetEmail).toHaveBeenCalledWith(
         email,
         expect.stringContaining("reset-password?token=")
       );
