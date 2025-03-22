@@ -2,7 +2,10 @@ const { sendSuccess, sendError } = require("../utils/responseHelpers");
 const AttendeeViews = require("../views/attendeeViews");
 const userValidation = require("../utils/UserSanitizations");
 const AttendeeController = require("../controllers/attendeeController");
-
+const {sanitizeEmail} = require("../utils/UserSanitizations");
+const {validateEventID} = require("../utils/eventSanitization");
+const {validateEventGroup} = require("../utils/sanitizeEventGroup");
+const {deleteCSV, processCSV} = require("../utils/csvReader");
 /**
  * Invite an attendee by email.
  */
@@ -24,6 +27,64 @@ exports.inviteAttendee = async (req, res) => {
     return sendError(res, "Could not send invitation", 500);
   }
 };
+
+/**
+ * this function takes in a csv/ csv file path runs it through a util to convert it into a list og
+ * objects filled with basic information to make a user account. Then it reads through them
+ * checks to see if the user exists in the system. If not it will create a basic account and send an email to set the password.
+ * Then as long as the user exists now it will send the user an invite to the event
+ * 
+ * 
+ */
+exports.inviteAttendeesCsv = async (req, res) => {
+  let filepath = req.file.path;
+  try {
+    //declare passed in values
+    if (! filepath ) return sendError(res, "no file given", 400);
+    const {eventId, eventGroupId} = req.query;
+    if (!eventId || !eventGroupId) return sendError(res, "missing inputs", 400);
+    //validation
+    if (!validateEventID(eventId)) return sendError(res, "invalid eventId", 400);
+    if (!validateEventGroup(eventId, eventGroupId)) return sendError(res, "invalid eventGroupId");
+
+    //converts the csv input into a list of basic user informaiton
+    let csvItems = await processCSV(filepath);
+    let successfulInvites = 0;
+    let failedInvites = 0;
+    //loop through the preivously created list to 
+    for (let i = 0; i < csvItems.length; i++) {
+      try {
+        //check if the email is missing or invalid
+        let email = sanitizeEmail(csvItems[i].Email);
+        //if it is missing add the entry to the failed entries list and continue
+        if(!email || email === null){
+          //add the object to the list of failedInvites
+          failedInvites += 1;
+          csvItems[i].success = false;
+          continue;
+        }else{ //else pass the email in to inviteAttendee function
+          const invitation = await AttendeeController.inviteAttendee(parseInt(eventId), email, parseInt(eventGroupId));
+          successfulInvites += 1;
+          csvItems[i].success = true;
+        }
+
+
+      } catch (error) {// if a failure happens and the code errors out just add the entry to the list of failed adds
+        console.log(error);
+        failedInvites += 1;
+        csvItems[i].success = false;
+      }
+    }
+    //if no errors have occured combine the succesfulInvites and failedInvites into on object and send succeess
+    await deleteCSV(filepath);
+    return sendSuccess(res, "successfully ran function with "+successfulInvites+" users successfully invited and "+failedInvites+" failed invites", csvItems);
+  } catch (error) {
+    //return the process as a failer
+    deleteCSV(filepath);
+    return sendError(res, "failed to add attendees through input file");
+    
+  } 
+}
 
 /**
  * Get accepted attendees and pending invitations for an event.

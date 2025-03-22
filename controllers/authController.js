@@ -39,10 +39,12 @@ exports.login = async (req, res) => {
         if (!isMatch) return sendError(res, "Invalid credentials", 400);
 
         // Prepare additional user info to return
+        let uRoles = user.UserOrganizations[0];
+        if (!uRoles) uRoles = []
         const userInfo = {
             userId: user.UserID,
             username: user.UserName,
-            roles:  user.UserOrganizations[0].Roles || []
+            roles: uRoles
         };
 
         // If 2FA is enabled

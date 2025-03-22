@@ -1,4 +1,5 @@
 const validator = require("validator");
+const {getEventGroup}= require("../controllers/eventController")
 function startSanitizeString(input){
     if (typeof input !== 'string') return null;
     let sanitizedInput = input.trim();
@@ -6,6 +7,11 @@ function startSanitizeString(input){
     sanitizedInput = sanitizedInput.replace(/['";`]/g, '');
     sanitizedInput = validator.stripLow(sanitizedInput, true);
     return sanitizedInput;
+}
+
+function validateEventGroup(eventId, groupId){
+    if (getEventGroup(parseInt(eventId), parseInt(groupId)) === null) return false;
+    return true;
 }
 
 function sanitizeGroupFlightBudget(budget){
@@ -30,4 +36,4 @@ function sanitizeGroupName(name){
     return SanitizedName;
 }
 
-module.exports = {sanitizeGroupFlightBudget, sanitizeGroupName};
+module.exports = {sanitizeGroupFlightBudget, sanitizeGroupName, validateEventGroup};

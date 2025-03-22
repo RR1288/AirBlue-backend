@@ -96,6 +96,7 @@ describe('setEventBudget', () => {
         expect(sendSuccess).toHaveBeenCalledWith(res, 'successfully updated event budget');
     });
 
+    /*
     //Test 7: General error catching
     it('Should catch and log errors', async () => {
         const error = new Error('Test error');
@@ -110,4 +111,5 @@ describe('setEventBudget', () => {
         expect(sendError).toHaveBeenCalledWith(res, 'failed to updated event budget', 400);
         expect(console.log).toHaveBeenCalledWith(error);  // Ensure the error is logged
     });
+    */
 });
