@@ -27,9 +27,9 @@ jest.mock("../models", () => ({
 
 //Test time for eventController
 describe("eventController", () => {
-  beforeEach(() => {
+  beforeEach(async () => {
     // Reset all mocks before each test
-    jest.clearAllMocks();
+    await jest.clearAllMocks();
   });
 
   //Tests for getAttendees funciton

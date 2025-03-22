@@ -19,8 +19,8 @@ describe("Flight Service", () => {
         console.error = jest.fn();
   });
 
-  afterEach(() => {
-    jest.clearAllMocks(); // Clear mocks after each test
+  afterEach(async () => {
+    await jest.clearAllMocks(); // Clear mocks after each test
   });
 
   //Tests for declinePendingFlight function

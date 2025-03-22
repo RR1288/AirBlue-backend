@@ -26,9 +26,9 @@ describe('attendeeView.js', () => {
     consoleLogSpy.mockRestore();
   });
   
-  afterEach(() => {
+  afterEach(async () => {
     // Reset mocks before each test
-    jest.clearAllMocks();
+    await jest.clearAllMocks();
   });
 
   //Tests for getEvents function

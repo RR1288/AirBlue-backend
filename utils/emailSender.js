@@ -13,7 +13,7 @@ const transporter = nodemailer.createTransport({
 });
 
 // Function to send password reset email
-function sendPasswordResetEmail(userEmail, link) {
+async function sendPasswordResetEmail(userEmail, link) {
   // URL to the password reset page, including the reset token as a query parameter
   // Replace stickbug link with ${resetURL} (line 88) whenever that gets made
   //const resetUrl = `https://yourwebsite.com/reset-password?token=some-reset-token`; // Replace with real token when available
@@ -96,18 +96,18 @@ function sendPasswordResetEmail(userEmail, link) {
     `, // HTML body content
   };
 
-  return transporter.sendMail(mailOptions, (error, info) => {
-    if (error) {
-      console.log('Error sending password reset email:', error);
-    } else {
-      console.log('Password reset email sent:', info.response);
-    }
-  });
-  // return transporter.sendMail(mailOptions);
+  try {
+    const info = await transporter.sendMail(mailOptions);  // Await the email sending operation
+    console.log('Password reset email sent:', info.response);
+    return { success: true, info };
+  } catch (error) {
+    console.error('Error sending password reset email:', error);
+    return { success: false, error: error.message };
+  }
 }
 
 // Function to send account setup email
-function sendAccountSetupEmail(userEmail, invitationLink) {
+async function sendAccountSetupEmail(userEmail, invitationLink) {
   // URL to the account setup page, including the setup token as a query parameter
   // Replace stickbug link with ${setupURL} (line 182) whenever that gets made
   //const setupUrl = `https://yourwebsite.com/setup-account?token=some-setup-token`; // Replace with real token when available
@@ -192,14 +192,14 @@ function sendAccountSetupEmail(userEmail, invitationLink) {
     `, // HTML body content
   };
 
-  return transporter.sendMail(mailOptions, (error, info) => {
-    if (error) {
-      console.log('Error sending account setup email:', error);
-    } else {
-      console.log('Account setup email sent:', info.response);
-    }
-  });
-  //return transporter.sendMail(mailOptions);
+  try {
+    const info = await transporter.sendMail(mailOptions);  // Await the email sending operation
+    console.log('Account setup email sent:', info.response);
+    return { success: true, info };
+  } catch (error) {
+    console.error('Error sending account setup email:', error);
+    return { success: false, error: error.message };
+  }
 }
 
 /*
@@ -218,14 +218,14 @@ function main() {
 }
 */
 
-function sendInvitation(email, invitationLink){
+async function sendInvitation(email, invitationLink){
   // URL to the account setup page, including the setup token as a query parameter
   // Replace stickbug link with ${setupURL} (line 182) whenever that gets made
   //const setupUrl = `https://yourwebsite.com/setup-account?token=some-setup-token`; // Replace with real token when available
   
   const mailOptions = {
     from: 'airblue.do.not.reply@gmail.com',  // Sender address
-    to: userEmail,              // Recipient's email address
+    to: email,              // Recipient's email address
     subject: 'Your event invite',  // Subject line
     html: `
       <html>
@@ -303,14 +303,14 @@ function sendInvitation(email, invitationLink){
     `, // HTML body content
   };
 
-  return transporter.sendMail(mailOptions, (error, info) => {
-    if (error) {
-      console.log('Error sending account setup email:', error);
-    } else {
-      console.log('Account setup email sent:', info.response);
-    }
-  });
-  // return transporter.sendMail(mailOptions);
+  try {
+    const info = await transporter.sendMail(mailOptions);  // Await the email sending operation
+    console.log('Invitation email sent:', info.response);
+    return { success: true, info };
+  } catch (error) {
+    console.error('Error sending invitation email:', error);
+    return { success: false, error: error.message };
+  }
 }
 
 //Export the functions to be used in your test file

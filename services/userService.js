@@ -144,7 +144,6 @@ exports.registerUserOrganization = async (req, res) => {
         }
         //sanitizing and validating all fields
         email = sanitizeEmail(email);
-        email = sanitizeEmail(email);
         if (email === null)
             return sendError(res, "Invalid input for email", 400);
         fname = sanitizeName(fname);

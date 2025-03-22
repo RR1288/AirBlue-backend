@@ -34,8 +34,8 @@ jest.mock('../utils/OrganizationSanitization', () => ({
 //Tests for User Service
 describe('User Service', () => {
   
-  afterEach(() => {
-    jest.clearAllMocks(); // Clear mocks between tests to avoid state leakage
+  afterEach(async () => {
+    await jest.clearAllMocks(); // Clear mocks between tests to avoid state leakage
   });
 
   //disableUserOrganization Tests

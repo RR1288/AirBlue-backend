@@ -24,9 +24,9 @@ jest.mock('../models', () => ({
 
 //Testing Time
 describe('processInvitationAcceptance', () => {
-  beforeEach(() => {
+  beforeEach(async () => {
     // Reset mocks before each test
-    jest.clearAllMocks();
+    await jest.clearAllMocks();
   });
 
   /*

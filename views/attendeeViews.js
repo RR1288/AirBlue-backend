@@ -24,8 +24,7 @@ exports.getEvents = async (userId) => {
             
         });
         //if no events then return a blank array
-        if(!events) return [];
-        return events;
+        return events.length > 0 ? events : [];
     } catch (error) {
         console.log(error);
         throw new Error('failed to get events');
@@ -35,9 +34,7 @@ exports.getEvents = async (userId) => {
 exports.getEventStatus = async (eventId, userId) => {
     try {
         const events = await Attendee.findOne({
-            attributes: [
-                
-            ],
+            attributes: [],
             include: [
                 {
                     model: Itinerary,
