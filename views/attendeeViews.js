@@ -2,7 +2,7 @@ const {Attendee, Event, Itinerary, Slice, Segment, Sequelize} = require('../mode
 
 exports.getEvents = async (userId) => {
     try {
-        console.log("USERID: " +userId);
+        //TODO add the users eventGroup here for general use
         const events = await Attendee.findAll({
             attributes: [
                 ['UserID', 'id'],
@@ -32,6 +32,10 @@ exports.getEvents = async (userId) => {
     }
 };
 
+/**
+ * function for attendee to see the status of their itinerary
+ * @returns on success a single object with the users itinerary status and the cost of their trip
+ */
 exports.getEventStatus = async (eventId, userId) => {
     try {
         const events = await Attendee.findOne({
@@ -57,4 +61,5 @@ exports.getEventStatus = async (eventId, userId) => {
         throw new Error('failed to get events');
     }
 };
+
 
