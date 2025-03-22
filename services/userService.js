@@ -317,7 +317,7 @@ exports.sendResetEmailBasic = async (req, res) => {
         if (email === null)
             return sendSuccess(res, "successfully sent password reset to user");
         //run function
-        const success = sendUpdatePasswordEmail(email);
+        const success = await sendUpdatePasswordEmail(email);
         //does not check if it succeeded or failed since this 
         return sendSuccess(res, "successfully sent password reset to user");
 
