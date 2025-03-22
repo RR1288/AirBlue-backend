@@ -40,7 +40,6 @@ exports.login = async (req, res) => {
 
         // Prepare additional user info to return
         let uRoles = user.UserOrganizations[0].dataValues.Roles;
-        console.log(uRoles);
         if (!uRoles) uRoles = []
         const userInfo = {
             userId: user.UserID,
