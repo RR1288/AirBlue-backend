@@ -55,3 +55,52 @@ exports.getAttendees = async (eventID) => {
         throw new Error('failed to get attendees for event');
     }
 };
+
+exports.getInvitees = async (eventID) => {
+    try {
+        //get the invited users
+
+        //format results(if needed)
+
+        //return query results
+    } catch (error) {
+        throw new Error('failed to get invited users');
+    }
+};
+
+exports.getEventsPlanner = async(organizationId, userId) =>{
+    try {
+        //get all events where the finance user is a part of
+        let events = await Event.findAll(
+            {
+                attributes: [
+                    ['EventID', 'id'],
+                    ['EventName', 'title'],
+                    ['EventStartDate', 'startDate'],
+                    ['EventEndDate', 'endDate'],
+                    ['Location', 'location'],
+                    ['EventDescription', 'description'],
+                    ['EventTotalBudget', 'eventBudget'],
+                    ['EventFlightBudget', 'flightBudget'],
+                    ["MaxAttendees", 'maxAttendees'],
+                    ["ExpectedAttendees", 'expectedAttendees'],
+                    
+                ],
+
+                include: [
+                    {
+                        model: EventStaff,
+                        attributes: [['UserID', 'eventPlanner']],
+                        required: true,
+                        where: {UserID: userId, RoleID: { [Sequelize.Op.like]: `%E%` }}
+                    }
+                ],
+                where: {OrganizationID: organizationId},
+        });
+        //TODO add functionality to format the results into single non nested objects with no info on tables names
+        if (!events || events === null) return [];
+        return events;
+    } catch (error) {
+        throw new Error("failed to get events");
+    }
+};

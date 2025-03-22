@@ -239,7 +239,6 @@ exports.sendUpdatePasswordEmail = async (email) => {
   
       return true;
     } catch (error) {
-      console.error(error);
       throw new Error("failed to send email"); // Ensure rejection with a proper error message
     }
   };

@@ -113,7 +113,6 @@ exports.registerUserCSV = async (req, res) => {
         }
         return sendSuccess(res, "User registered successfully");
     } catch (error) {
-        console.error(error);
         return sendError(res, "Something went wrong while registering user");
     }
 };
