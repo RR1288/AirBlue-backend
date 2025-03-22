@@ -7,15 +7,11 @@ module.exports = (sequelize, DataTypes) => {
                 autoIncrement: true,
                 primaryKey: true,
             },
-            UserID: {
+            AttendeeID: {
                 type: DataTypes.BIGINT,
-                references: {model: "Users", key: "UserID"},
+                references: {model: "Attendees", key: "AttendeeID"},
             },
 
-            EventID: {
-                type: DataTypes.BIGINT,
-                references: {model: "Events", key: "EventID"},
-            },
 
             DuffelOrderID: DataTypes.STRING(30),
             DuffelPassID: DataTypes.STRING(30),
@@ -49,8 +45,7 @@ module.exports = (sequelize, DataTypes) => {
     );
 
     Itinerary.associate = function (models) {
-        Itinerary.belongsTo(models.User, {foreignKey: "UserID"});
-        Itinerary.belongsTo(models.Event, {foreignKey: "EventID"});
+        Itinerary.belongsTo(models.Attendee, {foreignKey: "AttendeeID"});
     };
 
     return Itinerary;

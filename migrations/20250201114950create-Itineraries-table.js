@@ -10,15 +10,17 @@ module.exports = {
         autoIncrement: true,
         primaryKey: true,
     },
-    UserID: {
+    AttendeeID: {
         type: Sequelize.BIGINT,
-        references: {model: "Users", key: "UserID"},
+        references: {model: "Attendees", key: "AttendeeID"},
         allowNull: false,
     },
-    EventID: {
-        type:Sequelize.BIGINT,
-        references: {model: "Events", key: "EventID"},
-        allowNull: false,
+    ForeignKey: {
+      type: Sequelize.BIGINT,
+      references: {
+        model: "Attendees",
+        key: ["UserID", "EventID"]
+      }
     },
 
     DuffelOrderID: {type: Sequelize.STRING(30), allowNull: false},
