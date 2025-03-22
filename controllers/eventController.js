@@ -21,7 +21,7 @@ exports.createEvent = async (userId, name, startDate, endDate, description, type
                 MaxAttendees: maxAttendees
             });
             //add the creating user to the event staff as an eventplanner
-            this.addToEventStaff(userId, event.EventID, 'E');
+            await this.addToEventStaff(userId, event.EventID, 'E');
         });
         //returns the event Id on success
         return event.EventID;
@@ -158,12 +158,10 @@ exports.processInvitationAcceptance = async (invitationToken) => {
             UserID: user.UserID,
             Confirmed: true,
             EventGroupID: invitation.EventGroupID,
-
         });
 
-
         // Mark invitation as accepted
-        invitation.update({ status: "accepted" });
+        await invitation.update({ status: "accepted" });
         return true;
 
     } catch (error) {
@@ -213,7 +211,7 @@ exports.appendRoleToEventStaff = async (userID, eventID, role) => {
         //create a new value for the roleID in event staff
         let newRole = staff.RoleID + role;
         //update event staff with the new value for RoleID
-        staff.update({ RoleID: newRole });
+        await staff.update({ RoleID: newRole });
         //return true on success
         return true;
     } catch (error) {

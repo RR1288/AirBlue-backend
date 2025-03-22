@@ -315,7 +315,7 @@ exports.declinePendingFlight = async (itineraryId) => {
 };
 
 exports.cancelApprovedFlight = async (itineraryId) => {
-    return cancelOrDeclineFlight(itineraryId, "cancel");
+    return await cancelOrDeclineFlight(itineraryId, "cancel");
 };
 
 async function cancelOrDeclineFlight(itineraryId, action) {

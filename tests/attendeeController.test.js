@@ -53,10 +53,10 @@ describe('attendeeController', () => {
 
       // Assert
       expect(result).toEqual(expectedResult);
-      expect(User.findOne).toHaveBeenCalledWith({
+      await expect(User.findOne).toHaveBeenCalledWith({
         where: { Email: { [Op.iLike]: email } },
       });
-      expect(Invitation.create).toHaveBeenCalledWith(expect.objectContaining({
+      await expect(Invitation.create).toHaveBeenCalledWith(expect.objectContaining({
         EventID: eventId,
         invitedEmail: email,
         status: 'pending',
@@ -101,14 +101,14 @@ describe('attendeeController', () => {
     
       // Assert
       expect(result).toEqual(expectedResult); // Check if the result matches the expected structure
-      expect(Attendee.findAll).toHaveBeenCalledWith({
+      await expect(Attendee.findAll).toHaveBeenCalledWith({
         where: { EventID: eventId },
         include: [
           { model: User, attributes: ['UserID', 'FName', 'LName', 'Email'] },
           { model: Event, attributes: ['EventID', 'EventName'] },
         ],
       });
-      expect(Invitation.findAll).toHaveBeenCalledWith({
+      await expect(Invitation.findAll).toHaveBeenCalledWith({
         where: { EventID: eventId, status: 'pending' },
         attributes: ['InvitationID', 'invitedEmail', 'status'],
       });
@@ -145,7 +145,7 @@ describe('attendeeController', () => {
 
       // Assert
       expect(result.attendees).toEqual(mockAttendees);
-      expect(Attendee.findAll).toHaveBeenCalledWith({
+      await expect(Attendee.findAll).toHaveBeenCalledWith({
         where: { EventID: eventId },
         include: [
           { model: User, attributes: ['UserID', 'FName', 'LName', 'Email'] },
@@ -167,7 +167,7 @@ describe('attendeeController', () => {
 
       // Assert
       expect(result.attendees).toEqual([]); // Expect empty array for attendees
-      expect(Attendee.findAll).toHaveBeenCalledWith({
+      await expect(Attendee.findAll).toHaveBeenCalledWith({
         where: { EventID: eventId },
         include: [
           { model: User, attributes: ['UserID', 'FName', 'LName', 'Email'] },

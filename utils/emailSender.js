@@ -96,14 +96,14 @@ function sendPasswordResetEmail(userEmail, link) {
     `, // HTML body content
   };
 
-  transporter.sendMail(mailOptions, (error, info) => {
+  return transporter.sendMail(mailOptions, (error, info) => {
     if (error) {
       console.log('Error sending password reset email:', error);
     } else {
       console.log('Password reset email sent:', info.response);
     }
   });
-  return transporter.sendMail(mailOptions);
+  // return transporter.sendMail(mailOptions);
 }
 
 // Function to send account setup email
@@ -192,14 +192,14 @@ function sendAccountSetupEmail(userEmail, invitationLink) {
     `, // HTML body content
   };
 
-  transporter.sendMail(mailOptions, (error, info) => {
+  return transporter.sendMail(mailOptions, (error, info) => {
     if (error) {
       console.log('Error sending account setup email:', error);
     } else {
       console.log('Account setup email sent:', info.response);
     }
   });
-  return transporter.sendMail(mailOptions);
+  //return transporter.sendMail(mailOptions);
 }
 
 /*
@@ -303,14 +303,14 @@ function sendInvitation(email, invitationLink){
     `, // HTML body content
   };
 
-  transporter.sendMail(mailOptions, (error, info) => {
+  return transporter.sendMail(mailOptions, (error, info) => {
     if (error) {
       console.log('Error sending account setup email:', error);
     } else {
       console.log('Account setup email sent:', info.response);
     }
   });
-  return transporter.sendMail(mailOptions);
+  // return transporter.sendMail(mailOptions);
 }
 
 //Export the functions to be used in your test file

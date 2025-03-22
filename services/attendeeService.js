@@ -80,7 +80,7 @@ exports.inviteAttendeesCsv = async (req, res) => {
     return sendSuccess(res, "successfully ran function with "+successfulInvites+" users successfully invited and "+failedInvites+" failed invites", csvItems);
   } catch (error) {
     //return the process as a failer
-    deleteCSV(filepath);
+    await deleteCSV(filepath);
     return sendError(res, "failed to add attendees through input file");
     
   } 
