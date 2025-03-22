@@ -76,9 +76,7 @@ exports.getJoinableEventsFinance = async(organizationId) =>{
         for (let i = 0; i < events.length; i++){
             //get the id from the event
             let eventId = parseInt(events[i].dataValues.id);
-            console.log(eventId);
             let eventStaff = await EventController.getEventStaffByRole(eventId, 'F');
-            console.log(eventStaff.length);
             //check to see if event has a finance user
             if (eventStaff.length === 0){
                 //if it does not have a finance user it should add the financeUser field to the object and then push it to the results array
@@ -86,7 +84,6 @@ exports.getJoinableEventsFinance = async(organizationId) =>{
                 results.push(events[i]);
             }
         }
-        console.log(results);
         return results;
     } catch (error) {
         throw new Error("failed to get events");
