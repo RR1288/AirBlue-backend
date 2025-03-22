@@ -235,7 +235,7 @@ exports.sendUpdatePasswordEmail = async (email) => {
       await login.update();
   
       let resetLink = `https://yourwebsite.com/reset-password?token=${login.token}`;
-      await emailSender.sendPasswordResetEmail(email, resetLink);
+      emailSender.sendPasswordResetEmail(email, resetLink);
   
       return true;
     } catch (error) {
