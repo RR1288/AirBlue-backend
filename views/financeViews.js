@@ -75,7 +75,7 @@ exports.getJoinableEventsFinance = async(organizationId) =>{
 
         // Fetch event staff data concurrently for all events
         const eventStaffPromises = events.map(event => 
-            EventController.getEventStaffByRole(event.id, 'F')
+            EventController.getEventStaffByRole(event.dataValues.id, 'F')
         );
 
         const eventStaffData = await Promise.all(eventStaffPromises);
@@ -91,6 +91,7 @@ exports.getJoinableEventsFinance = async(organizationId) =>{
 
         return results;
     } catch (error) {
+        console.log(error);
         throw new Error("failed to get events");
     }
 };

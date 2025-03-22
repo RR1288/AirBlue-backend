@@ -42,11 +42,12 @@ exports.getAllEventsFinance = async (req, res) => {
         let eventsUserIsIn = await FinanceViews.getEventsFinance(organizationID, userID);
         let eventsJoinable = await FinanceViews.getJoinableEventsFinance(organizationID);
         if (!eventsUserIsIn) return sendError(res, 'failed to get events the user is in', 400);
-        if (!eventsJoinable) return sendError(res, 'failed to get joinable events');
+        if (!eventsJoinable) return sendError(res, 'failed to get joinable events', 400);
         let combined = [...eventsUserIsIn, ...eventsJoinable];
         return sendSuccess(res, "successfully got events", combined);
 
     } catch (error) {
+        console.log(error);
         return sendError(res, 'failed to get events', 400);
     }
 };
