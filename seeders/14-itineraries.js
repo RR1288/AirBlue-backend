@@ -36,58 +36,6 @@ module.exports = {
         updatedAt: new Date()
       },
       {
-        UserID: 3,  // Startup Pitch Event
-        EventID: 3,
-        DuffelOrderID: "ord_003",
-        DuffelPassID: "pas_003",
-        DuffelOfferID: "off_003",
-        BookingReference: "GHI789",
-        TotalCost: 700.00,
-        BaseCost: 650.00,
-        TaxCost: 50.00,
-        ApprovalStatus: 'denied',
-        heldAt: new Date("2025-03-15"),
-        approvedAt: null,
-        expiresAt: new Date("2025-03-17"),
-        cancelledAt: new Date("2025-03-17"),
-        createdAt: new Date(),
-        updatedAt: new Date()
-      },
-      {
-        UserID: 4,  // Corporate Retreat 2025
-        EventID: 4,
-        DuffelOrderID: "ord_004",
-        DuffelPassID: "pas_004",
-        DuffelOfferID: "off_004",
-        BookingReference: "JKL012",
-        TotalCost: 600.00,
-        BaseCost: 550.00,
-        TaxCost: 50.00,
-        ApprovalStatus: 'pending',
-        heldAt: new Date("2025-03-16"),
-        approvedAt: null,
-        expiresAt: new Date("2025-03-18"),
-        createdAt: new Date(),
-        updatedAt: new Date()
-      },
-      {
-        UserID: 5,  // Charity Gala 2025
-        EventID: 5,
-        DuffelOrderID: "ord_005",
-        DuffelPassID: "pas_005",
-        DuffelOfferID: "off_005",
-        BookingReference: "MNO345",
-        TotalCost: 750.00,
-        BaseCost: 700.00,
-        TaxCost: 50.00,
-        ApprovalStatus: 'approved',
-        heldAt: new Date("2025-03-16"),
-        approvedAt: new Date("2025-03-17"),
-        expiresAt: new Date("2025-03-18"),
-        createdAt: new Date(),
-        updatedAt: new Date()
-      },
-      {
         UserID: 3,
         EventID: 1,
         DuffelOrderID: "ord_006",
@@ -106,7 +54,7 @@ module.exports = {
       },
       {
         UserID: 4,
-        EventID: 2,
+        EventID: 3,
         DuffelOrderID: "ord_007",
         DuffelPassID: "pas_007",
         DuffelOfferID: "off_007",
@@ -120,57 +68,6 @@ module.exports = {
         createdAt: new Date(),
         updatedAt: new Date()
       },
-      {
-        UserID: 5,
-        EventID: 3,
-        DuffelOrderID: "ord_008",
-        DuffelPassID: "pas_008",
-        DuffelOfferID: "off_008",
-        BookingReference: "VWX234",
-        TotalCost: 400.00,
-        BaseCost: 350.00,
-        TaxCost: 50.00,
-        ApprovalStatus: 'approved',
-        heldAt: new Date("2025-03-17"),
-        approvedAt: new Date("2025-03-18"),
-        expiresAt: new Date("2025-03-19"),
-        createdAt: new Date(),
-        updatedAt: new Date()
-      },
-      {
-        UserID: 2,
-        EventID: 4,
-        DuffelOrderID: "ord_009",
-        DuffelPassID: "pas_009",
-        DuffelOfferID: "off_009",
-        BookingReference: "YZA567",
-        TotalCost: 700.00,
-        BaseCost: 650.00,
-        TaxCost: 50.00,
-        ApprovalStatus: 'denied',
-        heldAt: new Date("2025-03-17"),
-        expiresAt: new Date("2025-03-19"),
-        cancelledAt: new Date("2025-03-19"),
-        createdAt: new Date(),
-        updatedAt: new Date()
-      },
-      {
-        UserID: 3,
-        EventID: 5,
-        DuffelOrderID: "ord_010",
-        DuffelPassID: "pas_010",
-        DuffelOfferID: "off_010",
-        BookingReference: "BCD890",
-        TotalCost: 600.00,
-        BaseCost: 550.00,
-        TaxCost: 50.00,
-        ApprovalStatus: 'approved',
-        heldAt: new Date("2025-03-17"),
-        approvedAt: new Date("2025-03-18"),
-        expiresAt: new Date("2025-03-19"),
-        createdAt: new Date(),
-        updatedAt: new Date()
-      }
     ]);
   },
   down: async (queryInterface) => {

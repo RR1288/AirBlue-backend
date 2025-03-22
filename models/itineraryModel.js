@@ -45,7 +45,9 @@ module.exports = (sequelize, DataTypes) => {
     );
 
     Itinerary.associate = function (models) {
-        Itinerary.belongsTo(models.Attendee, {foreignKey: "AttendeeID"});
+        Itinerary.belongsTo(models.Attendee, {
+            foreignKey: "AttendeeID"
+        });
     };
 
     return Itinerary;

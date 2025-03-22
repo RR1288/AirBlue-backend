@@ -57,20 +57,6 @@ module.exports = {
         createdAt: new Date(),
         updatedAt: new Date()
       },
-      {
-        SliceID: 5, // DFW -> LAS
-        OriginAirport: "Dallas/Fort Worth International Airport",
-        OriginCity: "Dallas",
-        OriginIATA: "DFW",
-        DestinationAirport: "Las Vegas McCarran International Airport",
-        DestinationCity: "Las Vegas",
-        DestinationIATA: "LAS",
-        OriginTime: new Date("2025-07-04T14:00:00Z"),
-        DestinationTime: new Date("2025-07-04T16:30:00Z"),
-        Duration: 150, // 2.5 hours
-        createdAt: new Date(),
-        updatedAt: new Date()
-      }
     ]);
   },
   down: async (queryInterface) => {
