@@ -39,7 +39,8 @@ exports.login = async (req, res) => {
         if (!isMatch) return sendError(res, "Invalid credentials", 400);
 
         // Prepare additional user info to return
-        let uRoles = user.UserOrganizations[0];
+        let uRoles = user.UserOrganizations[0].dataValues.Roles;
+        console.log(uRoles);
         if (!uRoles) uRoles = []
         const userInfo = {
             userId: user.UserID,
