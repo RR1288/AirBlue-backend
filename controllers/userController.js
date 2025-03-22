@@ -27,7 +27,11 @@ exports.getAllEventPlanners = async (req, res) => {
 };
 
 exports.getUserByID = async (userID) => {
+    try{
     return await User.findByPk(userID);
+    }catch(error) {
+        throw new Error('failed to find user');
+    }
 };
 
 exports.registerUserFull = async (
@@ -77,7 +81,7 @@ exports.registerUserFull = async (
     }
 };
 
-//TODO remove all records of this function since it is no longer needed
+//TODO remove this function
 exports.registerBasic = async (email, firstname, lastname, country) => {
     try {
         if (!email) {
