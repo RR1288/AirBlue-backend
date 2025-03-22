@@ -40,8 +40,8 @@ jest.mock("../utils/UserOrganizationSanitizations", () => ({
 //Test for User Service
 describe("User Service", () => {
 
-  beforeEach(() => {
-    jest.clearAllMocks();
+  beforeEach(async () => {
+    await jest.clearAllMocks();
   });
 
   //Tests for registerUserEndUser Function

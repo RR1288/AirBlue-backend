@@ -22,8 +22,8 @@ beforeAll(() => {
 
 //Testing time
 describe("UserController", () => {
-  afterEach(() => {
-    jest.clearAllMocks();
+  afterEach(async () => {
+    await jest.clearAllMocks();
   });
 
   //Tests for updatePassword

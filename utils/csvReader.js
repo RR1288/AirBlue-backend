@@ -30,8 +30,10 @@ exports.processCSV = async (filePath) => {
   }
 };
 
-exports.deleteCSV = async (filepath) =>{
-  fs.unlink(filepath, (err) =>{
-    if (err) throw new Error('failed to delete csv');
-  });
-}
+exports.deleteCSV = async (filepath) => {
+  try {
+    await fs.promises.unlink(filepath);
+  } catch (err) {
+    throw new Error('failed to delete csv');
+  }
+};

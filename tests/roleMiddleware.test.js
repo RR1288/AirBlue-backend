@@ -23,8 +23,8 @@ describe('Role Authorization Middleware', () => {
     next = jest.fn();
   });
 
-  afterEach(() => {
-    jest.clearAllMocks();
+  afterEach(async () => {
+    await jest.clearAllMocks();
   });
 
   //First test is seeing if a user with the Event Planner, Administrator and Finance role has access with those roles

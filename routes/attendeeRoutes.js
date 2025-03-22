@@ -3,6 +3,7 @@ const multer = require("multer");
 const router = express.Router();
 const upload = multer({dest: 'upload/'});
 const AttendeeService = require("../services/attendeeService");
+const {getAttendeeEvents} = require("../services/attendeeService");
 const { protect } = require("../middleware/authMiddleware");
 const { authorizedRoles } = require("../middleware/roleMiddleware");
 const { Roles } = require("../utils/Roles");
@@ -191,6 +192,24 @@ router.post("/invite-csv", protect, authorizedRoles(Roles.PLANNER, Roles.PLANNER
  */
 router.get("/:eventId", protect, authorizedRoles(Roles.PLANNER, Roles.ADMIN), AttendeeService.getAttendees);
 
+/**
+ * @swagger
+ * /attendees/view/getAllEventsAttendeeView:
+ *   get:
+ *     summary: gets all events that an attendee is in
+ *     description: uses the usersID from the users token to query the Attendee table for all occurences 
+ *     tags:
+ *       - Attendees
+ *     responses:
+ *       200:
+ *         description: a list of events that the user is a part of
+ * 
+ *       400:
+ *         description: userID is invalid.
+ *       500:
+ *         description: Internal server error.
+ */
+router.get('/view/getAllEventsAttendeeView', protect, getAttendeeEvents);
 
 /**
  * @swagger

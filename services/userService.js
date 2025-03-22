@@ -144,7 +144,6 @@ exports.registerUserOrganization = async (req, res) => {
         }
         //sanitizing and validating all fields
         email = sanitizeEmail(email);
-        email = sanitizeEmail(email);
         if (email === null)
             return sendError(res, "Invalid input for email", 400);
         fname = sanitizeName(fname);
@@ -317,7 +316,7 @@ exports.sendResetEmailBasic = async (req, res) => {
         if (email === null)
             return sendSuccess(res, "successfully sent password reset to user");
         //run function
-        const success = sendUpdatePasswordEmail(email);
+        const success = await sendUpdatePasswordEmail(email);
         //does not check if it succeeded or failed since this 
         return sendSuccess(res, "successfully sent password reset to user");
 

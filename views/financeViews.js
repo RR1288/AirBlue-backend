@@ -41,7 +41,8 @@ exports.getEventsFinance = async(organizationId, userId) =>{
         add functionality to add the userName instead of id for the financeUser field
         add functiosn to return info for statistics
          */ 
-        if (!events || events === null) return [];
+        if (!events || events.length === 0) return [];
+        
         return events;
     } catch (error) {
         throw new Error("failed to get events");
@@ -54,7 +55,6 @@ exports.getEventsFinance = async(organizationId, userId) =>{
  */
 exports.getJoinableEventsFinance = async(organizationId) =>{
     try {
-        let results = [];
         //get all events where the finance user is a part of
         let events = await Event.findAll(
             {
@@ -72,17 +72,22 @@ exports.getJoinableEventsFinance = async(organizationId) =>{
                 ],
                 where: {OrganizationID: organizationId},
         });
-        //check to see if eventShows up in list of events with finance users
-        for (let i = 0; i < events.length; i++){
-            //get the id from the event
-            let eventId = parseInt(events[i].dataValues.id);
-            //check to see if event has a finance user
-            if (EventController.getEventStaffByRole(eventId, 'F') === null){
-                //if it does not have a finance user it should add the financeUser field to the object and then push it to the results array
-                events[i].financeUser = null;
-                results.push(events[i]);
+
+        // Fetch event staff data concurrently for all events
+        const eventStaffPromises = events.map(event => 
+            EventController.getEventStaffByRole(event.id, 'F')
+        );
+
+        const eventStaffData = await Promise.all(eventStaffPromises);
+
+        // Filter events that don't have finance users
+        const results = events.filter((event, index) => {
+            if (eventStaffData[index].length === 0) {
+                event.financeUser = null;
+                return true;
             }
-        }
+            return false;
+        });
 
         return results;
     } catch (error) {

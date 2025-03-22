@@ -15,7 +15,7 @@ jest.mock('../utils/eventSanitization');
 describe('setEventBudget', () => {
     let req, res;
 
-    beforeEach(() => {
+    beforeEach(async () => {
         // Mock the request and response objects
         req = {
             body: {
@@ -30,7 +30,7 @@ describe('setEventBudget', () => {
         };
 
         // Reset mocks before each test
-        jest.clearAllMocks();
+        await jest.clearAllMocks();
     });
 
     //Test 1: Error is inputs are missing
