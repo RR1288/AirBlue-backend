@@ -11,7 +11,12 @@ const generateToken = (user) => {
     if (user.UserOrganizations.length > 0) {
         const roles = user.UserOrganizations[0].Roles;
         const organizationID = user.UserOrganizations[0].OrganizationID;
-        signature = {id: user.UserID, username: user.UserName, roles: roles, OrganizationID: organizationID};
+        signature = {
+            id: user.UserID,
+            username: user.UserName,
+            roles: roles,
+            OrganizationID: organizationID,
+        };
     } else {
         signature = {id: user.UserID, username: user.UserName};
     }
@@ -39,16 +44,17 @@ exports.login = async (req, res) => {
         if (!isMatch) return sendError(res, "Invalid credentials", 400);
 
         // Prepare additional user info to return
-        let uRoles = user.UserOrganizations[0].dataValues.UserOrganization;
+        let uRoles = user?.UserOrganizations[0]?.dataValues.UserOrganization;
         if (!uRoles) {
             uRoles = [];
-        }else{
+        }else {
             uRoles = user.UserOrganizations[0].dataValues.Roles;
         }
+
         const userInfo = {
             userId: user.UserID,
             username: user.UserName,
-            roles: uRoles
+            roles: uRoles,
         };
 
         // If 2FA is enabled
@@ -61,7 +67,10 @@ exports.login = async (req, res) => {
 
         // Else just generate jwt token
         const token = generateToken(user);
-        return sendSuccess(res, "Login successful", {token: token, ...userInfo});
+        return sendSuccess(res, "Login successful", {
+            token: token,
+            ...userInfo,
+        });
     } catch (err) {
         console.error(err);
         return sendError(res, "Server error", 500);
@@ -78,8 +87,6 @@ exports.setup2FA = async (req, res) => {
             name: "AirBlue",
             length: 20, //Common length
         });
-
-        console.log("SECRET: ", secret);
 
         // Update secret
         user.two_fa_secret = secret.base32;
