@@ -28,6 +28,18 @@ describe('inviteAttendeesCsv', () => {
   let req;
   let res;
 
+  let consoleLogSpy;
+
+  beforeEach(() => {
+    // Supress console logs during tests
+    consoleLogSpy = jest.spyOn(console, 'log').mockImplementation(() => {});
+  });
+
+  afterEach(() => {
+    // Restore console logs after test
+    consoleLogSpy.mockRestore();
+  });
+
   beforeEach(() => {
 
     // Clear mocks before each test
