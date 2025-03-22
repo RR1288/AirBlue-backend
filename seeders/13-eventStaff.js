@@ -4,7 +4,14 @@ module.exports = {
       {
         UserID: 1,  // John Doe
         EventID: 1,
-        RoleID: 'AE', // Admin + Event planner
+        RoleID: 'E', // Admin + Event planner
+        createdAt: new Date(),
+        updatedAt: new Date()
+      },
+      {
+        UserID: 1,  // John Doe
+        EventID: 6,
+        RoleID: 'E', // Admin + Event planner
         createdAt: new Date(),
         updatedAt: new Date()
       },
@@ -18,7 +25,7 @@ module.exports = {
       {
         UserID: 3,  // User 3
         EventID: 2,
-        RoleID: 'A',  // Administrator
+        RoleID: 'E',  // Event Planner
         createdAt: new Date(),
         updatedAt: new Date()
       },
@@ -32,14 +39,14 @@ module.exports = {
       {
         UserID: 5,  // User 5
         EventID: 3,
-        RoleID: 'AE', // Admin + Event planner
+        RoleID: 'FE', // finance + Event planner
         createdAt: new Date(),
         updatedAt: new Date()
       },
       {
         UserID: 6,  // User 6
         EventID: 3,
-        RoleID: 'A',  // Administrator
+        RoleID: 'E',  // Event Planner
         createdAt: new Date(),
         updatedAt: new Date()
       },
@@ -60,14 +67,14 @@ module.exports = {
       {
         UserID: 9,  // User 9
         EventID: 5,
-        RoleID: 'A',  // Administrator
+        RoleID: 'E',  // Event Planner
         createdAt: new Date(),
         updatedAt: new Date()
       },
       {
         UserID: 10, // User 10
         EventID: 5,
-        RoleID: 'AE', // Admin + Event planner
+        RoleID: 'F', // Finance
         createdAt: new Date(),
         updatedAt: new Date()
       },
