@@ -208,7 +208,7 @@ exports.updatePassword = async (userID, password) => {
         if(!userLogin){
             throw new Error("could not find user");
         }
-        userLogin.update({//updates the password
+        await userLogin.update({//updates the password
             Password: password,
             token: null,
             LastPasswordChange: Date.now()
