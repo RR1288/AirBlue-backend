@@ -4,9 +4,6 @@ exports.getEvents = async (userId) => {
     try {
         //TODO add the users eventGroup here for general use
         const events = await Attendee.findAll({
-            attributes: [
-                ['UserID', 'id'],
-            ],
             include: [
                 {
                     model: Event,

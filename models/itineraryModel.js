@@ -46,7 +46,16 @@ module.exports = (sequelize, DataTypes) => {
 
     Itinerary.associate = function (models) {
         Itinerary.belongsTo(models.Attendee, {
-            foreignKey: "AttendeeID"
+            foreignKey: {
+                name: 'fk_itineraries_attendees',
+                fields: ['UserID', 'EventID']
+            },
+            onDelete: 'CASCADE',
+            onUpdate: 'CASCADE',
+        });
+
+        models.Attendee.hasMany(Itinerary, {
+            foreignKey: ['UserID', 'EventID']
         });
     };
 
