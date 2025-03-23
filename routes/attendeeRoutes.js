@@ -79,7 +79,7 @@ router.post("/invite/:eventId", protect, authorizedRoles(Roles.PLANNER, Roles.PL
  *       - Attendees
  *     parameters:
  *       - in: query
- *         name: eventID
+ *         name: eventId
  *         required: true
  *         description: The ID of the event.
  *         schema:
