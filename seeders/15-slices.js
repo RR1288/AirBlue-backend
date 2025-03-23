@@ -49,18 +49,6 @@ module.exports = {
         createdAt: new Date(),
         updatedAt: new Date()
       },
-      {
-        ItineraryID: 5, // Charity Gala 2025
-        OriginAirport: "Dallas/Fort Worth International Airport",
-        OriginCity: "Dallas",
-        OriginIATA: "DFW",
-        DestinationAirport: "Las Vegas McCarran International Airport",
-        DestinationCity: "Las Vegas",
-        DestinationIATA: "LAS",
-        Duration: 150, // 2.5 hours
-        createdAt: new Date(),
-        updatedAt: new Date()
-      }
     ]);
   },
   down: async (queryInterface) => {
