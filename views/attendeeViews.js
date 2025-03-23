@@ -35,12 +35,12 @@ exports.getEvents = async (userId) => {
             
         });
         //format the results into a single non nested object
-        results = [];
+        let results = [];
         for (let i = 0; i < events.length ; i++){
             //add check to see if Itinerary exists. if nto it will set the status to 'select' and cost = o
             let iStatus;
             let iCost;
-            console.log(events[i].Itineraries.dataValues);
+            //console.log(events[i].Itineraries.dataValues);
             if (events[i].dataValues.Itineraries === null){
                 iStatus = 'select';
                 iCost = 0.00;
