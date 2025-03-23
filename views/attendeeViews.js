@@ -4,6 +4,7 @@ exports.getEvents = async (userId) => {
     try {
         //TODO add the users eventGroup here for general use
         const events = await Attendee.findAll({
+            attributes: [['UserID', 'id']],
             include: [
                 {
                     model: Event,
@@ -39,25 +40,25 @@ exports.getEvents = async (userId) => {
             //add check to see if Itinerary exists. if nto it will set the status to 'select' and cost = o
             let iStatus;
             let iCost;
-            if (events[i].dataValues.Itinerary === null){
+            console.log(events[i].Itineraries.dataValues);
+            if (events[i].dataValues.Itineraries === null){
                 iStatus = 'select';
                 iCost = 0.00;
             }else{
-                iStatus = events[i].dataValues.Itinerary.status;
-                iCost = events[i].dataValues.Itinerary.cost;
+                iStatus = events[i].dataValues.Itineraries;
             }
             results.push({
                 'id' : events[i].dataValues.id,
-                'name' : events[i].dataValues.Event.title,
-                'startDate' : events[i].dataValues.Event.startDate,
-                'endDate' : events[i].dataValues.Event.endDate,
-                'location' :  events[i].dataValues.Event.location,
-                'description' : events[i].dataValues.Event.description,
-                'status': iStatus,
-                'cost': iCost,
-                'groupName': events[i].dataValues.EventGroup.name,
-                'flightBudget': events.dataValues.EventGroup.budget
+                'name' : events[i].dataValues.Event.dataValues.title,
+                'startDate' : events[i].dataValues.Event.dataValues.startDate,
+                'endDate' : events[i].dataValues.Event.dataValues.endDate,
+                'location' :  events[i].dataValues.Event.dataValues.location,
+                'description' : events[i].dataValues.Event.dataValues.description,
+                'FlightInfo': iStatus,
+                'groupName': events[i].dataValues.EventGroup.dataValues.name,
+                'flightBudget': events[i].dataValues.EventGroup.dataValues.budget
             });
+            console.log(results);
         }
 
         //if no events then return a blank array
