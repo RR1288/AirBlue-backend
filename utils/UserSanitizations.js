@@ -10,10 +10,10 @@ function startSanitize(input) {
     sanitizedInput = validator.stripLow(sanitizedInput, true);
     return sanitizedInput;
 }
-function validateUserID(userID) {
+async function validateUserID(userID) {
     if (typeof userID !== 'number') return false;
-    console.log("User: " + getUserByID(userID));
-    if (getUserByID(userID) === null) return false;
+    console.log("User: " + await getUserByID(userID));
+    if (await getUserByID(userID) === null) return false;
 
     return true;
 

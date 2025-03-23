@@ -1,12 +1,10 @@
-const {Attendee, Event, Itinerary, Slice, Segment, Sequelize} = require('../models');
+const {Attendee, Event, Itinerary, EventGroup , Slice, Segment, Sequelize} = require('../models');
 
 exports.getEvents = async (userId) => {
     try {
-        console.log("USERID: " +userId);
+        //TODO add the users eventGroup here for general use
         const events = await Attendee.findAll({
-            attributes: [
-                ['UserID', 'id'],
-            ],
+            attributes: [['UserID', 'id']],
             include: [
                 {
                     model: Event,
@@ -19,36 +17,52 @@ exports.getEvents = async (userId) => {
                     ],
                     required: true,
                 },
+                {
+                    model: Itinerary,
+                    attributes: [['ApprovalStatus', 'status'], ['TotalCost', 'cost']],
+                },
+                {
+                    model: EventGroup,
+                    required: true,
+                    attributes: [
+                        ['Name', 'name'],
+                        ['FlightBudget', 'budget']
+                    ]
+
+                }
             ],
             where: {UserID: userId}
             
         });
-        //if no events then return a blank array
-        return events.length > 0 ? events : [];
-    } catch (error) {
-        console.log(error);
-        throw new Error('failed to get events');
-    }
-};
+        //format the results into a single non nested object
+        let results = [];
+        for (let i = 0; i < events.length ; i++){
+            //add check to see if Itinerary exists. if nto it will set the status to 'select' and cost = o
+            let iStatus;
+            let iCost;
+            //console.log(events[i].Itineraries.dataValues);
+            if (events[i].dataValues.Itineraries === null){
+                iStatus = 'select';
+                iCost = 0.00;
+            }else{
+                iStatus = events[i].dataValues.Itineraries;
+            }
+            results.push({
+                'id' : events[i].dataValues.id,
+                'name' : events[i].dataValues.Event.dataValues.title,
+                'startDate' : events[i].dataValues.Event.dataValues.startDate,
+                'endDate' : events[i].dataValues.Event.dataValues.endDate,
+                'location' :  events[i].dataValues.Event.dataValues.location,
+                'description' : events[i].dataValues.Event.dataValues.description,
+                'FlightInfo': iStatus,
+                'groupName': events[i].dataValues.EventGroup.dataValues.name,
+                'flightBudget': events[i].dataValues.EventGroup.dataValues.budget
+            });
+            console.log(results);
+        }
 
-exports.getEventStatus = async (eventId, userId) => {
-    try {
-        const events = await Attendee.findOne({
-            attributes: [],
-            include: [
-                {
-                    model: Itinerary,
-                    attributes: [['ApprovalStatus', 'status'], ['TotalCost', 'cost']],
-                    required: true,
-                    where: {UserID: userId, EventID: eventId}
-                }
-            ],
-            where: {UserID: userId, EventID: eventId}
-            
-        });
         //if no events then return a blank array
-        if(!events) return [];
-        return events;
+        return results;
     } catch (error) {
         console.log(error);
         throw new Error('failed to get events');

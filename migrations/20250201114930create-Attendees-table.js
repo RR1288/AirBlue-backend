@@ -4,8 +4,11 @@
 module.exports = {
   up: async (queryInterface, Sequelize) => {
     await queryInterface.createTable('Attendees', {
-      UserID: { type: Sequelize.BIGINT, references: { model: 'Users', key: 'UserID' }, primaryKey: true },
-      EventID: { type: Sequelize.BIGINT, references: { model: 'Events', key: 'EventID' }, primaryKey: true },
+      AttendeeID: { type: Sequelize.BIGINT,
+        autoIncrement: true,
+        primaryKey: true, },
+      UserID: { type: Sequelize.BIGINT, references: { model: 'Users', key: 'UserID' }, allowNull: false },
+      EventID: { type: Sequelize.BIGINT, references: { model: 'Events', key: 'EventID' }, allowNull: false },
       EventGroupID: { type: Sequelize.BIGINT, references: { model: 'EventGroups', key: 'EventGroupID' }, allowNull: false },
       Confirmed: { type: Sequelize.BOOLEAN, defaultValue: false },
       createdAt: { type: Sequelize.DATE, allowNull: false, defaultValue: Sequelize.NOW },

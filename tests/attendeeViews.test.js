@@ -1,144 +1,130 @@
 //attendeeViews.test.js
 
-//Set up constants
-const { getEvents, getEventStatus } = require('../views/attendeeViews');
-const { Attendee, Event, Itinerary } = require('../models');
+//Constants
+const { getEvents } = require('../views/attendeeViews');
+const { Attendee, Event, Itinerary, EventGroup } = require('../models');
 
-// Mocks
+// Mock the models
 jest.mock('../models', () => ({
   Attendee: {
     findAll: jest.fn(),
-    findOne: jest.fn(),
   },
+  Event: {},
+  Itinerary: {},
+  EventGroup: {},
 }));
 
-//Testing time
-describe('attendeeView.js', () => {
-  let consoleLogSpy;
+//Testing time for getEvents
+describe('getEvents function', () => {
 
-  beforeEach(() => {
-    // Supress console logs during tests
-    consoleLogSpy = jest.spyOn(console, 'log').mockImplementation(() => {});
-  });
-
-  afterEach(() => {
-    // Restore console logs after test
-    consoleLogSpy.mockRestore();
-  });
-  
-  afterEach(async () => {
-    // Reset mocks before each test
-    await jest.clearAllMocks();
-  });
-
-  //Tests for getEvents function
-  describe('getEvents', () => {
-
-    //Test 1: Return events for a vliad userId
-    it('Should return events for a valid userId', async () => {
-      // Mock the data to return
-      const mockEventData = [
-        {
-          UserID: 1,
+  //Test 1: Return formatted events per userId
+  it('Should return formatted events data for a given userId', async () => {
+    // Mock the return value of Attendee.findAll
+    Attendee.findAll.mockResolvedValue([
+      {
+        dataValues: {
+          id: 1,
+          UserID: 123,
           Event: {
-            EventName: 'Sample Event',
-            EventStartDate: '2025-05-01',
-            EventEndDate: '2025-05-02',
-            Location: 'Sample Location',
-            EventDescription: 'This is a test event'
-          }
-        }
-      ];
-      
-      Attendee.findAll.mockResolvedValue(mockEventData);
+            dataValues: {
+              title: 'Event 1',
+              startDate: '2025-03-01',
+              endDate: '2025-03-05',
+              location: 'Location 1',
+              description: 'Description 1',
+            },
+          },
+          Itineraries: {
+            dataValues: {
+              ApprovalStatus: 'approved',
+              TotalCost: 100.00,
+            },
+          },
+          EventGroup: {
+            dataValues: {
+              name: 'Group 1',
+              budget: 500.00,
+            },
+          },
+        },
+      },
+      {
+        dataValues: {
+          id: 2,
+          UserID: 123,
+          Event: {
+            dataValues: {
+              title: 'Event 2',
+              startDate: '2025-04-01',
+              endDate: '2025-04-05',
+              location: 'Location 2',
+              description: 'Description 2',
+            },
+          },
+          Itineraries: null, // No itinerary for this event
+          EventGroup: {
+            dataValues: {
+              name: 'Group 2',
+              budget: 600.00,
+            },
+          },
+        },
+      },
+    ]);
 
-      
-      const result = await getEvents(1);
+    // Call the function and check the results
+    const userId = 123;
+    const result = await getEvents(userId);
 
-      // Asserts
-      expect(result).toEqual(mockEventData);
-      expect(Attendee.findAll).toHaveBeenCalledWith({
-        attributes: [['UserID', 'id']],
-        include: [
-          {
-            model: Event,
-            attributes: [
-              ['EventName', 'title'],
-              ['EventStartDate', 'startDate'],
-              ['EventEndDate', 'endDate'],
-              ['Location', 'location'],
-              ['EventDescription', 'description']
-            ],
-            required: true,
-          }
-        ],
-        where: { UserID: 1 }
-      });
-    });
+    // Check if the returned result matches the expected output
+    expect(result).toEqual([
+      {
+          id: 1,
+          name: 'Event 1',
+          startDate: '2025-03-01',
+          endDate: '2025-03-05',
+          location: 'Location 1',
+          description: 'Description 1',
+          FlightInfo: {   
+              dataValues: {
+                  ApprovalStatus: 'approved',
+                  TotalCost: 100
+              }
+          },
+          groupName: 'Group 1',
+          flightBudget: 500
+      },
+      {
+          id: 2,
+          name: 'Event 2',
+          startDate: '2025-04-01',
+          endDate: '2025-04-05',
+          location: 'Location 2',
+          description: 'Description 2',
+          FlightInfo: 'select',  
+          groupName: 'Group 2',
+          flightBudget: 600
+      }
+  ]);
+});
 
-    //Test 2: Empty array if no events
-    it('Should return an empty array if no events are found', async () => {
-      Attendee.findAll.mockResolvedValue([]);
+  //Test 2: Empty array if no events
+  it('Should return an empty array if no events are found', async () => {
+    // Mock the case where no events are found
+    Attendee.findAll.mockResolvedValue([]);
 
-      const result = await getEvents(999); // User with ID 999 doesn't exist
+    const userId = 123;
+    const result = await getEvents(userId);
 
-      // Assert
-      expect(result).toEqual([]);
-    });
-
-    //Test 3: Error if query fails
-    it('Should throw an error if the query fails', async () => {
-      // Arrange: Mock error
-      Attendee.findAll.mockRejectedValue(new Error('Database error'));
-
-      // Act and Assert: Call the function and expect an error
-      await expect(getEvents(1)).rejects.toThrow('failed to get events');
-    });
+    expect(result).toEqual([]); // Expect an empty array
   });
 
-  //Tests for getEventStatus Fucntion
-  describe('getEventStatus', () => {
+  //test 3: General error handling
+  it('Should throw an error if an exception occurs', async () => {
+    // Mock an error being thrown by the findAll method
+    Attendee.findAll.mockRejectedValue(new Error('Database error'));
 
-    //Test 4: Return event status for a valid eventId + userIds
-    it('Should return event status when found using eventId and userId', async () => {
-      // Arrange
-      const mockEventId = 1;
-      const mockUserId = 1;
-      const mockStatus = {
-          ApprovalStatus: 'Approved',
-          TotalCost: 100,
-      };
-      Attendee.findOne.mockResolvedValue({
-          Itinerary: [mockStatus],
-      });
-
-      // Act
-      const result = await getEventStatus(mockEventId, mockUserId);
-
-      // Assert
-      expect(result).toEqual({ Itinerary: [mockStatus] });
-      expect(Attendee.findOne).toHaveBeenCalledWith(expect.objectContaining({
-          where: { UserID: mockUserId, EventID: mockEventId },
-      }));
-  });
-
-    //Test 5: Empty array if no status found
-    it('Should return an empty array if no event status is found', async () => {
-      Attendee.findOne.mockResolvedValue(null);
-
-      const result = await getEventStatus(1, 999); // EventID 999 doesn't exist
-
-      // Assert
-      expect(result).toEqual([]);
-    });
-
-    //Test 6: Throw error is query fails
-    it('Should throw an error if the query fails', async () => {
-      // Arrange: Mock error
-      Attendee.findOne.mockRejectedValue(new Error('Database error'));
-
-      // Act and Assert: Call the function and expect an error
-      await expect(getEventStatus(1, 1)).rejects.toThrow('failed to get events');
-    });
+    const userId = 123;
+    await expect(getEvents(userId)).rejects.toThrow('failed to get events');
   });
 });

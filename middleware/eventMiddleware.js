@@ -91,9 +91,10 @@ exports.hasBudget = async (req, res, next) => {
         const {eventID} = req.body;
         const event = await getEventByID(eventID);
         //make sure that there are value in the events budget
-        if (!(event.EventFlightBudget > 0) || !(event.EventTotalBudget > 0)) return sendError(res, "no budget set for event", 400);
+        if (!(event.getValues.EventFlightBudget > 0) || !(event.getValues.EventTotalBudget > 0)) return sendError(res, "no budget set for event", 400);
         return next();
     } catch (error) {
+        console.log(error);
         return sendError(res, "failed budget check");
     }
 };

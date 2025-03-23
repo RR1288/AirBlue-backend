@@ -63,7 +63,7 @@ const { hasBudget } = require("../middleware/eventMiddleware");
  *       500:
  *         description: Internal server error.
  */
-router.post("/invite/:eventId", protect, authorizedRoles(Roles.PLANNER, Roles.PLANNER),hasBudget , AttendeeService.inviteAttendee);
+router.post("/invite/:eventId", protect, authorizedRoles(Roles.PLANNER, Roles.PLANNER) , AttendeeService.inviteAttendee);
 
 /**
  * @swagger
@@ -128,7 +128,7 @@ router.post("/invite/:eventId", protect, authorizedRoles(Roles.PLANNER, Roles.PL
  *       500:
  *         description: Internal server error.
  */
-router.post("/invite-csv", protect, authorizedRoles(Roles.PLANNER, Roles.PLANNER),hasBudget ,upload.single('file'), AttendeeService.inviteAttendeesCsv);
+router.post("/invite-csv", protect, authorizedRoles(Roles.PLANNER, Roles.PLANNER) ,upload.single('file'), AttendeeService.inviteAttendeesCsv);
 
 
 /**
