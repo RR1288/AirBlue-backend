@@ -2,8 +2,7 @@ module.exports = {
   up: async (queryInterface) => {
     return queryInterface.bulkInsert('Itineraries', [
       {
-        UserID: 1,  // John Doe - Tech Conference 2025
-        EventID: 1,
+        AttendeeID: 1,
         DuffelOrderID: "ord_001",
         DuffelPassID: "pas_001",
         DuffelOfferID: "off_001",
@@ -19,8 +18,7 @@ module.exports = {
         updatedAt: new Date()
       },
       {
-        UserID: 2,  // Jane Doe - Annual Music Festival
-        EventID: 2,
+        AttendeeID: 2,
         DuffelOrderID: "ord_002",
         DuffelPassID: "pas_002",
         DuffelOfferID: "off_002",
@@ -36,8 +34,7 @@ module.exports = {
         updatedAt: new Date()
       },
       {
-        UserID: 3,
-        EventID: 1,
+        AttendeeID: 3,
         DuffelOrderID: "ord_006",
         DuffelPassID: "pas_006",
         DuffelOfferID: "off_006",
@@ -53,8 +50,7 @@ module.exports = {
         updatedAt: new Date()
       },
       {
-        UserID: 4,
-        EventID: 3,
+        AttendeeID: 4,
         DuffelOrderID: "ord_007",
         DuffelPassID: "pas_007",
         DuffelOfferID: "off_007",

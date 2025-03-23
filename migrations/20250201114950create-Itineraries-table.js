@@ -10,13 +10,13 @@ module.exports = {
         autoIncrement: true,
         primaryKey: true,
       },
-      UserID: {
+      AttendeeID: {
         type: Sequelize.BIGINT,
         allowNull: false,
-      },
-      EventID: {
-        type: Sequelize.BIGINT,
-        allowNull: false,
+        references: {
+          model: 'Attendees',
+          key: 'AttendeeID'
+        }
       },
 
       DuffelOrderID: { type: Sequelize.STRING(30), allowNull: false },
@@ -39,17 +39,6 @@ module.exports = {
       updatedAt: { type: Sequelize.DATE, allowNull: false, defaultValue: Sequelize.NOW },
       deletedAt: { type: Sequelize.DATE, defaultValue: null }
     });
-    await queryInterface.addConstraint('Itineraries', {
-      fields: ['UserID', 'EventID'],
-      type: 'foreign key',
-      name: 'fk_itineraries_attendees',
-      references: {
-        table: 'Attendees',
-        fields: ['UserID', 'EventID'],
-      },
-      onDelete: 'CASCADE',
-      onUpdate: 'CASCADE',
-    })
 
   },
 
