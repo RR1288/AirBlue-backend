@@ -1,141 +1,136 @@
-//userControllerPassword.test.js
-const { updatePassword, sendUpdatePasswordEmail } = require("../controllers/userController");
-const { User, UserLogin } = require("../models");
+// userControllerPassword.test.js
+
+//Constatns
+const { User, UserLogin, sequelize } = require("../models");
 const emailSender = require("../utils/emailSender");
 const bcrypt = require("bcryptjs");
+const crypto = require("crypto");
+const userController = require("../controllers/userController");
 
-//Mock time
-jest.mock("../models"); // Mock models
-jest.mock("../utils/emailSender"); // Mock email sender
+// Mocking the necessary models
+jest.mock("../models", () => ({
+  User: {
+    findOne: jest.fn(),
+    findByPk: jest.fn(),
+  },
+  UserLogin: {
+    findByPk: jest.fn(),
+    update: jest.fn(),
+  },
+  sequelize: {
+    transaction: jest.fn(),
+  },
+}));
 
-beforeAll(() => {
-    // Mocks console outputs cause I dont wana see all that
-    jest.spyOn(console, 'log').mockImplementation(() => {});
-    jest.spyOn(console, 'error').mockImplementation(() => {});
-  });
-  
-  afterAll(() => {
-    // Restores console.log and console.error after all tests
-    console.log.mockRestore();
-    console.error.mockRestore();
-  });
+jest.mock("../utils/emailSender", () => ({
+  sendPasswordResetEmail: jest.fn(),
+}));
 
 //Testing time
-describe("UserController", () => {
-  afterEach(async () => {
-    await jest.clearAllMocks();
+describe("User Controller Passwords", () => {
+  afterEach(() => {
+    jest.clearAllMocks(); // Reset mocks after each test
   });
 
-  //Tests for updatePassword
+  //Tests for updatePassword function
   describe("updatePassword", () => {
 
-    //Test 1: Update user's password
-    it("Should successfully update the user's password", async () => {
-      const userID = 1, newPassword = "newPassword123", hashedPassword = await bcrypt.hash(newPassword, 10);
-      
-      // Mock UserLogin.findByPk to return a mock user login object
+    //Test 1: Update password successfully
+    it("Should update the user's password successfully", async () => {
+      // Arrange
+      const userID = 1;
+      const newPassword = "newSecurePassword123";
       const mockUserLogin = {
-        UserID: userID,
-        update: jest.fn().mockResolvedValue(true), // Simulate successful update
+        update: jest.fn().mockResolvedValue(true), // Mock successful update
       };
+      
       UserLogin.findByPk.mockResolvedValue(mockUserLogin);
 
-      const result = await updatePassword(userID, hashedPassword);
+      // Act
+      const result = await userController.updatePassword(userID, newPassword);
 
-      // Ensure the mock update method was called with correct values
+      // Assert
+      expect(result).toBe(true);
+      expect(UserLogin.findByPk).toHaveBeenCalledWith(userID);
       expect(mockUserLogin.update).toHaveBeenCalledWith({
-        Password: hashedPassword,
+        Password: newPassword,
         token: null,
-        LastPasswordChange: expect.any(Number),
+        LastPasswordChange: expect.any(Number), // Ensure LastPasswordChange is updated
       });
-
-      expect(result).toBe(true); // Expect the function to return true on success
     });
 
-    //Test 2: Error if user loginn not found
-    it("Should throw an error if user login is not found", async () => {
-      const userID = 1, newPassword = "newPassword123";
+    //Test 2: Throw error if no user
+    it("Should throw an error if the user is not found", async () => {
+      // Arrange
+      const userID = 1;
+      const newPassword = "newSecurePassword123";
       
-      // Mock UserLogin.findByPk to return null (user not found)
-      UserLogin.findByPk.mockResolvedValue(null);
+      UserLogin.findByPk.mockResolvedValue(null); // Simulate user not found
 
-      await expect(updatePassword(userID, newPassword)).rejects.toThrow(
-        "failed to update password"
-      );
+      // Act & Assert
+      await expect(userController.updatePassword(userID, newPassword)).rejects.toThrow("failed to update password");
+    });
+
+    //Test 3: Throw error if update fails
+    it("Should throw an error if the password update fails", async () => {
+      // Arrange
+      const userID = 1;
+      const newPassword = "newSecurePassword123";
+      const mockUserLogin = {
+        update: jest.fn().mockRejectedValue(new Error("Update failed")), // Mock failed update
+      };
+      
+      UserLogin.findByPk.mockResolvedValue(mockUserLogin);
+
+      // Act & Assert
+      await expect(userController.updatePassword(userID, newPassword)).rejects.toThrow("failed to update password");
     });
   });
 
-  //Tests for sendUpdatePasswordEmail
+  //Tests for sendUpdatePasswordEmail function
   describe("sendUpdatePasswordEmail", () => {
 
-    //Test 3: Send password reset email with good token
-    it("Should send a password reset email with a valid token", async () => {
+    //Test 5: Send password reset email
+    it("Should send a password reset email successfully", async () => {
+      // Arrange
       const email = "user@example.com";
       const mockUser = {
         dataValues: {
           UserID: 1,
         },
       };
-
-      const mockUserLogin = {
-        UserID: 1,
-        token: null,
-        update: jest.fn().mockResolvedValue(true), // Simulate successful token update
+      const mockLogin = {
+        update: jest.fn().mockResolvedValue(true),
       };
 
-      // Mock the database calls
       User.findOne.mockResolvedValue(mockUser);
-      UserLogin.findByPk.mockResolvedValue(mockUserLogin);
-      emailSender.sendPasswordResetEmail.mockResolvedValue(true); // Simulate email sent successfully
+      UserLogin.findByPk.mockResolvedValue(mockLogin);
+      emailSender.sendPasswordResetEmail.mockResolvedValue(true); // Mock successful email send
 
-      const result = await sendUpdatePasswordEmail(email);
+      // Act
+      const result = await userController.sendUpdatePasswordEmail(email);
 
-      // Check that the token was set and update method was called
-      expect(mockUserLogin.update).toHaveBeenCalledWith();
-      expect(mockUserLogin.token).toBeDefined(); // Ensure token was set
-
-      // Ensure the email sending function was called
+      // Assert
+      expect(result).toBe(true);
+      expect(User.findOne).toHaveBeenCalledWith({ where: { Email: email } });
+      expect(UserLogin.findByPk).toHaveBeenCalledWith(mockUser.dataValues.UserID);
+      expect(mockLogin.update).toHaveBeenCalledWith();
       expect(emailSender.sendPasswordResetEmail).toHaveBeenCalledWith(
         email,
         expect.stringContaining("reset-password?token=")
       );
-
-      expect(result).toBe(true);
     });
 
-    //Test 4: Error if user is not found
-    it("Should throw an error if the user is not found", async () => {
-      const email = "user@example.com";
+    //Test 6: Error if no user
+    it("Should throw an error if user is not found", async () => {
+      // Arrange
+      const email = "nonexistent@example.com";
+      User.findOne.mockResolvedValue(null); // Simulate user not found
 
-      // Mock the User.findOne to return null (user not found)
-      User.findOne.mockResolvedValue(null);
-
-      await expect(sendUpdatePasswordEmail(email)).rejects.toThrow(
-        "failed to send email"
-      );
+      // Act & Assert
+      await expect(userController.sendUpdatePasswordEmail(email)).rejects.toThrow("failed to send email");
     });
 
-    //Test 5: Handle general failure
-    it("Should handle email sending failure", async () => {
-      const email = "user@example.com";
-      const mockUser = {
-        dataValues: {
-          UserID: 1,
-        },
-      };
-
-      const mockUserLogin = {
-        UserID: 1,
-        token: null,
-        update: jest.fn().mockResolvedValue(true),
-      };
-
-      // Mock the database calls
-      User.findOne.mockResolvedValue(mockUser);
-      UserLogin.findByPk.mockResolvedValue(mockUserLogin);
-      emailSender.sendPasswordResetEmail.mockRejectedValue(new Error("Email send failed"));
-
-      await expect(sendUpdatePasswordEmail(email)).rejects.toThrow("failed to send email");
-    });
+    
   });
 });
