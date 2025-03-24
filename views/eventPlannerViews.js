@@ -59,10 +59,33 @@ exports.getAttendees = async (eventID) => {
 exports.getInvitees = async (eventID) => {
     try {
         //get the invited users
-
+            const invitees = await Invititation.findAll({
+                attributes: [
+                    ['InvitedEmail', 'email'],
+                    ['status', 'status'],
+                ],
+                includes:{
+                    Model: EventGroup,
+                    required: true,
+                    attributes: [['Name','name']]
+                },
+                where: {EventID: eventID}
+            });
         //format results(if needed)
-
+        let results = [];
+        //making it so that I am only returning the information that I want
+        for (let i = 0; i < invitees.length; i++) {
+            let status = invitees[i].dataValues.status;
+            if (!status) status = null;
+            results.push(
+                {
+                    'email': invitees[i].dataValues.email,
+                    'status': status,
+                    'groupName': attendees[i].dataValues.EventGroup.name,
+                });
+        }
         //return query results
+        return results;
     } catch (error) {
         throw new Error('failed to get invited users');
     }
