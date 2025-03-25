@@ -29,6 +29,7 @@ module.exports = {
             {
                 UserID: 4,
                 OrganizationID: 1,
+                Roles: "F", // Finance
                 updatedAt: new Date(),
                 createdAt: new Date(),
                 StillActive: true,
