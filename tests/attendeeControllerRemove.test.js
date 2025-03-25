@@ -61,8 +61,8 @@ describe('attendeeController', () => {
 
       expect(User.findOne).toHaveBeenCalledWith({ where: { Email: { [Op.iLike]: email } } });
       expect(Invitation.create).toHaveBeenCalledWith(expect.objectContaining({ invitedEmail: email }));
-      expect(sendAccountSetupEmail).toHaveBeenCalledWith(email, expect.stringContaining('accept-invite'));
-      expect(sendInvitation).toHaveBeenCalledWith(email, expect.stringContaining('accept-invite'));
+      expect(sendAccountSetupEmail).toHaveBeenCalledWith(email, expect.stringContaining('register'));
+      expect(sendInvitation).toHaveBeenCalledWith(email, expect.stringContaining('register'));
       expect(result).toEqual({
         invitationId: 1,
         invitedEmail: email,
