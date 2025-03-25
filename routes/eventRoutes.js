@@ -438,12 +438,12 @@ router.get(
  * @swagger
  * /events/getAllAttendees:
  *   get:
- *     summary: gets all events attendees for an event that an event planner is in
- *     description: uses a passed in event ID to get all attendees
+ *     summary: Get all Attendees in an event.
+ *     description: takes an eventId and returns a list of all attendees in the event.
  *     tags:
  *       - Events
  *     parameters:
- *       - in: path
+ *       - in: query
  *         name: eventId
  *         required: true
  *         description: The ID of the event.
@@ -451,10 +451,9 @@ router.get(
  *           type: string
  *     responses:
  *       200:
- *         description: a list of Attendees in your event
- * 
+ *         description: Attendees have been successfully returned
  *       400:
- *         description: userID, eventID, or organizationID are invalid.
+ *         description: Bad request – Event ID is required.
  *       500:
  *         description: Internal server error.
  */
@@ -474,12 +473,12 @@ router.get(
  *     tags:
  *       - Events
  *     parameters:
- *       - in: path
+ *       - in: query
  *         name: eventId
  *         required: true
  *         description: The ID of the event.
  *         schema:
- *           type: string
+ *           type: integer 
  *     responses:
  *       200:
  *         description: a list of Invitees in your event

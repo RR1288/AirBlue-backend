@@ -20,10 +20,9 @@ exports.getAllEventPlanners = async (req, res) => {
 };
 exports.getAttendees = async (req, res) => {
     try {
-        const {eventId} = req.params;
-        console.log(req);
+        const {eventId} = req.query;
         let eventID = parseInt(eventId);
-        if(validateEventID(eventID)) return sendError(res, 'invalid eventId', 400); //check to make sure that this isn't an await
+        if(!(await validateEventID(eventID))) return sendError(res, 'invalid eventId', 400); //check to make sure that this isn't an await
 
         //run the function
         const attendees = await eventPlannerViews.getAttendees(eventID);
@@ -35,9 +34,9 @@ exports.getAttendees = async (req, res) => {
 };
 exports.getInvitees = async (req, res) => {
     try {
-        const {eventId} = req.params;
+        const {eventId} = req.query;
         let eventID = parseInt(eventId);
-        if(validateEventID(eventID)) return sendError(res, 'invalid eventId', 400); //check to make sure that this isn't an await
+        if(!(await validateEventID(eventID))) return sendError(res, 'invalid eventId', 400); //check to make sure that this isn't an await
 
         //run the function
         const invitees = await eventPlannerViews.getInvitees(eventID);
