@@ -8,7 +8,8 @@ const {
     updateUserInfo,
     updatePasswordAdmin,
     sendResetEmailBasic,
-    resetPassword
+    resetPassword,
+    getUserInfo
 } = require("../services/userService");
 const {protect} = require("../middleware/authMiddleware");
 const {authorizedRoles} = require("../middleware/roleMiddleware");
@@ -317,6 +318,23 @@ router.get(
     getAllEventPlanners
 );
 
+/**
+ * @swagger
+ * /users/getUserInfo:
+ *   get:
+ *     summary: gets all events invitees for an event that an event planner is in
+ *     description: uses a passed in event ID to get a list of all invited individuals
+ *     tags:
+ *       - Users
+ *     responses:
+ *       200:
+ *         description: the users information
+ *       400:
+ *         description: userID is invalid.
+ *       500:
+ *         description: Internal server error.
+ */
+router.get("/getUserInfo", protect, getUserInfo);
 //user disable functions
 
 /**

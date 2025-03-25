@@ -5,7 +5,7 @@ exports.getUserInfo = async (userID) => {
         let user = await User.findByPk(userID, {
             attributes: [
                 ['UserName', 'Username/Email'],
-                ['Fname', 'Firstname'],
+                ['FName', 'Firstname'],
                 ['LName', 'Lastname'],
                 ['City', 'City'],
                 ['State', 'State'],

@@ -366,7 +366,7 @@ exports.resetPassword = async (req, res) => {
 //get services
 exports.getUserInfo = async (req, res) => {
     try{
-    let requesterId = req.user.id;
+    let requesterId = parseInt(req.user.id);
 
     if (!(await validateUserID(requesterId))) sendError (res, 'invalid userId', 400);
 
