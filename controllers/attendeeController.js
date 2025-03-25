@@ -35,10 +35,10 @@ exports.inviteAttendee = async (eventId, email, eventGroupId) => {
     let invitationLink;
     if (user) {
         // TODO: Link for existing user to accept the invitation
-        invitationLink = `https://example.com/invitation/accept?invitation=${invitation.token}`;
+        invitationLink = `https://airblue-frontend-staging-e7060dff2ded.herokuapp.com/accept-invite?invitation=${invitation.token}`;
     } else {
         // TODO: Link for new user to create an account and accept the invitation
-        invitationLink = `https://example.com/invitation/create-account?invitation=${invitation.token}`;
+        invitationLink = `https://airblue-frontend-staging-e7060dff2ded.herokuapp.com/register?invitation=${invitation.token}`;
         //Send email too
         await sendAccountSetupEmail(email, invitationLink);
     }

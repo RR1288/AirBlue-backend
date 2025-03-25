@@ -81,7 +81,7 @@ exports.getInvitees = async (eventID) => {
                 {
                     'email': invitees[i].dataValues.email,
                     'status': status,
-                    'groupName': attendees[i].dataValues.EventGroup.name,
+                    'groupName': invitees[i].dataValues.EventGroup ? invitees[i].dataValues.EventGroup.name : null, 
                 });
         }
         //return query results
