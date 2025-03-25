@@ -1,6 +1,6 @@
 const { sendSuccess, sendError } = require('../utils/responseHelpers');
 const { getAllEventPlanners } = require('../controllers/userController');
-const {eventPlannerViews} = require('../views/eventPlannerViews');
+const eventPlannerViews = require("../views/eventPlannerViews");
 const {validateUserID} = require('../utils/UserSanitizations');
 const {validateOrganizationID} = require('../utils/OrganizationSanitization');
 const {validateEventID} = require('../utils/eventSanitization');
@@ -20,11 +20,13 @@ exports.getAllEventPlanners = async (req, res) => {
 };
 exports.getAttendees = async (req, res) => {
     try {
-        const {eventId} = req.body; 
-        if(validateEventID(eventId)) return sendError(res, 'invalid eventId', 400); //check to make sure that this isn't an await
+        const {eventId} = req.params;
+        console.log(req);
+        let eventID = parseInt(eventId);
+        if(validateEventID(eventID)) return sendError(res, 'invalid eventId', 400); //check to make sure that this isn't an await
 
         //run the function
-        const attendees = await eventPlannerViews.getAttendees(eventId);
+        const attendees = await eventPlannerViews.getAttendees(eventID);
         if(!attendees) return sendError(res, 'failed to get attendees', 400);
         return sendSuccess(res, "successfully retrieved attendees", attendees);
     } catch (error) {
@@ -33,11 +35,12 @@ exports.getAttendees = async (req, res) => {
 };
 exports.getInvitees = async (req, res) => {
     try {
-        const {eventId} = req.body; 
-        if(validateEventID(eventId)) return sendError(res, 'invalid eventId', 400); //check to make sure that this isn't an await
+        const {eventId} = req.params;
+        let eventID = parseInt(eventId);
+        if(validateEventID(eventID)) return sendError(res, 'invalid eventId', 400); //check to make sure that this isn't an await
 
         //run the function
-        const invitees = await eventPlannerViews.getInvitees(eventId);
+        const invitees = await eventPlannerViews.getInvitees(eventID);
         if(!attendees) return  sendError(res, 'failed to get invitees', 400);
         return sendSuccess(res, "successfully retrieved Invitees", invitees);
     } catch (error) {
@@ -46,8 +49,8 @@ exports.getInvitees = async (req, res) => {
 };
 exports.getAllEventsPlanner = async (req, res) => {
     try {
-        const requesterId = req.user.id;
-        const requesterOrg = req.user.OrganizationID;
+        const requesterId = parseInt(req.user.id);
+        const requesterOrg = parseInt(req.user.OrganizationID);
         //validation
         if (!validateUserID(requesterId)) return sendError(res, 'invalid userID', 400);
         if (!validateOrganizationID(requesterOrg)) return sendError(res, 'invalid Organization ID', 400);
@@ -56,7 +59,7 @@ exports.getAllEventsPlanner = async (req, res) => {
         if (!events || events.length === 0) {
             return sendError(res, 'No event found', 404);
         }
-        return sendSuccess(res, 'All events retrieved successfully', {eventPlanners});
+        return sendSuccess(res, 'All events retrieved successfully', events);
     } catch (error) {
         console.error(error);
         return sendError(res, 'Something went wrong while fetching event planners');

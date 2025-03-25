@@ -45,7 +45,6 @@ exports.login = async (req, res) => {
 
         // Prepare additional user info to return
         let uRoles = user.UserOrganizations[0];
-        console.log(uRoles);
         if (!uRoles) {
             uRoles = '';
         }else {
@@ -56,7 +55,6 @@ exports.login = async (req, res) => {
             username: user.UserName,
             roles: uRoles,
         };
-        console.log(userInfo);
         // If 2FA is enabled
         if (user.UserLogin.two_fa_enabled) {
             return sendSuccess(res, "2FA required", {
