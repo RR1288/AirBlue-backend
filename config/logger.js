@@ -1,4 +1,5 @@
 const { createLogger, transports, format } = require('winston');
+const DailyRotateFile = require('winston-daily-rotate-file');
 const fs = require('fs');
 const path = require('path');
 
@@ -15,7 +16,11 @@ const logger = createLogger({
     ),
     transports: [
         new transports.Console(), //comment this out for live env
-        new transports.File({ filename: path.join(logDir, 'sequelize.log')}),
+        new DailyRotateFile(
+            { filename: path.join(logDir, 'sequelize.log'),
+            datePattern: 'YYYY-MM',
+            maxSize: '10m',
+        }),
     ],
 });
 
