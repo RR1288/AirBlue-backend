@@ -10,9 +10,9 @@ exports.getOrganizationUsers = async (organizationID) =>{
         //should get roles from userOrganization
         //should get 
         let orgUsers = await UserOrganization.findAll({
-            attributes: [[
+            attributes: [
                 ['Roles', 'roles'],
-            ]],
+            ],
             include: [
                 {
                     model: User,
@@ -34,6 +34,7 @@ exports.getOrganizationUsers = async (organizationID) =>{
         }
         return results;
     } catch (error) {
+        console.log(error);
         throw new Error('failed to get info');
     }
 };
