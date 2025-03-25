@@ -1,4 +1,4 @@
-const { Sequelize, Attendee, Itinerary, Invititation, User, EventGroup, EventStaff, Event } = require('../models');
+const { Sequelize, Attendee, Itinerary, Invitation, User, EventGroup, EventStaff, Event } = require('../models');
 
 //simple call to get all attendees for a specific event. This will also include their status from itinerary if they are pending approval
 exports.getAttendees = async (eventID) => {
@@ -7,7 +7,7 @@ exports.getAttendees = async (eventID) => {
             attributes: [
                 ['UserID', 'userID'],
             ],
-            includes: [
+            include: [
                 {
                     model: User,
                     attributes: [
@@ -20,7 +20,6 @@ exports.getAttendees = async (eventID) => {
                 {
                     model: Itinerary,
                     attributes: [['ApprovalStatus', 'status'], ['TotalCost', 'cost']],
-                    where: { ApprovalStatus: 'pending' }//could be a sticking point keep in mind for manual test
                 },
                 {
                     model: EventGroup,
@@ -34,24 +33,22 @@ exports.getAttendees = async (eventID) => {
         let results = [];
         //making it so that I am only returning the information that I want
         for (let i = 0; i < attendees.length; i++) {
-            let combinedName = attendees[i].dataValues.User.firstName + attendees[i].dataValues.User.lastName;
+            let combinedName = attendees[i].User.dataValues.firstName + attendees[i].User.dataValues.lastName;
             //checking to make sure there are actual values for bookingCost and status in Itinerary
-            let bookingCost = attendees[i].dataValues.Itinerary.cost;
-            if (!bookingCost) bookingCost = null;
-            let status = attendees[i].dataValues.Itinerary.status;
-            if (!status) status = null;
+            let booking = attendees[i].Itineraries;
+            if (!booking) booking = null;
             results.push(
                 {
                     'Name': combinedName,
-                    'email': attendees[i].dataValues.User.email,
-                    'status': status,
-                    'bookingCost': bookingCost,
-                    'groupName': attendees[i].dataValues.EventGroup.name,
-                    'budget': attendees[i].dataValues.EventGroup.budget, 
+                    'email': attendees[i].User.dataValues.email,
+                    'Booking': booking,
+                    'groupName': attendees[i].EventGroup.dataValues.name,
+                    'budget': attendees[i].EventGroup.dataValues.budget, 
                 });
         }
         return results;
     } catch (error) {
+        console.log(error);
         throw new Error('failed to get attendees for event');
     }
 };
@@ -59,16 +56,17 @@ exports.getAttendees = async (eventID) => {
 exports.getInvitees = async (eventID) => {
     try {
         //get the invited users
-            const invitees = await Invititation.findAll({
+            const invitees = await Invitation.findAll({
                 attributes: [
-                    ['InvitedEmail', 'email'],
+                    ['invitedEmail', 'email'],
                     ['status', 'status'],
                 ],
-                includes:{
-                    Model: EventGroup,
+                include: [{
+                    model: EventGroup,
+                    as: 'eventGroup',
                     required: true,
                     attributes: [['Name','name']]
-                },
+                }],
                 where: {EventID: eventID}
             });
         //format results(if needed)
@@ -81,12 +79,13 @@ exports.getInvitees = async (eventID) => {
                 {
                     'email': invitees[i].dataValues.email,
                     'status': status,
-                    'groupName': invitees[i].dataValues.EventGroup ? invitees[i].dataValues.EventGroup.name : null, 
+                    'groupName': invitees[i].eventGroup ? invitees[i].eventGroup.dataValues.name : null, 
                 });
         }
         //return query results
         return results;
     } catch (error) {
+        console.log(error);
         throw new Error('failed to get invited users');
     }
 };

@@ -10,7 +10,7 @@ module.exports = {
         TotalCost: 500.00,
         BaseCost: 450.00,
         TaxCost: 50.00,
-        ApprovalStatus: 'approved',
+        ApprovalStatus: 'pending',
         heldAt: new Date("2025-03-15"),
         approvedAt: new Date("2025-03-16"),
         expiresAt: new Date("2025-03-17"),

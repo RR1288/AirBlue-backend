@@ -40,7 +40,7 @@ exports.getInvitees = async (req, res) => {
 
         //run the function
         const invitees = await eventPlannerViews.getInvitees(eventID);
-        if(!attendees) return  sendError(res, 'failed to get invitees', 400);
+        if(!invitees) return  sendError(res, 'failed to get invitees', 400);
         return sendSuccess(res, "successfully retrieved Invitees", invitees);
     } catch (error) {
         return sendError(res, 'failed to retrieve Invitees', 400);
