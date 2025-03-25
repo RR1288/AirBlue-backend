@@ -63,7 +63,7 @@ exports.getOrganizationInfo = async (organizationID) =>{
                 'Name': organization.dataValues.name,
                 'Description': organization.dataValues.description,
                 'OwnerName': combinedName, 
-                'OwnerEmail': orgUsers[i].User.dataValues.email
+                'OwnerEmail': organization.User.dataValues.email,
             };
         return result;
     } catch (error) {

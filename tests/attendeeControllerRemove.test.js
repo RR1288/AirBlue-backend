@@ -19,7 +19,44 @@ nodemailer.createTransport.mockReturnValue(mockTransporter);
 // Mock external modules like database models and email sending
 jest.mock('../models');
 jest.mock('../utils/emailSender');
-jest.mock('crypto');
+jest.mock('crypto', () => ({
+  randomBytes: jest.fn().mockReturnValue(Buffer.from('mockToken', 'hex')),
+  createHash: jest.fn().mockReturnValue({
+    update: jest.fn().mockReturnThis(),
+    digest: jest.fn().mockReturnValue('mockHash'),
+  }),
+}));
+
+// Mocking other dependencies
+jest.mock('object-hash', () => ({
+  default: jest.fn().mockReturnValue('mocked-hash'),
+}));
+
+// Mocking winston-daily-rotate-file
+// Mocking winston-daily-rotate-file
+jest.mock('winston-daily-rotate-file', () => {
+  return jest.fn().mockImplementation(() => {
+    return {
+      log: jest.fn(), // Simulating the log method
+    };
+  });
+});
+
+// Mocking winston
+jest.mock('winston', () => ({
+  createLogger: jest.fn().mockReturnValue({
+    add: jest.fn(), // Mock the add method
+    transports: [], // Transport array (to avoid issues)
+  }),
+  transports: {
+    Console: jest.fn().mockImplementation(() => ({ log: jest.fn() })), // Mock the Console transport
+  },
+  format: {
+    combine: jest.fn().mockReturnValue('mocked-combined-format'), // Mock combine to return a placeholder value
+    timestamp: jest.fn().mockReturnValue('mocked-timestamp'), // Mock timestamp
+    printf: jest.fn().mockReturnValue('mocked-printf'), // Mock printf
+  },
+}));
 
 //Testing time
 describe('attendeeController', () => {
