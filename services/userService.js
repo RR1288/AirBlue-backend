@@ -10,6 +10,7 @@ const {
     sendUpdatePasswordEmail,
     getUserByID
 } = require("../controllers/userController");
+const GeneralView = require('../views/generalViews');
 const {
     sanitizeEmail,
     sanitizeName,
@@ -362,3 +363,17 @@ exports.resetPassword = async (req, res) => {
     }
 };
 
+//get services
+exports.getUserInfo = async (req, res) => {
+    try{
+    let requesterId = req.user.id;
+
+    if (!(await validateUserID(requesterId))) sendError (res, 'invalid userId', 400);
+
+    const user = await GeneralView.getUserInfo(requesterId);
+    if (!user) return sendError(res, 'failed to get user', 400);
+    return sendSuccess(res, 'successfully got user', user);
+    }catch(error){
+        return sendError(res, 'failed to get user successfully');
+    }
+}
