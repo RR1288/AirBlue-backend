@@ -1,4 +1,4 @@
-const { Sequelize, Attendee, Itinerary, Invititation, User, EventGroup } = require('../models');
+const { Sequelize, Attendee, Itinerary, Invititation, User, EventGroup, EventStaff, Event } = require('../models');
 
 //simple call to get all attendees for a specific event. This will also include their status from itinerary if they are pending approval
 exports.getAttendees = async (eventID) => {
@@ -59,10 +59,33 @@ exports.getAttendees = async (eventID) => {
 exports.getInvitees = async (eventID) => {
     try {
         //get the invited users
-
+            const invitees = await Invititation.findAll({
+                attributes: [
+                    ['InvitedEmail', 'email'],
+                    ['status', 'status'],
+                ],
+                includes:{
+                    Model: EventGroup,
+                    required: true,
+                    attributes: [['Name','name']]
+                },
+                where: {EventID: eventID}
+            });
         //format results(if needed)
-
+        let results = [];
+        //making it so that I am only returning the information that I want
+        for (let i = 0; i < invitees.length; i++) {
+            let status = invitees[i].dataValues.status;
+            if (!status) status = null;
+            results.push(
+                {
+                    'email': invitees[i].dataValues.email,
+                    'status': status,
+                    'groupName': attendees[i].dataValues.EventGroup.name,
+                });
+        }
         //return query results
+        return results;
     } catch (error) {
         throw new Error('failed to get invited users');
     }
@@ -71,6 +94,7 @@ exports.getInvitees = async (eventID) => {
 exports.getEventsPlanner = async(organizationId, userId) =>{
     try {
         //get all events where the finance user is a part of
+        console.log('in getting events planner')
         let events = await Event.findAll(
             {
                 attributes: [
@@ -90,7 +114,7 @@ exports.getEventsPlanner = async(organizationId, userId) =>{
                 include: [
                     {
                         model: EventStaff,
-                        attributes: [['UserID', 'eventPlanner']],
+                        attributes: [],
                         required: true,
                         where: {UserID: userId, RoleID: { [Sequelize.Op.like]: `%E%` }}
                     }
@@ -101,6 +125,7 @@ exports.getEventsPlanner = async(organizationId, userId) =>{
         if (!events || events === null) return [];
         return events;
     } catch (error) {
+        console.log(error);
         throw new Error("failed to get events");
     }
 };
