@@ -1,8 +1,8 @@
 //attendeeViews.test.js
 
 //Constants
-const { getEvents } = require('../views/attendeeViews');
-const { Attendee, Event, Itinerary, EventGroup } = require('../models');
+const { getEvents, getInvitesAttendee } = require('../views/attendeeViews');
+const { Attendee, Event, Itinerary, EventGroup, Invitation, User } = require('../models');
 
 // Mock the models
 jest.mock('../models', () => ({
@@ -12,6 +12,10 @@ jest.mock('../models', () => ({
   Event: {},
   Itinerary: {},
   EventGroup: {},
+  Invitation: {
+    findAll: jest.fn(),
+  },
+  User: {},
 }));
 
 //Testing time for getEvents
@@ -127,4 +131,68 @@ describe('getEvents function', () => {
     const userId = 123;
     await expect(getEvents(userId)).rejects.toThrow('failed to get events');
   });
+
+
+// Testing time for getInvitesAttendee
+describe('getInvitesAttendee function', () => {
+
+  //Test 4: Return invite data for a given userId
+  it('Should return invites data for a given userId', async () => {
+    // Mock the return value of Invitation.findAll
+    Invitation.findAll.mockResolvedValue([
+      {
+        dataValues: {
+          UserID: 123,
+          InviteDetails: 'Invite for event 1',
+        },
+      },
+      {
+        dataValues: {
+          UserID: 123,
+          InviteDetails: 'Invite for event 2',
+        },
+      },
+    ]);
+
+    // Call the function and check the results
+    const userId = 123;
+    const result = await getInvitesAttendee(userId);
+
+    // Check if the returned result matches the expected output
+    expect(result).toEqual([
+      {
+        dataValues: {
+          UserID: 123,
+          InviteDetails: 'Invite for event 1',
+        },
+      },
+      {
+        dataValues: {
+          UserID: 123,
+          InviteDetails: 'Invite for event 2',
+        },
+      },
+    ]);
+  });
+
+  // Test 5: Empty array if no invites are found
+  it('Should return an empty array if no invites are found', async () => {
+    // Mock the case where no invites are found
+    Invitation.findAll.mockResolvedValue([]);
+
+    const userId = 123;
+    const result = await getInvitesAttendee(userId);
+
+    expect(result).toEqual([]); // Expect an empty array
+  });
+
+  // Test 6: Error handling when an exception occurs
+  it('Should throw an error if an exception occurs', async () => {
+    // Mock an error being thrown by the findAll method
+    Invitation.findAll.mockRejectedValue(new Error('Database error'));
+
+    const userId = 123;
+    await expect(getInvitesAttendee(userId)).rejects.toThrow('failed to get invites');
+  });
+});
 });
