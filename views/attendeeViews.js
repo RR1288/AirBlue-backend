@@ -40,12 +40,12 @@ exports.getEvents = async (userId) => {
             //add check to see if Itinerary exists. if nto it will set the status to 'select' and cost = o
             let iStatus;
             let iCost;
-            console.log(events[i].Itineraries.dataValues);
-            if (events[i].dataValues.Itineraries === null){
+            if (events[i] || events[i].dataValues.Itineraries === null){
                 iStatus = 'select';
                 iCost = 0.00;
             }else{
-                iStatus = events[i].dataValues.Itineraries;
+                iStatus = events[i].dataValues.Itineraries[0].dataValues.status;
+                iCost = events[i].dataValues.Itineraries[0].dataValues.cost;
             }
             results.push({
                 'id' : events[i].dataValues.id,
@@ -54,7 +54,8 @@ exports.getEvents = async (userId) => {
                 'endDate' : events[i].dataValues.Event.dataValues.endDate,
                 'location' :  events[i].dataValues.Event.dataValues.location,
                 'description' : events[i].dataValues.Event.dataValues.description,
-                'FlightInfo': iStatus,
+                'status': iStatus,
+                'cost': iCost,
                 'groupName': events[i].dataValues.EventGroup.dataValues.name,
                 'flightBudget': events[i].dataValues.EventGroup.dataValues.budget
             });

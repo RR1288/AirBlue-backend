@@ -63,7 +63,6 @@ const router = express.Router();
 router.get(
     "/create-request",
     protect,
-    authorizedRoles(Roles.ADMIN, Roles.PLANNER, Roles.FINANCE),
     flightService.createRequest
 );
 
