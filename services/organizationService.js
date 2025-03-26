@@ -11,7 +11,7 @@ exports.createOrganization = async (req, res) => {
         let {name, description} = req.body;
 
         //validation here
-        if (!(await validateUserID)) return sendError(res, 'invalid user', 400);
+        if (!(await validateUserID(requesterId))) return sendError(res, 'invalid user', 400);
         if (sanitizeOrganizationName(name) === null) return sendError(res, 'invalid name', 400);
         if (sanitizeOrganizationDescription(description) === null) return sendError(res, 'invalid description', 400);
         //run function
