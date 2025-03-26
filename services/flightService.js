@@ -1,4 +1,5 @@
 const flightController = require("../controllers/flightController");
+const flightView = require("../views/flightViews");
 const {sendSuccess, sendError} = require("../utils/responseHelpers");
 const {validateFlightParams} = require("../utils/flightUtils");
 
@@ -143,4 +144,21 @@ exports.cancelApprovedFlight = async (req, res) => {
         console.error(error);
         return sendError(res, "Couldn't cancel the flight", 400);
     }
+};
+
+
+exports.getFlightInfo = async (req, res) => {
+try {
+    const {AttendeeId} = req.params;
+    //validation
+    //TODO add validation
+    
+    //run function
+    let flightInfo = await flightView.getFlightInfo(AttendeeId);
+    if(!flightInfo) return sendError(res, "failed to get flight info");
+    //return success
+    return sendSuccess(res, "successfully got flight information", flightInfo);
+} catch (error) {
+    return sendError(res, "failed to get flight information");
+}
 };
