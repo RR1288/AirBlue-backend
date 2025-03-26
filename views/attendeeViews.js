@@ -64,7 +64,6 @@ exports.getEvents = async (userId) => {
         //if no events then return a blank array
         return results;
     } catch (error) {
-        console.log(error);
         throw new Error('failed to get events');
     }
 };
@@ -78,6 +77,7 @@ exports.getInvitesAttendee = async (userId) =>{
                     ['UserID', 'UserID']
                 ],
                 model: User,
+                as: 'user',
                 requird: true
                 }
             ],
@@ -86,6 +86,7 @@ exports.getInvitesAttendee = async (userId) =>{
         if (!invites) return [];
         return invites;
     } catch (error) {
+        console.log(error);
         throw new Error('fialed to get invites');
     }
 };
