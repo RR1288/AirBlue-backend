@@ -6,6 +6,7 @@ const { authorizedRoles, checkUserAuthorizedRoles} = require("../middleware/role
 const { checkOrganizationUser, checkUserInOrganization} = require("../middleware/organizationMiddleware.js");
 const {  createEvent, getAvailableEventTypes, } = require("../services/eventService.js");
 const EventService = require("../services/eventService");
+const EventPlannerService = require("../services/eventPlannerService.js");
 const { setEventBudget, getAllEventsFinance } = require("../services/financeService.js");
 const { InEventStaffFinance,  InEventStaffPlanner, checkEventOrganization , hasFinancePlanner, hasBudget} = require("../middleware/eventMiddleware.js");
 
@@ -407,6 +408,93 @@ router.get(
     authorizedRoles(Roles.FINANCE),
     getAllEventsFinance
 );
+
+
+/**
+ * @swagger
+ * /events/getAllEventsPlannerView:
+ *   get:
+ *     summary: gets all events an event planner user is in
+ *     description: uses the users organizationID from token and userID to query the event and eventstaff table for all events where they are either in the event
+ *     tags:
+ *       - Events
+ *     responses:
+ *       200:
+ *         description: a list of events from a given organization that an event planner user is either assigned to
+ * 
+ *       400:
+ *         description: userID or organizationID are invalid.
+ *       500:
+ *         description: Internal server error.
+ */
+router.get(
+    "/getAllEventsPlannerView",
+    protect,
+    authorizedRoles(Roles.PLANNER),
+    EventPlannerService.getAllEventsPlanner
+);
+
+/**
+ * @swagger
+ * /events/getAllAttendees:
+ *   get:
+ *     summary: Get all Attendees in an event.
+ *     description: takes an eventId and returns a list of all attendees in the event.
+ *     tags:
+ *       - Events
+ *     parameters:
+ *       - in: query
+ *         name: eventId
+ *         required: true
+ *         description: The ID of the event.
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Attendees have been successfully returned
+ *       400:
+ *         description: Bad request – Event ID is required.
+ *       500:
+ *         description: Internal server error.
+ */
+router.get(
+    "/getAllAttendees",
+    protect,
+    authorizedRoles(Roles.PLANNER),
+    EventPlannerService.getAttendees
+);
+
+/**
+ * @swagger
+ * /events/getAllInvitees:
+ *   get:
+ *     summary: gets all events invitees for an event that an event planner is in
+ *     description: uses a passed in event ID to get a list of all invited individuals
+ *     tags:
+ *       - Events
+ *     parameters:
+ *       - in: query
+ *         name: eventId
+ *         required: true
+ *         description: The ID of the event.
+ *         schema:
+ *           type: integer 
+ *     responses:
+ *       200:
+ *         description: a list of Invitees in your event
+ * 
+ *       400:
+ *         description: userID, eventID, or organizationID are invalid.
+ *       500:
+ *         description: Internal server error.
+ */
+router.get(
+    "/getAllInvitees",
+    protect,
+    authorizedRoles(Roles.PLANNER),
+    EventPlannerService.getInvitees
+);
+
 /**
  * @swagger
  * /events/invitations/accept:

@@ -19,7 +19,44 @@ nodemailer.createTransport.mockReturnValue(mockTransporter);
 // Mock external modules like database models and email sending
 jest.mock('../models');
 jest.mock('../utils/emailSender');
-jest.mock('crypto');
+jest.mock('crypto', () => ({
+  randomBytes: jest.fn().mockReturnValue(Buffer.from('mockToken', 'hex')),
+  createHash: jest.fn().mockReturnValue({
+    update: jest.fn().mockReturnThis(),
+    digest: jest.fn().mockReturnValue('mockHash'),
+  }),
+}));
+
+// Mocking other dependencies
+jest.mock('object-hash', () => ({
+  default: jest.fn().mockReturnValue('mocked-hash'),
+}));
+
+// Mocking winston-daily-rotate-file
+// Mocking winston-daily-rotate-file
+jest.mock('winston-daily-rotate-file', () => {
+  return jest.fn().mockImplementation(() => {
+    return {
+      log: jest.fn(), // Simulating the log method
+    };
+  });
+});
+
+// Mocking winston
+jest.mock('winston', () => ({
+  createLogger: jest.fn().mockReturnValue({
+    add: jest.fn(), // Mock the add method
+    transports: [], // Transport array (to avoid issues)
+  }),
+  transports: {
+    Console: jest.fn().mockImplementation(() => ({ log: jest.fn() })), // Mock the Console transport
+  },
+  format: {
+    combine: jest.fn().mockReturnValue('mocked-combined-format'), // Mock combine to return a placeholder value
+    timestamp: jest.fn().mockReturnValue('mocked-timestamp'), // Mock timestamp
+    printf: jest.fn().mockReturnValue('mocked-printf'), // Mock printf
+  },
+}));
 
 //Testing time
 describe('attendeeController', () => {
@@ -61,8 +98,8 @@ describe('attendeeController', () => {
 
       expect(User.findOne).toHaveBeenCalledWith({ where: { Email: { [Op.iLike]: email } } });
       expect(Invitation.create).toHaveBeenCalledWith(expect.objectContaining({ invitedEmail: email }));
-      expect(sendAccountSetupEmail).toHaveBeenCalledWith(email, expect.stringContaining('invitation/create-account'));
-      expect(sendInvitation).toHaveBeenCalledWith(email, expect.stringContaining('invitation/create-account'));
+      expect(sendAccountSetupEmail).toHaveBeenCalledWith(email, expect.stringContaining('register'));
+      expect(sendInvitation).toHaveBeenCalledWith(email, expect.stringContaining('register'));
       expect(result).toEqual({
         invitationId: 1,
         invitedEmail: email,
@@ -102,7 +139,7 @@ describe('attendeeController', () => {
 
       expect(User.findOne).toHaveBeenCalledWith({ where: { Email: { [Op.iLike]: email } } });
       expect(Invitation.create).toHaveBeenCalledWith(expect.objectContaining({ invitedEmail: email }));
-      expect(sendInvitation).toHaveBeenCalledWith(email, expect.stringContaining('invitation/accept'));
+      expect(sendInvitation).toHaveBeenCalledWith(email, expect.stringContaining('accept-invite'));
       expect(result).toEqual({
         invitationId: 1,
         invitedEmail: email,

@@ -15,7 +15,8 @@ function startSanitizeString(input){
 async function  validateEventID(eventID){
     //calls a fucntion to get an event cooresponing to the ID if the call returns empty or erros out then it is not a valid eventID
     try{
-    if (!(await getEventByID(eventID))) {return false;}
+        let events = await getEventByID(eventID);
+    if (!events) {return false;}
     return true;
     }catch(error){
         return false;
