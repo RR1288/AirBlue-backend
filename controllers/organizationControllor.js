@@ -1,4 +1,4 @@
-const { Organization, UserOrganization,Sequelize } = require("../models");
+const { Organization, UserOrganization,Sequelize, sequelize } = require("../models");
 
 
 /*
@@ -27,9 +27,10 @@ exports.createOrganization = async (name, description, ownerId) =>{
             {transaction: t}
             );
         });
-        if (!organization) throw new Error('could noot make organization');
+        if (!organization) throw new Error('could not make organization');
         return true;//on success just return true to tell the use that they have made an org as otherwise you may be returning to much info
     } catch (error) {
+        console.log(error);
         throw new Error('failed to create organization');
     }
 };
