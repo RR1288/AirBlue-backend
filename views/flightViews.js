@@ -1,6 +1,6 @@
 const {Itinerary, Slice, Segment} = require('../models');
 
-exports.getFlight = async (attendeeID) => {
+exports.getFlightInfo = async (attendeeID) => {
     try {
         //get the itinerary by AttendeeID
         //should run an include on slices here as well
