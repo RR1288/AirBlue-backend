@@ -1,14 +1,17 @@
 module.exports = (sequelize, DataTypes) => {
     const Attendee = sequelize.define("Attendee", {
+        AttendeeID: {
+            type: DataTypes.BIGINT,
+            autoIncrement: true,
+            primaryKey: true,
+        },
         UserID: {
             type: DataTypes.BIGINT,
             references: {model: "Users", key: "UserID"},
-            primaryKey: true,
         },
         EventID: {
             type: DataTypes.BIGINT,
             references: {model: "Events", key: "EventID"},
-            primaryKey: true,
         },
         EventGroupID: {
             type: DataTypes.BIGINT,
