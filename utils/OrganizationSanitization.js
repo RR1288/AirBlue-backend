@@ -18,4 +18,22 @@ function validateOrganizationID(organizationID){
     return true;
 }
 
-module.exports = {validateOrganizationID}
+function sanitizeOrganizationName(orgName){
+    let santizedOrgName = startSanitizeString(orgName);
+    //validation
+    if (santizedOrgName === null) return null;
+    if (santizedOrgName.length > 30) return null;
+
+    return santizedOrgName;
+}
+
+function sanitizeOrganizationDescription(orgDescription){
+    let santizedOrgDescription= startSanitizeString(orgDescription);
+    //validation
+    if (santizedOrgDescription === null) return null;
+    if (santizedOrgDescription.length > 500) return null;
+
+    return santizedOrgDescription;
+}
+
+module.exports = {validateOrganizationID, sanitizeOrganizationName, sanitizeOrganizationDescription};

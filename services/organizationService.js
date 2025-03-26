@@ -1,6 +1,28 @@
 const {sendSuccess, sendError} = require("../utils/responseHelpers");
 const OrganizationViews = require('../views/organizationViews');
-const {validateOrganizationID} = require('../utils/OrganizationSanitization');
+const organizationControllor = require('../controllers/organizationControllor');
+const {validateOrganizationID, sanitizeOrganizationName, sanitizeOrganizationDescription} = require('../utils/OrganizationSanitization');
+const {validateUserID} = require('../utils/UserSanitizations');
+
+
+exports.createOrganization = async (req, res) => {
+    try {
+        let requesterId = req.user.id;
+        let {name, description} = req.body;
+
+        //validation here
+        if (!(await validateUserID)) return sendError(res, 'invalid user', 400);
+        if (sanitizeOrganizationName(name) === null) return sendError(res, 'invalid name', 400);
+        if (sanitizeOrganizationDescription(description) === null) return sendError(res, 'invalid description', 400);
+        //run function
+        const success =  await organizationControllor.createOrganization(name, description, requesterId);
+        if (!success) return sendError(res, 'failed to create organization', 400);
+        return sendSuccess(res, 'successfully create organization');
+    } catch (error) {
+        return sendError(res, 'failed to create organizaiton')
+    }
+};
+
 
 exports.getOrganizationUsers = async (req, res) =>{
     try {
