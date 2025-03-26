@@ -1,4 +1,4 @@
-const {Attendee, Event, Itinerary, EventGroup , Slice, Segment, Sequelize} = require('../models');
+const {Attendee, Event, Itinerary, EventGroup ,Invitation, User, Sequelize} = require('../models');
 
 exports.getEvents = async (userId) => {
     try {
@@ -69,3 +69,23 @@ exports.getEvents = async (userId) => {
     }
 };
 
+exports.getInvitesAttendee = async (userId) =>{
+    try {
+        let invites = await Invitation.findAll({
+            include: [
+                {
+                attributes: [
+                    ['UserID', 'UserID']
+                ],
+                model: User,
+                requird: true
+                }
+            ],
+            where: {'UserID': userId}
+        });
+        if (!invites) return [];
+        return invites;
+    } catch (error) {
+        throw new Error('fialed to get invites');
+    }
+};
