@@ -17,7 +17,7 @@ exports.getFlightInfo = async (attendeeID) => {
                     required: true,
                 }
             ],
-            where: {AttendeeID, attendeeID}
+            where: {AttendeeID: attendeeID}
         }); 
         if (!flightInfo) return {}
         return flightInfo;
