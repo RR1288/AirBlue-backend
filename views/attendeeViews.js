@@ -1,10 +1,10 @@
-const {Attendee, Event, Itinerary, EventGroup , Slice, Segment, Sequelize} = require('../models');
+const {Attendee, Event, Itinerary, EventGroup ,Invitation, User, Sequelize} = require('../models');
 
 exports.getEvents = async (userId) => {
     try {
         //TODO add the users eventGroup here for general use
         const events = await Attendee.findAll({
-            attributes: [['UserID', 'id']],
+            attributes: [['AttendeeID', 'id']],
             include: [
                 {
                     model: Event,
@@ -35,7 +35,7 @@ exports.getEvents = async (userId) => {
             
         });
         //format the results into a single non nested object
-        results = [];
+        let results = [];
         for (let i = 0; i < events.length ; i++){
             //add check to see if Itinerary exists. if nto it will set the status to 'select' and cost = o
             let iStatus;
@@ -65,8 +65,29 @@ exports.getEvents = async (userId) => {
         //if no events then return a blank array
         return results;
     } catch (error) {
-        console.log(error);
         throw new Error('failed to get events');
     }
 };
 
+exports.getInvitesAttendee = async (userId) =>{
+    try {
+        let invites = await Invitation.findAll({
+            include: [
+                {
+                attributes: [
+                    ['UserID', 'UserID']
+                ],
+                model: User,
+                as: 'user',
+                requird: true
+                }
+            ],
+            where: {'UserID': userId}
+        });
+        if (!invites) return [];
+        return invites;
+    } catch (error) {
+        console.log(error);
+        throw new Error('fialed to get invites');
+    }
+};

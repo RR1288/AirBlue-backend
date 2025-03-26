@@ -3,7 +3,7 @@ const multer = require("multer");
 const router = express.Router();
 const upload = multer({dest: 'upload/'});
 const AttendeeService = require("../services/attendeeService");
-const {getAttendeeEvents} = require("../services/attendeeService");
+const {getAttendeeEvents, getInvitesAttendeee} = require("../services/attendeeService");
 const { protect } = require("../middleware/authMiddleware");
 const { authorizedRoles } = require("../middleware/roleMiddleware");
 const { Roles } = require("../utils/Roles");
@@ -79,7 +79,7 @@ router.post("/invite/:eventId", protect, authorizedRoles(Roles.PLANNER, Roles.PL
  *       - Attendees
  *     parameters:
  *       - in: query
- *         name: eventID
+ *         name: eventId
  *         required: true
  *         description: The ID of the event.
  *         schema:
@@ -210,6 +210,24 @@ router.get("/:eventId", protect, authorizedRoles(Roles.PLANNER, Roles.ADMIN), At
  *         description: Internal server error.
  */
 router.get('/view/getAllEventsAttendeeView', protect, getAttendeeEvents);
+
+/**
+ * @swagger
+ * /attendees/view/getInvitesAttendeeView:
+ *   get:
+ *     summary: gets all invtes that an attendee has
+ *     description: uses the usersID from the users token to query the invtes table for all occurences 
+ *     tags:
+ *       - Attendees
+ *     responses:
+ *       200:
+ *         description: a list of invtes for events that the user is a part of
+ *       400:
+ *         description: userID is invalid.
+ *       500:
+ *         description: Internal server error.
+ */
+router.get('/view/getInvitesAttendeeView', protect, getInvitesAttendeee);
 
 /**
  * @swagger
