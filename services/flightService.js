@@ -149,16 +149,17 @@ exports.cancelApprovedFlight = async (req, res) => {
 
 exports.getFlightInfo = async (req, res) => {
 try {
-    const {AttendeeId} = req.params;
+    const {attendeeId} = req.query;
     //validation
     //TODO add validation
-    
+
     //run function
-    let flightInfo = await flightView.getFlightInfo(AttendeeId);
+    let flightInfo = await flightView.getFlightInfo(attendeeId);
     if(!flightInfo) return sendError(res, "failed to get flight info");
     //return success
     return sendSuccess(res, "successfully got flight information", flightInfo);
 } catch (error) {
+    console.log(error);
     return sendError(res, "failed to get flight information");
 }
 };

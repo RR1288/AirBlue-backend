@@ -46,6 +46,7 @@ module.exports = (sequelize, DataTypes) => {
     Itinerary.associate = function (models) {
         Itinerary.belongsTo(models.Attendee, {foreignKey: "AttendeeID"});
         models.Attendee.hasMany(Itinerary, {foreignKey: "AttendeeID"});
+        Itinerary.hasMany(models.Slice, {foreignKey: 'ItineraryID'});
     };
 
     return Itinerary;

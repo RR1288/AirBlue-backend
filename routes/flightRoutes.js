@@ -306,7 +306,7 @@ router.post(
  *     tags:
  *       - Flights
  *     parameters:
- *       - in: path
+ *       - in: query
  *         name: attendeeId
  *         required: true
  *         schema:
