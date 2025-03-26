@@ -17,11 +17,12 @@ exports.getFlightInfo = async (attendeeID) => {
                     required: true,
                 }
             ],
-            where: {AttendeeID, attendeeID}
+            where: {AttendeeID: attendeeID}
         }); 
-        if (!flightInfo) return {}
+        if (!flightInfo) return []
         return flightInfo;
     } catch (error) {
+        console.log(error);
         throw new Error('failed to get flight information');
     }
 };
