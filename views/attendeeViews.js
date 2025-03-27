@@ -40,12 +40,12 @@ exports.getEvents = async (userId) => {
             //add check to see if Itinerary exists. if nto it will set the status to 'select' and cost = o
             let iStatus;
             let iCost;
-            if (events[i] || events[i].dataValues.Itineraries === null){
+            if (!events[i].Itineraries[0] || events[i].Itineraries[0] === null){
                 iStatus = 'select';
                 iCost = 0.00;
             }else{
-                iStatus = events[i].dataValues.Itineraries[0].dataValues.status;
-                iCost = events[i].dataValues.Itineraries[0].dataValues.cost;
+                iStatus = events[i].Itineraries[0].dataValues.status;
+                iCost = events[i].Itineraries[0].dataValues.cost;
             }
             results.push({
                 'attendeId' : events[i].dataValues.id,
