@@ -60,7 +60,7 @@ exports.getEvents = async (userId) => {
                 'groupName': events[i].dataValues.EventGroup.dataValues.name,
                 'flightBudget': events[i].dataValues.EventGroup.dataValues.budget
             });
-            console.log(results);
+            // console.log(results);
         }
 
         //if no events then return a blank array
