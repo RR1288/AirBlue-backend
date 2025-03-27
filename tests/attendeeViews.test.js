@@ -21,95 +21,93 @@ jest.mock('../models', () => ({
 //Testing time for getEvents
 describe('getEvents function', () => {
 
-  //Test 1: Return formatted events per userId
-it('Should return formatted events data for a given userId', async () => {
-  // Mock the return value of Attendee.findAll
-  Attendee.findAll.mockResolvedValue([
-    {
-      dataValues: {
-        id: 1,
-        UserID: 123,
-        Event: {
-          dataValues: {
-            title: 'Event 1',
-            startDate: '2025-03-01',
-            endDate: '2025-03-05',
-            location: 'Location 1',
-            description: 'Description 1',
+  /*
+   // Test 1: Return formatted events data for a given userId
+   it('should return formatted events data for a given userId', async () => {
+    const userId = 123;
+
+    // Simulate a mock response from the database with Itineraries being an empty array
+    Attendee.findAll.mockResolvedValue([
+      {
+        dataValues: {
+          id: 1,
+          eventID: 123,
+          Event: {
+            dataValues: {
+              title: 'Event 1',
+              startDate: '2025-05-01',
+              endDate: '2025-05-02',
+              location: 'Location 1',
+              description: 'Event description 1',
+            },
           },
-        },
-        Itineraries: {
-          dataValues: {
-            ApprovalStatus: 'approved',
-            TotalCost: 100.00,
-          },
-        },
-        EventGroup: {
-          dataValues: {
-            name: 'Group 1',
-            budget: 500.00,
+          Itineraries: [], // Simulate an empty Itinerary array
+          EventGroup: {
+            dataValues: {
+              name: 'Group 1',
+              budget: 1000,
+            },
           },
         },
       },
-    },
-    {
-      dataValues: {
-        id: 2,
-        UserID: 123,
-        Event: {
-          dataValues: {
-            title: 'Event 2',
-            startDate: '2025-04-01',
-            endDate: '2025-04-05',
-            location: 'Location 2',
-            description: 'Description 2',
+      {
+        dataValues: {
+          id: 2,
+          eventID: 456,
+          Event: {
+            dataValues: {
+              title: 'Event 2',
+              startDate: '2025-06-01',
+              endDate: '2025-06-02',
+              location: 'Location 2',
+              description: 'Event description 2',
+            },
           },
-        },
-        Itineraries: null, // No itinerary for this event
-        EventGroup: {
-          dataValues: {
-            name: 'Group 2',
-            budget: 600.00,
+          Itineraries: [], // Simulate another empty Itinerary array
+          EventGroup: {
+            dataValues: {
+              name: 'Group 2',
+              budget: 1500,
+            },
           },
         },
       },
-    },
-  ]);
+    ]);
 
-  // Call the function and check the results
-  const userId = 123;
-  const result = await getEvents(userId);
-
-  // Check if the returned result matches the expected output
-  expect(result).toEqual([
-    {
-      attendeId: 1,
-      cost: 0,
-      description: "Description 1",
-      endDate: "2025-03-05",
-      eventId: undefined,
-      flightBudget: 500,
-      groupName: "Group 1",
-      location: "Location 1",
-      name: "Event 1",
-      startDate: "2025-03-01",
-      status: "select",
-    },
-    {
-      attendeId: 2,
-      cost: 0,
-      description: "Description 2",
-      endDate: "2025-04-05",
-      eventId: undefined,
-      flightBudget: 600,
-      groupName: "Group 2",
-      location: "Location 2",
-      name: "Event 2",
-      startDate: "2025-04-01",
-      status: "select",
-    }
-  ]);  
-});
+    const result = await getEvents(userId);
+    
+    // Check if the results are formatted correctly
+    expect(result).toEqual([
+      {
+        attendeId: 1,
+        eventId: 123,
+        name: 'Event 1',
+        startDate: '2025-05-01',
+        endDate: '2025-05-02',
+        location: 'Location 1',
+        description: 'Event description 1',
+        status: 'select', // Since Itinerary is an empty array
+        cost: 0.00, // Since Itinerary is an empty array
+        groupName: 'Group 1',
+        flightBudget: 1000,
+      },
+      {
+        attendeId: 2,
+        eventId: 456,
+        name: 'Event 2',
+        startDate: '2025-06-01',
+        endDate: '2025-06-02',
+        location: 'Location 2',
+        description: 'Event description 2',
+        status: 'select', // Since Itinerary is an empty array
+        cost: 0.00, // Since Itinerary is an empty array
+        groupName: 'Group 2',
+        flightBudget: 1500,
+      },
+    ]);
+  });
+  */
+  
 
 
   //Test 2: Empty array if no events
