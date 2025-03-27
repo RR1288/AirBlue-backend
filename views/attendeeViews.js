@@ -4,7 +4,7 @@ exports.getEvents = async (userId) => {
     try {
         //TODO add the users eventGroup here for general use
         const events = await Attendee.findAll({
-            attributes: [['AttendeeID', 'id']],
+            attributes: [['AttendeeID', 'id'], ['EventID' , 'eventID']],
             include: [
                 {
                     model: Event,
@@ -48,7 +48,8 @@ exports.getEvents = async (userId) => {
                 iStatus = events[i].dataValues.Itineraries;
             }
             results.push({
-                'id' : events[i].dataValues.id,
+                'attendeId' : events[i].dataValues.id,
+                'eventId': events[i].dataValues.eventID,
                 'name' : events[i].dataValues.Event.dataValues.title,
                 'startDate' : events[i].dataValues.Event.dataValues.startDate,
                 'endDate' : events[i].dataValues.Event.dataValues.endDate,
