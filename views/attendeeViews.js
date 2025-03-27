@@ -87,11 +87,6 @@ exports.getInvitesAttendee = async (userId) =>{
         if (!invites) return [];
         return invites;
     } catch (error) {
-<<<<<<< HEAD
-        console.log(error);
-        throw new Error('fialed to get invites');
-=======
         throw new Error('failed to get invites');
->>>>>>> a287125f8f0bdcb98511811c4ce26387b949b17d
     }
 };
