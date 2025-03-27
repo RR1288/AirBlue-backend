@@ -22,7 +22,6 @@ jest.mock('../models', () => ({
 describe('getEvents function', () => {
 
   //Test 1: Return formatted events per userId
-  // Test 1: Return formatted events per userId
 it('Should return formatted events data for a given userId', async () => {
   // Mock the return value of Attendee.findAll
   Attendee.findAll.mockResolvedValue([
@@ -84,30 +83,32 @@ it('Should return formatted events data for a given userId', async () => {
   // Check if the returned result matches the expected output
   expect(result).toEqual([
     {
-      id: 1,
-      name: 'Event 1',
-      startDate: '2025-03-01',
-      endDate: '2025-03-05',
-      location: 'Location 1',
-      description: 'Description 1',
-      cost: 0, // Adjusted to match the actual output
-      groupName: 'Group 1',
+      attendeId: 1,
+      cost: 0,
+      description: "Description 1",
+      endDate: "2025-03-05",
+      eventId: undefined,
       flightBudget: 500,
-      status: 'select', // Adjusted to match the actual output
+      groupName: "Group 1",
+      location: "Location 1",
+      name: "Event 1",
+      startDate: "2025-03-01",
+      status: "select",
     },
     {
-      id: 2,
-      name: 'Event 2',
-      startDate: '2025-04-01',
-      endDate: '2025-04-05',
-      location: 'Location 2',
-      description: 'Description 2',
-      cost: 0, // Adjusted to match the actual output
-      groupName: 'Group 2',
+      attendeId: 2,
+      cost: 0,
+      description: "Description 2",
+      endDate: "2025-04-05",
+      eventId: undefined,
       flightBudget: 600,
-      status: 'select', // Adjusted to match the actual output
-    },
-  ]);
+      groupName: "Group 2",
+      location: "Location 2",
+      name: "Event 2",
+      startDate: "2025-04-01",
+      status: "select",
+    }
+  ]);  
 });
 
 
