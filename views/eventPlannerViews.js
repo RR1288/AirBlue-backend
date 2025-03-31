@@ -110,6 +110,7 @@ exports.getAttendeesForApproval = async (userID) => {
                                         ["TaxCost", "TaxCost"],
                                         ["ApprovalStatus", "ApprovalStatus"],
                                     ],
+                                    where: {ApprovalStatus: 'pending'},
                                     //get all slices in the itinerary
                                     include: [
                                         {
