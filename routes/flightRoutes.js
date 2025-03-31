@@ -296,4 +296,34 @@ router.post(
     flightService.cancelApprovedFlight
 );
 
+
+/**
+ * @swagger
+ * /flights/view/getFlightInfo:
+ *   get:
+ *     summary: Retrieve specific flight details
+ *     description: Fetch detailed information about a specific flight offer from the database.
+ *     tags:
+ *       - Flights
+ *     parameters:
+ *       - in: query
+ *         name: attendeeId
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: The ID of the flight offer to retrieve.
+ *     responses:
+ *       200: 
+ *         description: the users itinerary and all related 
+ *       400:
+ *         description: Invalid request parameters
+ *       500:
+ *         description: Internal server error
+ */
+router.get(
+"/view/getFlightInfo",
+protect,
+flightService.getFlightInfo
+);
+
 module.exports = router;

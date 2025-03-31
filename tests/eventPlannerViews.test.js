@@ -3,6 +3,7 @@
 //Set up constants
 const { Sequelize, Attendee, Itinerary, Invitation, User, EventGroup, EventStaff, Event } = require('../models');
 const eventPlannerViews = require('../views/eventPlannerViews');
+const {getAttendeesForApproval} = require('../views/eventPlannerViews');
 
 // Mocking Sequelize models
 jest.mock('../models', () => ({
@@ -169,4 +170,93 @@ describe('EventPlannerViews', () => {
             await expect(eventPlannerViews.getEventsPlanner(1, 1)).rejects.toThrow('failed to get events');
         });
     });
+
+    //Tests for getAttendeesForApproval
+    describe('getAttendeesForApproval', () => {
+
+        //Test 10: Return attendees with pending status
+        it('Should return attendees with pending approval status', async () => {
+         
+            const mockAttendees = [
+              {
+                User: { dataValues: { firstName: 'John', lastName: 'Doe', email: 'john.doe@example.com' } },
+                Itineraries: [
+                  {
+                    dataValues: { ApprovalStatus: 'pending', TotalCost: 100 },
+                  }
+                ],
+                EventGroup: { dataValues: { name: 'Group A', budget: 500 } },
+              },
+              {
+                User: { dataValues: { firstName: 'Jane', lastName: 'Smith', email: 'jane.smith@example.com' } },
+                Itineraries: [
+                  {
+                    dataValues: { ApprovalStatus: 'pending', TotalCost: 200 },
+                  }
+                ],
+                EventGroup: { dataValues: { name: 'Group B', budget: 600 } },
+              },
+            ];
+        
+            
+            Attendee.findAll.mockResolvedValue(mockAttendees);
+        
+           
+            const eventID = 1;
+            const attendees = await getAttendeesForApproval(eventID);
+        
+            // Assert
+            expect(attendees).toHaveLength(2); 
+            expect(attendees[0]).toEqual({
+              Name: 'JohnDoe', 
+              email: 'john.doe@example.com',
+              Booking: [
+                {
+                  dataValues: {
+                    ApprovalStatus: 'pending',
+                    TotalCost: 100,
+                  },
+                },
+              ],  
+              groupName: 'Group A',
+              budget: 500,
+            });
+        
+            expect(attendees[1]).toEqual({
+              Name: 'JaneSmith', 
+              email: 'jane.smith@example.com',
+              Booking: [
+                {
+                  dataValues: {
+                    ApprovalStatus: 'pending',
+                    TotalCost: 200,
+                  },
+                },
+              ],  
+              groupName: 'Group B',
+              budget: 600,
+            });
+          });
+      
+        //Test 11: Empty array if no pending
+        it('Should return empty array if no attendees have pending approval', async () => {
+          
+          Attendee.findAll.mockResolvedValue([]);
+      
+          const eventID = 1;
+          const attendees = await getAttendeesForApproval(eventID);
+      
+          expect(attendees).toHaveLength(0);
+        });
+      
+        //Test 12: Handle errors
+        it('Should handle errors gracefully', async () => {
+         
+          Attendee.findAll.mockRejectedValue(new Error('Database error'));
+      
+          await expect(getAttendeesForApproval(1)).rejects.toThrow('failed to get attendees for event');
+        });
+      });
+
+
 });

@@ -250,3 +250,30 @@ exports.invalidInvitation = async (invitation, transaction) => {
     await invitation.save({transaction}); // Save before deleting it
     await invitation.destroy({transaction});
 };
+
+
+exports.updateTokenOnUserCreation = async (inviteToken) => {
+    try {
+        //start transaction
+
+        //get invitation
+        let invitation = await Invitation.findOne({
+            where: {token: inviteToken},
+        });
+        //get invitedEmail
+
+        //get user where invitedEmail == email
+
+        //set user id to the recieved users id
+        let userId;
+        invitation.update({
+            UserID: userId,
+        });
+        //close transaction
+
+        //return true on success
+        return true;
+    } catch (error) {
+        throw new Error('failed to update token');
+    }
+};

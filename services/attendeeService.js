@@ -225,3 +225,26 @@ exports.getAttendeeEvents = async (req, res) => {
     return sendError(res, 'failed to get events');
   }
 };
+
+exports.getInvitesAttendeee = async(req,res) => {
+  try {
+    const requesterId = parseInt(req.user.id);
+    if (!await userValidation.validateUserID(requesterId)) return sendError(res, 'user does not exist', 400);
+    let invites = await AttendeeViews.getInvitesAttendee(requesterId);
+    if (!invites) return sendError(res, 'failed to get invites', 400);
+    return sendSuccess(res, 'successfully got all invitations', invites);
+  } catch (error) {
+    return sendError(res, 'failed to get invites');
+  }
+};
+
+exports.updateTokenOnCreation = async (req, res) => {
+  try {
+    const {token} = req.body;
+    
+
+    return sendSuccess(res, 'successfully updated token')
+  } catch (error) {
+      return sendError(res, 'failed to update token');
+  }
+};
