@@ -468,20 +468,13 @@ router.get(
  * @swagger
  * /events/getAllAttendeesForApproval:
  *   get:
- *     summary: Get all Attendees in an event.
- *     description: takes an eventId and returns a list of all attendees in the event.
+ *     summary: Get all Attendees in an event that are pending approval on flights.
+ *     description: takes the requesters ID and queries an event for all attendees with Itineraries that have a value of 'pending'.
  *     tags:
  *       - Events
- *     parameters:
- *       - in: query
- *         name: eventId
- *         required: true
- *         description: The ID of the event.
- *         schema:
- *           type: string
  *     responses:
  *       200:
- *         description: Attendees have been successfully returned
+ *         description: Attendees up for approval have been successfully returned
  *       400:
  *         description: Bad request – Event ID is required.
  *       500:
