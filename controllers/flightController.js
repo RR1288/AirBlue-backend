@@ -1,5 +1,6 @@
 const DUFFEL_API_KEY = process.env.DUFFEL_API_KEY;
-const {Itinerary, Slice, Segment, sequelize} = require("../models");
+const { where } = require("sequelize");
+const {Itinerary, Slice, Segment, sequelize, Attendee} = require("../models");
 const {parseDuration} = require("../utils/flightUtils");
 
 exports.createOfferRequest = async ({
@@ -139,6 +140,12 @@ exports.holdOffer = async (user_id, event_id, offer_id, passengers) => {
         };
         body = JSON.stringify(body);
 
+        //find one  from attendees where user id and event id
+        let attendee = await Attendee.findOne({where: {UserID: user_id, EventID: event_id }});
+        console.log(attendee);
+        
+        // assuming attendee exists
+
         // Fetch flight details from Duffel API
         const response = await fetch("https://api.duffel.com/air/orders", {
             method: "POST",
@@ -163,8 +170,7 @@ exports.holdOffer = async (user_id, event_id, offer_id, passengers) => {
         // Save itinerary
         const itinerary = await Itinerary.create(
             {
-                UserID: user_id,
-                EventID: event_id,
+                AttendeeID: attendee.dataValues.AttendeeID,
                 DuffelOrderID: data.id,
                 DuffelPassID: data?.passengers?.[0]?.id || null, // Safe access to passenger ID
                 DuffelOfferID: offer_id,
@@ -249,7 +255,6 @@ exports.holdOffer = async (user_id, event_id, offer_id, passengers) => {
     } catch (error) {
         // Rollback transaction in case of any error
         await transaction.rollback();
-        console.error(error);
         throw new Error("Error holding flight");
     }
 };
