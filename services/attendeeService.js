@@ -237,3 +237,14 @@ exports.getInvitesAttendeee = async(req,res) => {
     return sendError(res, 'failed to get invites');
   }
 };
+
+exports.updateTokenOnCreation = async (req, res) => {
+  try {
+    const {token} = req.body;
+    
+
+    return sendSuccess(res, 'successfully updated token')
+  } catch (error) {
+      return sendError(res, 'failed to update token');
+  }
+};
