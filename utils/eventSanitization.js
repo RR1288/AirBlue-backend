@@ -82,5 +82,18 @@ function sanitizeFlightBudget(budget){
 
     return sanitizedBudget;
 }
+function sanitizeThresholdValuePercent(thresholdVal){
+    if (typeof thresholdVal !== 'number') return null;
+    //turning it to string to run through validation
+    let strValue = String(thresholdVal).trim();
+    //validation
+    if(!validator.isFloat(strValue, { min: 0.00, max: 9.99, locale: 'en-US'})) return null;
 
-module.exports = {sanitizeDate, sanitizeEventName, sanitizeEventDescription, sanitizeFlightBudget, sanitizeTotalBudget, validateEventID, sanitizeLocation}
+    let sanitizedThresholdVal = parseFloat(strValue).toFixed(2);
+
+    if (sanitizedThresholdVal.length > 4) return null;
+
+    return sanitizedThresholdVal;
+}
+
+module.exports = {sanitizeDate, sanitizeEventName, sanitizeEventDescription, sanitizeFlightBudget, sanitizeTotalBudget, validateEventID, sanitizeLocation, sanitizeThresholdValuePercent}

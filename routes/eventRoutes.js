@@ -92,6 +92,9 @@ router.post('/create-event', protect, authorizedRoles(Roles.PLANNER), checkOrgan
  *               flightBudget:
  *                 type: number
  *                 example: 50000.99
+ *               thresholdVal:
+ *                 type: number
+ *                 example: 0.10
  *               
  *     responses:
  *       201:

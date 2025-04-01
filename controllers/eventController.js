@@ -184,7 +184,7 @@ exports.getEventByOrganization = async (organizationId) => {
     }
 }
 
-exports.setEventBudget = async (eventID, totalBudget, flightBudget) => {
+exports.setEventBudget = async (eventID, totalBudget, flightBudget, thresholdVal) => {
     try {
         let event = await Event.findByPk(eventID);
         if (!event) {
@@ -193,7 +193,8 @@ exports.setEventBudget = async (eventID, totalBudget, flightBudget) => {
 
         await event.update({
             EventTotalBudget: totalBudget,
-            EventFlightBudget: flightBudget
+            EventFlightBudget: flightBudget, 
+            FlightBudgetThreshold: thresholdVal
         });
         return true;
     } catch (error) {
