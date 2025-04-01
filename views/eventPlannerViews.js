@@ -14,7 +14,7 @@ const {
 exports.getAttendees = async (eventID) => {
     try {
         let attendees = await Attendee.findAll({
-            attributes: [["UserID", "userID"]],
+            attributes: [["AttendeeID", "attendeeID"]],
             include: [
                 {
                     model: User,
@@ -30,6 +30,7 @@ exports.getAttendees = async (eventID) => {
                     attributes: [
                         ["ApprovalStatus", "status"],
                         ["TotalCost", "cost"],
+                        ["DuffelOrderID", 'orderId'],
                     ],
                 },
                 {
@@ -47,12 +48,13 @@ exports.getAttendees = async (eventID) => {
         //making it so that I am only returning the information that I want
         for (let i = 0; i < attendees.length; i++) {
             let combinedName =
-                attendees[i].User.dataValues.firstName +
+                attendees[i].User.dataValues.firstName + " " + 
                 attendees[i].User.dataValues.lastName;
             //checking to make sure there are actual values for bookingCost and status in Itinerary
             let booking = attendees[i].Itineraries;
             if (!booking) booking = null;
             results.push({
+                ID: attendees[i].dataValues.attendeeID,
                 Name: combinedName,
                 email: attendees[i].User.dataValues.email,
                 Booking: booking,
