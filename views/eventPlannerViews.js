@@ -218,7 +218,6 @@ exports.getInvitees = async (eventID) => {
 exports.getEventsPlanner = async (organizationId, userId) => {
     try {
         //get all events where the finance user is a part of
-        console.log("in getting events planner");
         let events = await Event.findAll({
             attributes: [
                 ["EventID", "id"],
@@ -231,6 +230,7 @@ exports.getEventsPlanner = async (organizationId, userId) => {
                 ["EventFlightBudget", "flightBudget"],
                 ["MaxAttendees", "maxAttendees"],
                 ["ExpectedAttendees", "expectedAttendees"],
+                ["FlightBudgetThreshold", "threshold"],
             ],
 
             include: [
@@ -243,10 +243,10 @@ exports.getEventsPlanner = async (organizationId, userId) => {
                         RoleID: {[Sequelize.Op.like]: `%E%`},
                     },
                 },
-                {model: EventGroup, required: true},
             ],
             where: {OrganizationID: organizationId},
         });
+
         //TODO add functionality to format the results into single non nested objects with no info on tables names
         if (!events || events === null) return [];
         return events;

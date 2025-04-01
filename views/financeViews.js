@@ -23,13 +23,14 @@ exports.getEventsFinance = async(organizationId, userId) =>{
                     ['EventTotalBudget', 'eventBudget'],
                     ['EventFlightBudget', 'flightBudget'],
                     ["MaxAttendees", 'maxAttendees'],
+                    ["FlightBudgetThreshold", "threshold"],
                     
                 ],
 
                 include: [
                     {
                         model: EventStaff,
-                        attributes: [['UserID', 'financeUser']],
+                        attributes: [],
                         required: true,
                         where: {UserID: userId, RoleID: { [Sequelize.Op.like]: `%F%` }}
                     }
