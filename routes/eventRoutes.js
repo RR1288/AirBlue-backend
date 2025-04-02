@@ -546,4 +546,57 @@ router.get(
  */
 router.post("/invitations/accept", protect, EventService.acceptInvitation);
 
+/**
+ * @swagger
+ * /events/update-event:
+ *   patch:
+ *     summary: Update an existing event
+ *     description: Endpoint to update specific fields of an event based on the event ID.
+ *     tags:
+ *       - Events
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               eventID:
+ *                 type: integer
+ *                 example: 1
+ *               EventName:
+ *                 type: string
+ *                 example: "Updated Event Name"
+ *               startDate:
+ *                 type: string
+ *                 example: "2025-05-23"
+ *               endDate:
+ *                 type: string
+ *                 example: "2025-05-26"
+ *               location:
+ *                 type: string
+ *                 example: "Rochester, NY"
+ *               maxAttendees:
+ *                 type: integer
+ *                 example: 150
+ *               description:
+ *                 type: string
+ *                 example: "Updated description for the event."
+ *     responses:
+ *       200:
+ *         description: Event updated successfully.
+ *       400:
+ *         description: Invalid input or event ID.
+ *       404:
+ *         description: Event not found.
+ *       500:
+ *         description: Internal server error.
+ */
+router.patch("/update-event", 
+  protect, 
+  authorizedRoles(Roles.PLANNER), 
+  checkOrganizationUser, 
+  EventService.updateEvent);
+
+
 module.exports = router;
