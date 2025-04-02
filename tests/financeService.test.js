@@ -4,7 +4,7 @@
 const { setEventBudget } = require('../services/financeService');
 const { sendSuccess, sendError } = require('../utils/responseHelpers');
 const { setEventBudget: updateEventBudget } = require('../controllers/eventController');
-const { sanitizeFlightBudget, sanitizeTotalBudget, validateEventID } = require('../utils/eventSanitization');
+const { sanitizeFlightBudget, sanitizeTotalBudget, validateEventID, sanitizeThresholdValuePercent } = require('../utils/eventSanitization');
 
 //Mock it up
 jest.mock('../utils/responseHelpers');
@@ -89,6 +89,7 @@ describe('setEventBudget', () => {
         sanitizeTotalBudget.mockReturnValue(1000);  // Valid totalBudget
         sanitizeFlightBudget.mockReturnValue(500);  // Valid flightBudget
         validateEventID.mockReturnValue(true);      // Valid eventID
+        sanitizeThresholdValuePercent.mockReturnValue(.5); //New addtion
         updateEventBudget.mockResolvedValue(true);  // Successfully set event budget
 
         await setEventBudget(req, res);

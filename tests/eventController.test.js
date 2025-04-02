@@ -1,16 +1,16 @@
 //eventController.test.js
 
 //Set up the constants
-const { getAttendees, getEventStaffByRole } = require("../controllers/eventController");
+const { getAttendees, getEventStaffByRole, setEventBudget } = require("../controllers/eventController");
 const { User, Event, EventStaff, Attendee, Sequelize } = require("../models");
 
-// Mock Sequelize Models
 jest.mock("../models", () => ({
   User: {
     findAll: jest.fn(),
   },
   Event: {
     findAll: jest.fn(),
+    findByPk: jest.fn(),
   },
   EventStaff: {
     findAll: jest.fn(),
@@ -25,17 +25,12 @@ jest.mock("../models", () => ({
   },
 }));
 
-//Test time for eventController
 describe("eventController", () => {
   beforeEach(async () => {
-    // Reset all mocks before each test
     await jest.clearAllMocks();
   });
 
-  //Tests for getAttendees funciton
   describe("getAttendees", () => {
-
-    //Test 1: Fetch attendees when given an eventID
     it("Should fetch attendees for a given eventId", async () => {
       const mockEventId = 1;
       const mockAttendees = [
@@ -59,7 +54,6 @@ describe("eventController", () => {
       expect(result).toEqual(mockAttendees);
     });
 
-    //Test 2: Return empty array if no one is in an event
     it("Should return an empty array if no attendees found", async () => {
       const mockEventId = 1;
       Attendee.findAll.mockResolvedValue([]);
@@ -77,13 +71,10 @@ describe("eventController", () => {
     });
   });
 
-  //Tests for getEventStafByRole funciton
   describe("getEventStaffByRole", () => {
-    
-    //Test 3: Fetch event staff based on eventID and their given role
     it("Should fetch event staff based on eventId and role", async () => {
       const mockEventId = 1;
-      const mockRole = "E"; // Event Planner role
+      const mockRole = "E";
       const mockEventStaff = [
         {
           User: { UserID: 1, FName: "Jane", LName: "Doe", Email: "jane.doe@example.com" },
@@ -108,10 +99,9 @@ describe("eventController", () => {
       expect(result).toEqual(mockEventStaff);
     });
 
-    //Test 4: If no staff, return empty array
     it("Should return an empty array if no event staff found", async () => {
       const mockEventId = 1;
-      const mockRole = "F"; // Finance role
+      const mockRole = "F";
       EventStaff.findAll.mockResolvedValue([]);
 
       const result = await getEventStaffByRole(mockEventId, mockRole);
@@ -129,4 +119,50 @@ describe("eventController", () => {
       expect(result).toEqual([]);
     });
   });
+
+  //Tests for setEventBudget
+  describe('setEventBudget', () => {
+    let eventData;
+
+    beforeEach(() => {
+        eventData = {
+            EventID: 1,
+            EventTotalBudget: 10000,
+            EventFlightBudget: 2000,
+            FlightBudgetThreshold: 0.5 // Threshold as a decimal (e.g., 0.5 = 50%)
+        };
+    });
+
+    //Test 5: Successfully update budget
+    it('Should successfully update event budget when event exists', async () => {
+    
+      const mockEvent = {
+          update: jest.fn().mockResolvedValue(true), 
+          EventID: 1,
+          EventFlightBudget: 2000
+      };
+
+      Event.findByPk = jest.fn().mockResolvedValue(mockEvent);
+
+      const result = await setEventBudget(1, 10000, 2000, 0.5);
+
+      expect(result).toBe(true);
+      expect(Event.findByPk).toHaveBeenCalledWith(1);
+      expect(mockEvent.update).toHaveBeenCalledWith({
+          EventTotalBudget: 10000,
+          EventFlightBudget: 2000,
+          FlightBudgetThreshold: 0.5
+      });
+  });
+
+    //Test 6: Handle errors
+    it('Should handle errors when updating event budget', async () => {
+
+        Event.findByPk = jest.fn().mockResolvedValue({
+            update: jest.fn().mockRejectedValue(new Error('Database Error'))
+        });
+
+        await expect(setEventBudget(1, 10000, 2000, 0.5)).rejects.toThrow('failed to add budget');
+    });
+});
 });

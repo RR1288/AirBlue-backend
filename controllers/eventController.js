@@ -184,7 +184,7 @@ exports.getEventByOrganization = async (organizationId) => {
     }
 }
 
-exports.setEventBudget = async (eventID, totalBudget, flightBudget) => {
+exports.setEventBudget = async (eventID, totalBudget, flightBudget, thresholdVal) => {
     try {
         let event = await Event.findByPk(eventID);
         if (!event) {
@@ -193,7 +193,8 @@ exports.setEventBudget = async (eventID, totalBudget, flightBudget) => {
 
         await event.update({
             EventTotalBudget: totalBudget,
-            EventFlightBudget: flightBudget
+            EventFlightBudget: flightBudget, 
+            FlightBudgetThreshold: thresholdVal
         });
         return true;
     } catch (error) {
@@ -233,3 +234,22 @@ exports.addToEventStaff = async (userID, eventID, role) => {
     }
 
 };
+
+exports.updateEvent = async (eventID, updates) => {
+    try {
+        // Find the event to update
+        const event = await Event.findByPk(eventID);
+        if (!event) {
+            throw new Error("Event not found");
+        }
+
+        // Update the event with the provided attributes
+        await event.update(updates);
+
+        return event; // Return the updated event
+    } catch (error) {
+        console.error(error);
+        throw new Error("Failed to update event");
+    }
+};
+

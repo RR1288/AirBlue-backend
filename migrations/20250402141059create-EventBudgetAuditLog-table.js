@@ -8,23 +8,26 @@ module.exports = {
                 autoIncrement: true,
                 primaryKey: true,
             },
-            EventID: { type: Sequelize.BIGINT, references: { model: 'Events', key: 'EventID' }, allowNull: false },
-            ColumnName: {
-                type: Sequelize.ENUM('EventTotalBudget','EventFlightBudget','FlightBudgetThreshold'),
+            UserID: { //editor
+                type: Sequelize.BIGINT, 
+                references: { model: 'Users', key: 'UserID' }, 
+                allowNull: false },
+            EventID: { 
+                type: Sequelize.BIGINT, 
+                references: { model: 'Events', key: 'EventID' }, 
                 allowNull: false
+            },
+            ColumnName:{
+                type: Sequelize.ENUM('EventTotalBudget', 'EventFlightBudget', 'FlightBudgetThreshold'),
+                 allowNull: false
             },
             CurrentValue: {
                 type: Sequelize.DECIMAL(14,2), 
-                defaultValue: 0
+                defaultValue: 0 
             },
             PreviousValue: {
                 type: Sequelize.DECIMAL(14,2), 
-                defaultValue: 0
-            },
-            Editor: {
-                type: Sequelize.BIGINT, 
-                references: { model: 'Users', key: 'UserID' }, 
-                allowNull: false
+                defaultValue: 0 
             },
             createdAt: {
                 type: Sequelize.DATE,
@@ -41,6 +44,6 @@ module.exports = {
     },
 
     down: async (queryInterface) => {
-        await queryInterface.dropTable("Segments");
+        await queryInterface.dropTable("EventBudgetAuditLog");
     },
 };

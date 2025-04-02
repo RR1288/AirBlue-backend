@@ -3,11 +3,11 @@ const { setEventBudget } = require('../controllers/eventController');
 const FinanceViews = require('../views/financeViews');
 const { validateUserID } = require("../utils/UserSanitizations");
 const { validateOrganizationID } = require("../utils/OrganizationSanitization");
-const {sanitizeFlightBudget, sanitizeTotalBudget, validateEventID} = require("../utils/eventSanitization");
+const {sanitizeFlightBudget, sanitizeTotalBudget, validateEventID, sanitizeThresholdValuePercent} = require("../utils/eventSanitization");
 const jwt = require("jsonwebtoken");
 exports.setEventBudget = async (req, res) => {
     try {
-        let {eventID, totalBudget, flightBudget} = req.body;
+        let {eventID, totalBudget, flightBudget, thresholdVal} = req.body;
         if (!eventID, !totalBudget, !flightBudget) return sendError(res, "missing inputs", 400);
         //sanitization and validation
         if (!validateEventID(eventID)) return sendError(res, "invalid EventID", 400);
@@ -16,8 +16,18 @@ exports.setEventBudget = async (req, res) => {
         flightBudget = sanitizeFlightBudget(flightBudget);
         if (flightBudget === null) return sendError(res, "invalid flight budget", 400);
 
+        //threshold Validation
+        //I am jus doing i by percenage for now
+        if (!thresholdVal){
+            thresholdVal = 0;
+        }else{//TODO: make sure that this can handle flat values
+            thresholdVal = sanitizeThresholdValuePercent(thresholdVal);
+            console.log(thresholdVal);
+            if(thresholdVal === null) return sendError(res, "invalid threshold Value", 400);
+        }
+
         //run update on the event budget
-        const success = await setEventBudget(eventID, totalBudget, flightBudget); 
+        const success = await setEventBudget(eventID, totalBudget, flightBudget, thresholdVal); 
         if(!success) return sendError(res, "failed to set budget", 400);
         return sendSuccess(res, "successfully updated event budget");
     } catch (error) {
