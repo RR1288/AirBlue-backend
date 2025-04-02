@@ -7,11 +7,11 @@ module.exports = (sequelize, DataTypes) => {
         },
         EventName: DataTypes.STRING(50),
         EventDescription: DataTypes.STRING(200),
-        EventTotalBudget: DataTypes.DECIMAL(12,2),
+        EventTotalBudget: DataTypes.DECIMAL(14,2),
         EventStartDate: DataTypes.DATE,
         EventEndDate: DataTypes.DATE,
         ExpectedAttendees: DataTypes.INTEGER,
-        EventFlightBudget: DataTypes.DECIMAL(12,2),
+        EventFlightBudget: DataTypes.DECIMAL(14,2),
         FlightBudgetThreshold: DataTypes.DECIMAL(6,2),
         MaxAttendees:  DataTypes.INTEGER,
         Location:  DataTypes.STRING(50), 
@@ -37,6 +37,7 @@ module.exports = (sequelize, DataTypes) => {
         Event.hasMany(models.EventGroup, {foreignKey: "EventID"});
         Event.hasMany(models.Attendee, {foreignKey: "EventID"});
         Event.hasMany(models.EventStaff, {foreignKey: "EventID"});
+        Event.hasMany(models.EventBudgetAuditLog, {foreignKey: "EventID"});
     };
 
     return Event;
