@@ -1,7 +1,7 @@
 //eventController.test.js
 
 //Set up the constants
-const { getAttendees, getEventStaffByRole } = require("../controllers/eventController");
+const { getAttendees, getEventStaffByRole, setEventBudget } = require("../controllers/eventController");
 const { User, Event, EventStaff, Attendee, Sequelize } = require("../models");
 
 // Mock Sequelize Models
@@ -11,6 +11,7 @@ jest.mock("../models", () => ({
   },
   Event: {
     findAll: jest.fn(),
+    findByPk: jest.fn(),
   },
   EventStaff: {
     findAll: jest.fn(),
@@ -129,4 +130,50 @@ describe("eventController", () => {
       expect(result).toEqual([]);
     });
   });
+
+  //Tests for setEventBudget
+  describe('setEventBudget', () => {
+    let eventData;
+
+    beforeEach(() => {
+        eventData = {
+            EventID: 1,
+            EventTotalBudget: 10000,
+            EventFlightBudget: 2000,
+            FlightBudgetThreshold: 0.5 // Threshold as a decimal (e.g., 0.5 = 50%)
+        };
+    });
+
+    //Test 5: Successfully update budget
+    it('Should successfully update event budget when event exists', async () => {
+    
+      const mockEvent = {
+          update: jest.fn().mockResolvedValue(true), 
+          EventID: 1,
+          EventFlightBudget: 2000
+      };
+
+      Event.findByPk = jest.fn().mockResolvedValue(mockEvent);
+
+      const result = await setEventBudget(1, 10000, 2000, 0.5);
+
+      expect(result).toBe(true);
+      expect(Event.findByPk).toHaveBeenCalledWith(1);
+      expect(mockEvent.update).toHaveBeenCalledWith({
+          EventTotalBudget: 10000,
+          EventFlightBudget: 2000,
+          FlightBudgetThreshold: 0.5
+      });
+  });
+
+    //Test 6: Handle errors
+    it('Should handle errors when updating event budget', async () => {
+
+        Event.findByPk = jest.fn().mockResolvedValue({
+            update: jest.fn().mockRejectedValue(new Error('Database Error'))
+        });
+
+        await expect(setEventBudget(1, 10000, 2000, 0.5)).rejects.toThrow('failed to add budget');
+    });
+});
 });
