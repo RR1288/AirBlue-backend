@@ -1,6 +1,6 @@
 const express = require("express");
 const router = express.Router();
-const {getOrganizationInfo, getOrganizationUsers, createOrganization}= require("../services/organizationService.js");
+const {getOrganizationInfo, getOrganizationUsers, createOrganization, updateOrganization}= require("../services/organizationService.js");
 const {authorizedRoles} = require("../middleware/roleMiddleware.js");
 const {Roles} = require("../utils/Roles.js");
 const {protect} = require("../middleware/authMiddleware.js");
@@ -78,6 +78,41 @@ router.get("/getOrganizationUsers", protect, getOrganizationUsers);
  *         description: Internal server error.
  */
 router.get('/getOrganizationInfo', protect, getOrganizationInfo);
+
+/**
+ * @swagger
+ * /organizations/updateOrganization:
+ *   patch:
+ *     summary: Update an organization's name or description
+ *     description: This endpoint allows updating an organization's name or description, where either or both can be modified by providing them in the request body.
+ *     tags:
+ *       - Organizations
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               name:
+ *                 type: string
+ *                 example: Updated Organization Name
+ *               description:
+ *                 type: string
+ *                 example: Updated Description for the organization
+ *     responses:
+ *       200:
+ *         description: Organization successfully updated
+ *       400:
+ *         description: Bad request invalid input
+ *       404:
+ *         description: Organization not found
+ *       500:
+ *         description: Internal server error
+ */
+router.patch("/updateOrganization", protect, updateOrganization);
+
+
 
 
 module.exports = router;

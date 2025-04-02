@@ -56,3 +56,34 @@ exports.getUserOrganizationByUserID = async (userID) =>{
     const userOrg = await UserOrganization.findOne({where: {UserID: userID}});
     return userOrg;
 };
+
+// Controller function
+exports.updateOrganization = async (userId, updates) => {
+    try {
+        // Find the user’s organization
+        const userOrganization = await UserOrganization.findOne({
+            where: { UserID: userId, StillActive: true },
+        });
+
+        if (!userOrganization) {
+            throw new Error('User is not associated with any active organization');
+        }
+
+        const organizationId = userOrganization.OrganizationID;
+
+        // Find the organization to update
+        const organization = await Organization.findByPk(organizationId);
+
+        if (!organization) {
+            throw new Error('Organization not found');
+        }
+
+        // Update the organization with the provided fields (name, description, etc.)
+        await organization.update(updates);
+
+        return organization; // Return the updated organization
+    } catch (error) {
+        console.error(error);
+        throw new Error('Failed to update organization');
+    }
+};

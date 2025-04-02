@@ -54,3 +54,33 @@ exports.getOrganizationInfo = async (req, res) =>{
         return sendError(res, 'failed to get organization info');
     }
 };
+
+// Service function
+exports.updateOrganization = async (req, res) => {
+    try {
+        const requesterId = req.user.id;  // Get the logged-in user's ID from the request
+        const { name, description } = req.body;
+
+        // Prepare the updates object with the fields that were provided
+        const updates = {};
+
+        if (name) {
+            updates.OrganizationName = name;  // Update the name if provided
+        }
+
+        if (description) {
+            updates.Description = description;  // Update the description if provided
+        }
+
+        // Call the controller to update the organization
+        const updatedOrganization = await organizationControllor.updateOrganization(requesterId, updates);
+
+        return sendSuccess(res, 'Successfully updated organization', updatedOrganization);
+    } catch (error) {
+        console.error(error);
+        return sendError(res, 'Failed to update organization');
+    }
+};
+
+
+
