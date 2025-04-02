@@ -57,7 +57,6 @@ exports.getUserOrganizationByUserID = async (userID) =>{
     return userOrg;
 };
 
-// Controller function
 exports.updateOrganization = async (userId, updates) => {
     try {
         // Find the user’s organization

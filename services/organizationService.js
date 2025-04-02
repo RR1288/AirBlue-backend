@@ -55,21 +55,26 @@ exports.getOrganizationInfo = async (req, res) =>{
     }
 };
 
-// Service function
 exports.updateOrganization = async (req, res) => {
     try {
         const requesterId = req.user.id;  // Get the logged-in user's ID from the request
-        const { name, description } = req.body;
+        let { name, description } = req.body;
 
         // Prepare the updates object with the fields that were provided
         const updates = {};
 
+        // Validate and sanitize the name if provided
         if (name) {
-            updates.OrganizationName = name;  // Update the name if provided
+            name = sanitizeOrganizationName(name);
+            if (name === null) return sendError(res, "Invalid organization name", 400);
+            updates.OrganizationName = name;
         }
 
+        // Validate and sanitize the description if provided
         if (description) {
-            updates.Description = description;  // Update the description if provided
+            description = sanitizeOrganizationDescription(description);
+            if (description === null) return sendError(res, "Invalid description", 400);
+            updates.Description = description;
         }
 
         // Call the controller to update the organization
@@ -78,7 +83,7 @@ exports.updateOrganization = async (req, res) => {
         return sendSuccess(res, 'Successfully updated organization', updatedOrganization);
     } catch (error) {
         console.error(error);
-        return sendError(res, 'Failed to update organization');
+        return sendError(res, 'Failed to update organization', 500);
     }
 };
 
