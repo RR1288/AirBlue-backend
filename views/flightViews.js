@@ -4,7 +4,6 @@ exports.getFlightInfo = async (attendeeID) => {
     try {
         //get the itinerary by AttendeeID
         //should run an include on slices here as well
-        console.log(attendeeID);
         let flightInfo = await Itinerary.findAll({
             attributes: [
                 ["ItineraryID", 'ItineraryID'],

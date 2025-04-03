@@ -23,13 +23,14 @@ exports.getEventsFinance = async(organizationId, userId) =>{
                     ['EventTotalBudget', 'eventBudget'],
                     ['EventFlightBudget', 'flightBudget'],
                     ["MaxAttendees", 'maxAttendees'],
+                    ["FlightBudgetThreshold", "threshold"],
                     
                 ],
 
                 include: [
                     {
                         model: EventStaff,
-                        attributes: [['UserID', 'financeUser']],
+                        attributes: [],
                         required: true,
                         where: {UserID: userId, RoleID: { [Sequelize.Op.like]: `%F%` }}
                     }
@@ -68,6 +69,7 @@ exports.getJoinableEventsFinance = async(organizationId) =>{
                     ['EventTotalBudget', 'eventBudget'],
                     ['EventFlightBudget', 'flightBudget'],
                     ["MaxAttendees", 'maxAttendees'],
+                    ["FlightBudgetThreshold", "threshold"],
                     
                 ],
                 where: {OrganizationID: organizationId},
@@ -83,12 +85,11 @@ exports.getJoinableEventsFinance = async(organizationId) =>{
         // Filter events that don't have finance users
         const results = events.filter((event, index) => {
             if (eventStaffData[index].length === 0) {
-                event.financeUser = null;
+                event.dataValues.orphan = true;
                 return true;
             }
             return false;
         });
-
         return results;
     } catch (error) {
         throw new Error("failed to get events");

@@ -12,6 +12,7 @@ module.exports = {
       EventTotalBudget: { type: Sequelize.DECIMAL(14,2), defaultValue: 0 },
       ExpectedAttendees: { type: Sequelize.INTEGER, defaultValue: 0 },
       EventFlightBudget: { type: Sequelize.DECIMAL(14,2), defaultValue: 0 },
+      FlightBudgetThreshold: { type: Sequelize.DECIMAL(6,2), defaultValue: 0.00}, //for now I am just doing this value in percent
       MaxAttendees: {type: Sequelize.INTEGER, allowNull: false},
       Location: {type: Sequelize.STRING(50), allowNull: false},
       TypeID: { type: Sequelize.BIGINT, references: { model: 'EventTypes', key: 'TypeID' }, allowNull: false },

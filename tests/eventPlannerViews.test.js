@@ -4,6 +4,7 @@
 const { Sequelize, Attendee, Itinerary, Invitation, User, EventGroup, EventStaff, Event } = require('../models');
 const eventPlannerViews = require('../views/eventPlannerViews');
 const {getAttendeesForApproval} = require('../views/eventPlannerViews');
+const {getAttendees} = require('../views/eventPlannerViews');
 
 // Mocking Sequelize models
 jest.mock('../models', () => ({
@@ -11,16 +12,27 @@ jest.mock('../models', () => ({
     Attendee: {
         findAll: jest.fn()
     },
-    Itinerary: {},
+    Itinerary: {
+        findAll: jest.fn(),
+      },
     Invitation: {
         findAll: jest.fn()
     },
-    User: {},
-    EventGroup: {},
-    EventStaff: {},
+    User: {
+        findAll: jest.fn(),
+      },
+    EventGroup: {
+        findAll: jest.fn(),
+      },
+    EventStaff: {
+        findAll: jest.fn(),
+      },
     Event: {
         findAll: jest.fn()
-    }
+    },
+    Slice: {
+        findAll: jest.fn(),
+      }
 }));
 
 //Testing time
@@ -34,28 +46,104 @@ describe('EventPlannerViews', () => {
     //Tests for getAttendees function
     describe('getAttendees', () => {
 
-      //Test 1: Return a list of attendees and their deets
-      it('Should return a list of attendees with their details', async () => {
+      //Test 1: Return attendee data
+      it('Should return formatted attendee data', async () => {
         
-        const mockAttendees = [{
-            User: { dataValues: { firstName: 'John', lastName: 'Doe', email: 'john@example.com' } },
-            Itineraries: { dataValues: { ApprovalStatus: 'Approved', TotalCost: 100 } },
-            EventGroup: { dataValues: { name: 'Group A', budget: 1000 } },
-        }];
+        const mockAttendees = [
+          {
+            dataValues: { attendeeID: 1 },
+            User: {
+              dataValues: { firstName: 'John', lastName: 'Doe', email: 'john.doe@example.com' },
+            },
+            Itineraries: {
+              dataValues: { ApprovalStatus: 'approved', TotalCost: 500, DuffelOrderID: 123 },
+            },
+            EventGroup: {
+              dataValues: { name: 'Group A', budget: 1000 },
+            },
+          },
+          {
+            dataValues: { attendeeID: 2 },
+            User: {
+              dataValues: { firstName: 'Jane', lastName: 'Smith', email: 'jane.smith@example.com' },
+            },
+            Itineraries: {
+              dataValues: { ApprovalStatus: 'pending', TotalCost: 300, DuffelOrderID: 456 },
+            },
+            EventGroup: {
+              dataValues: { name: 'Group B', budget: 1500 },
+            },
+          },
+        ];
     
-        
-        Attendee.findAll.mockResolvedValue(mockAttendees);
+        Attendee.findAll.mockResolvedValue(mockAttendees); 
     
-        const result = await eventPlannerViews.getAttendees(1);
+        const eventID = 1; 
+        const result = await getAttendees(eventID);
     
-        expect(result).toEqual([{
-            Name: 'JohnDoe',
-            email: 'john@example.com',
-            Booking: { dataValues: { ApprovalStatus: 'Approved', TotalCost: 100 } }, // Include 'dataValues'
+        expect(Attendee.findAll).toHaveBeenCalledWith({
+          attributes: [["AttendeeID", "attendeeID"]],
+          include: [
+            {
+              model: User,
+              attributes: [
+                ["Email", "email"],
+                ["FName", "firstName"],
+                ["LName", "lastName"],
+              ],
+              required: true,
+            },
+            {
+              model: Itinerary,
+              attributes: [
+                ["ApprovalStatus", "status"],
+                ["TotalCost", "cost"],
+                ["DuffelOrderID", 'orderId'],
+              ],
+            },
+            {
+              model: EventGroup,
+              attributes: [
+                ["Name", "name"],
+                ["FlightBudget", "budget"],
+              ],
+              required: true,
+            },
+          ],
+          where: { EventID: eventID },
+        });
+    
+        expect(result).toEqual([
+          {
+            ID: 1,
+            Name: 'John Doe',
+            email: 'john.doe@example.com',
+            Booking: {
+              dataValues: {
+                ApprovalStatus: 'approved',
+                TotalCost: 500,
+                DuffelOrderID: 123,
+              },
+            },
             groupName: 'Group A',
-            budget: 1000
-        }]);
-    });
+            budget: 1000,
+          },
+          {
+            ID: 2,
+            Name: 'Jane Smith',
+            email: 'jane.smith@example.com',
+            Booking: {
+              dataValues: {
+                ApprovalStatus: 'pending',
+                TotalCost: 300,
+                DuffelOrderID: 456,
+              },
+            },
+            groupName: 'Group B',
+            budget: 1500,
+          },
+        ]);
+      });
 
         //Test 2: Handle empty attendees
         it('Should handle empty attendees', async () => {
@@ -174,89 +262,80 @@ describe('EventPlannerViews', () => {
     //Tests for getAttendeesForApproval
     describe('getAttendeesForApproval', () => {
 
-        //Test 10: Return attendees with pending status
-        it('Should return attendees with pending approval status', async () => {
-         
-            const mockAttendees = [
-              {
-                User: { dataValues: { firstName: 'John', lastName: 'Doe', email: 'john.doe@example.com' } },
-                Itineraries: [
-                  {
-                    dataValues: { ApprovalStatus: 'pending', TotalCost: 100 },
-                  }
-                ],
-                EventGroup: { dataValues: { name: 'Group A', budget: 500 } },
-              },
-              {
-                User: { dataValues: { firstName: 'Jane', lastName: 'Smith', email: 'jane.smith@example.com' } },
-                Itineraries: [
-                  {
-                    dataValues: { ApprovalStatus: 'pending', TotalCost: 200 },
-                  }
-                ],
-                EventGroup: { dataValues: { name: 'Group B', budget: 600 } },
-              },
+        //Test 10: Return attendees for approval
+        it('Should return attendees for approval if they exist', async () => {
+            // Sample data for mock return
+            const mockEventStaff = [
+                {
+                    Event: {
+                        EventID: 1,
+                        EventName: 'Sample Event',
+                        EventStartDate: '2025-05-01',
+                        EventEndDate: '2025-05-05',
+                        Location: 'New York',
+                        EventTotalBudget: 10000,
+                        EventFlightBudget: 2000,
+                        Attendees: [
+                            {
+                                UserID: 1,
+                                User: {
+                                    Email: 'attendee@example.com',
+                                    FName: 'John',
+                                    LName: 'Doe',
+                                },
+                                EventGroup: {
+                                    Name: 'Group A',
+                                    FlightBudget: 500,
+                                },
+                                Itinerary: {
+                                    ItineraryID: 101,
+                                    ApprovalStatus: 'pending',
+                                    TotalCost: 300,
+                                    BaseCost: 250,
+                                    TaxCost: 50,
+                                },
+                                Slice: {
+                                    OriginAirport: 'JFK',
+                                    OriginCity: 'New York',
+                                    OriginIATA: 'JFK',
+                                    DestinationAirport: 'LAX',
+                                    DestinationCity: 'Los Angeles',
+                                    DestinationIATA: 'LAX',
+                                },
+                            },
+                        ],
+                    },
+                },
             ];
-        
-            
-            Attendee.findAll.mockResolvedValue(mockAttendees);
-        
-           
-            const eventID = 1;
-            const attendees = await getAttendeesForApproval(eventID);
-        
-            // Assert
-            expect(attendees).toHaveLength(2); 
-            expect(attendees[0]).toEqual({
-              Name: 'JohnDoe', 
-              email: 'john.doe@example.com',
-              Booking: [
-                {
-                  dataValues: {
-                    ApprovalStatus: 'pending',
-                    TotalCost: 100,
-                  },
-                },
-              ],  
-              groupName: 'Group A',
-              budget: 500,
-            });
-        
-            expect(attendees[1]).toEqual({
-              Name: 'JaneSmith', 
-              email: 'jane.smith@example.com',
-              Booking: [
-                {
-                  dataValues: {
-                    ApprovalStatus: 'pending',
-                    TotalCost: 200,
-                  },
-                },
-              ],  
-              groupName: 'Group B',
-              budget: 600,
-            });
-          });
-      
-        //Test 11: Empty array if no pending
-        it('Should return empty array if no attendees have pending approval', async () => {
-          
-          Attendee.findAll.mockResolvedValue([]);
-      
-          const eventID = 1;
-          const attendees = await getAttendeesForApproval(eventID);
-      
-          expect(attendees).toHaveLength(0);
+    
+            EventStaff.findAll.mockResolvedValue(mockEventStaff);
+    
+            const attendees = await getAttendeesForApproval(1);
+    
+            expect(attendees).toHaveLength(1); 
+            expect(attendees[0].Event.EventID).toBe(1);
+            expect(attendees[0].Event.Attendees[0].User.Email).toBe('attendee@example.com');
+            expect(attendees[0].Event.Attendees[0].Itinerary.ApprovalStatus).toBe('pending');
         });
-      
-        //Test 12: Handle errors
-        it('Should handle errors gracefully', async () => {
+    
+        //Test 11: Empty array if no attendees
+        it('Should return an empty array when no attendees are found', async () => {
          
-          Attendee.findAll.mockRejectedValue(new Error('Database error'));
-      
-          await expect(getAttendeesForApproval(1)).rejects.toThrow('failed to get attendees for event');
+            EventStaff.findAll.mockResolvedValue([]);
+    
+            const attendees = await getAttendeesForApproval(1);
+    
+            expect(attendees).toHaveLength(0); 
         });
-      });
 
+        //Test 12: Error handling
+        it('Should throw an error if there is an issue with the database query', async () => {
+          
+            EventStaff.findAll.mockRejectedValue(new Error('Database error'));
+    
+            await expect(getAttendeesForApproval(1)).rejects.toThrow('failed to get attendees for event');
+        });   
+          
+    });
 
 });

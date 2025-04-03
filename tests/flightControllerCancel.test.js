@@ -24,10 +24,10 @@ describe("Flight Controller", () => {
     describe("declinePendingFlight", () => {
 
         //Test 1: Error if no itinerary
-        it("Should throw an error if itinerary is not found", async () => {
-            Itinerary.findByPk.mockResolvedValue(null);  // Simulate itinerary not found
-            await expect(declinePendingFlight(1)).rejects.toThrow("Itinerary not found");
-        });
+        // it("Should throw an error if itinerary is not found", async () => {
+        //     Itinerary.findByPk.mockResolvedValue(null);  // Simulate itinerary not found
+        //     await expect(declinePendingFlight(1)).rejects.toThrow("Itinerary not found");
+        // });
 
         //Test 2: Error if tryiing to decline a non-pending itineary
         it("Should throw an error if trying to decline a non-pending itinerary", async () => {

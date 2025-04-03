@@ -1,5 +1,5 @@
 const DUFFEL_API_KEY = process.env.DUFFEL_API_KEY;
-const { where } = require("sequelize");
+const {where} = require("sequelize");
 const {Itinerary, Slice, Segment, sequelize, Attendee} = require("../models");
 const {parseDuration} = require("../utils/flightUtils");
 
@@ -141,9 +141,11 @@ exports.holdOffer = async (user_id, event_id, offer_id, passengers) => {
         body = JSON.stringify(body);
 
         //find one  from attendees where user id and event id
-        let attendee = await Attendee.findOne({where: {UserID: user_id, EventID: event_id }});
+        let attendee = await Attendee.findOne({
+            where: {UserID: user_id, EventID: event_id},
+        });
         console.log(attendee);
-        
+
         // assuming attendee exists
 
         // Fetch flight details from Duffel API
@@ -316,7 +318,25 @@ exports.bookFlight = async (orderID) => {
 };
 
 exports.declinePendingFlight = async (itineraryId) => {
-    return cancelOrDeclineFlight(itineraryId, "decline");
+    //return cancelOrDeclineFlight(itineraryId, "decline");
+    try {
+        // Just update itinerary status
+        const itinerary = await Itinerary.findByPk(itineraryId);
+        if (!itinerary) {
+            throw new Error("Could not find itinerary");
+        }
+        console.log("Itinerary in decline pending flight");
+        console.log(itinerary);
+
+        // Update the local itinerary status based on action.
+        itinerary.ApprovalStatus = "denied";
+        itinerary.cancelledAt = new Date();
+
+        return await itinerary.save();
+    } catch (error) {
+        console.error("Error in decline flight - controller: " + error);
+        throw new Error("Only pending itineraries can be declined");
+    }
 };
 
 exports.cancelApprovedFlight = async (itineraryId) => {
@@ -341,21 +361,21 @@ async function cancelOrDeclineFlight(itineraryId, action) {
     if (!itinerary.DuffelOrderID) {
         throw new Error("No Duffel order associated with this itinerary");
     }
-    
+
     // Communicate with Duffel using our multi-step cancellation flow.
     const reason =
-    action === "decline"
-    ? "Declined by event planner"
-    : "Cancelled by event planner";
+        action === "decline"
+            ? "Declined by event planner"
+            : "Cancelled by event planner";
     const duffelCancellation = await cancelOrder(
         itinerary.DuffelOrderID,
         reason
     );
-    
+
     if (!duffelCancellation) {
         throw new Error("Could not cancel itinerary");
     }
-    
+
     // Update the local itinerary status based on action.
     itinerary.ApprovalStatus = "denied";
     itinerary.cancelledAt = new Date();
@@ -382,11 +402,15 @@ async function cancelOrder(orderId, reason) {
         body: createPayload,
     });
 
+    console.log("createResponse=======");
+    console.log(createResponse);
+
     if (!createResponse.ok) {
         let errorDetail = createResponse.statusText;
         try {
             const errorData = await createResponse.json();
-            errorDetail = errorData.error || errorDetail;
+            errorDetail = errorData.errors || errorDetail;
+            console.log(errorData);
         } catch (e) {}
         throw new Error(
             `Duffel cancellation quote request failed: ${errorDetail}`

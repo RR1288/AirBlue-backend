@@ -1,4 +1,7 @@
-const { getAttendees, getEventStaffByRole, updateEvent } = require("../controllers/eventController");
+//eventController.test.js
+
+//Set up the constants
+const { getAttendees, getEventStaffByRole, setEventBudget } = require("../controllers/eventController");
 const { User, Event, EventStaff, Attendee, Sequelize } = require("../models");
 
 jest.mock("../models", () => ({
@@ -7,6 +10,7 @@ jest.mock("../models", () => ({
   },
   Event: {
     findAll: jest.fn(),
+    findByPk: jest.fn(),
   },
   EventStaff: {
     findAll: jest.fn(),
@@ -116,81 +120,49 @@ describe("eventController", () => {
     });
   });
 
-  describe('updateEvent', () => {
-    let mockEvent;
+  //Tests for setEventBudget
+  describe('setEventBudget', () => {
+    let eventData;
 
     beforeEach(() => {
-      mockEvent = {
-        EventID: 1,
-        EventName: 'Original Event Name',
-        EventDescription: 'Original Description',
-        update: jest.fn(),
-      };
+        eventData = {
+            EventID: 1,
+            EventTotalBudget: 10000,
+            EventFlightBudget: 2000,
+            FlightBudgetThreshold: 0.5 // Threshold as a decimal (e.g., 0.5 = 50%)
+        };
     });
 
-    /* 
-    Commenting this test our for now. Works irl but testing it is funky
-
-    it('should update event successfully', async () => {
-      // Arrange: mock Event.findByPk to return the mockEvent object
-      Event.findByPk = jest.fn().mockResolvedValue(mockEvent);
+    //Test 5: Successfully update budget
+    it('Should successfully update event budget when event exists', async () => {
     
-      // Arrange: define updates
-      const updates = {
-        EventName: 'Updated Event Name',
-        EventDescription: 'Updated Description',
+      const mockEvent = {
+          update: jest.fn().mockResolvedValue(true), 
+          EventID: 1,
+          EventFlightBudget: 2000
       };
 
-      // Mock the update method to simulate the event being updated
-      mockEvent.update.mockResolvedValue({
-        EventID: mockEvent.EventID, // Ensure the ID stays the same
-        EventName: 'Updated Event Name', // Updated name
-        EventDescription: 'Updated Description', // Updated description
-        update: mockEvent.update, // Keep the update method intact
-      });
+      Event.findByPk = jest.fn().mockResolvedValue(mockEvent);
 
-      // Act: call the updateEvent function
-      const result = await updateEvent(1, updates); // passing eventID as 1 for example
-    
-      // Assert: verify the event was updated correctly
+      const result = await setEventBudget(1, 10000, 2000, 0.5);
+
+      expect(result).toBe(true);
       expect(Event.findByPk).toHaveBeenCalledWith(1);
-      expect(mockEvent.update).toHaveBeenCalledWith(updates);
-
-      // Make sure the result returned has the updated properties
-      expect(result).toEqual({
-        EventID: 1,
-        EventName: 'Updated Event Name',
-        EventDescription: 'Updated Description',
-        update: expect.any(Function),
+      expect(mockEvent.update).toHaveBeenCalledWith({
+          EventTotalBudget: 10000,
+          EventFlightBudget: 2000,
+          FlightBudgetThreshold: 0.5
       });
-    });
-    */
-    
-    //Test 5: Error if event not found
-    it('Should throw an error if event is not found', async () => {
-      Event.findByPk = jest.fn().mockResolvedValue(null);
-
-      const updates = {
-        EventName: 'Updated Event Name',
-        EventDescription: 'Updated Description',
-      };
-
-      await expect(updateEvent(999, updates)).rejects.toThrow('Failed to update event');
-    });
-
-    //Test 6: Error if update fails
-    it('Should throw an error if update fails', async () => {
-      Event.findByPk = jest.fn().mockResolvedValue(mockEvent);
-
-      const updates = {
-        EventName: 'Updated Event Name',
-        EventDescription: 'Updated Description',
-      };
-
-      mockEvent.update.mockRejectedValue(new Error('Update failed'));
-
-      await expect(updateEvent(1, updates)).rejects.toThrow('Failed to update event');
-    });
   });
 
+    //Test 6: Handle errors
+    it('Should handle errors when updating event budget', async () => {
+
+        Event.findByPk = jest.fn().mockResolvedValue({
+            update: jest.fn().mockRejectedValue(new Error('Database Error'))
+        });
+
+        await expect(setEventBudget(1, 10000, 2000, 0.5)).rejects.toThrow('failed to add budget');
+    });
+});
 });
