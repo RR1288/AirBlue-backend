@@ -36,7 +36,7 @@ exports.createEventGroup = async (eventID, name, budget) => {
         const eventGroup = await EventGroup.create({
             Name: name,
             EventID: eventID,
-            flightBudget: budget
+            FlightBudget: budget
         });
         return
     } catch (error) {
