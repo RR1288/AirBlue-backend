@@ -252,3 +252,22 @@ exports.updateEvent = async (eventID, updates) => {
     }
 };
 
+exports.updateEventGroup = async (eventGroupID, updates) => {
+    try {
+        // Find the event group to update
+        const eventGroup = await EventGroup.findByPk(eventGroupID);
+        if (!eventGroup) {
+            throw new Error("Event Group not found");
+        }
+
+        // Update the event group with the provided attributes
+        await eventGroup.update(updates);
+
+        return eventGroup; // Return the updated event group
+    } catch (error) {
+        console.error(error);
+        throw new Error("Failed to update event group");
+    }
+};
+
+
