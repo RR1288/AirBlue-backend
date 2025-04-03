@@ -1,5 +1,6 @@
 const { User, Organization, Event, EventGroup, EventStaff, Attendee, EventTypes, OrganizationEventType, DefaultEventType, sequelize, Sequelize, Invitation } = require("../models");
 const { Op } = require("sequelize");
+const eventBudgetAuditLog = require("../models/eventBudgetAuditLog");
 
 /*
 CREATE EVENT
@@ -184,9 +185,14 @@ exports.getEventByOrganization = async (organizationId) => {
     }
 }
 
-exports.setEventBudget = async (eventID, totalBudget, flightBudget, thresholdVal) => {
+exports.setEventBudget = async (eventID, userID, totalBudget, flightBudget, thresholdVal) => {
     try {
-        let event = await Event.findByPk(eventID);
+        await sequelize.transaction(async (t) => {
+        let event = await Event.findByPk(eventID, {transaction: t});
+        //getting initial values
+        let OriginalTotalBudget = Event.EventTotalBudget;
+        let OriginalEventFlightBudget = Event.EventTotalBudget;
+        let OriginalFlightBudgetThreshold = Event.EventTotalBudget;
         if (!event) {
             throw new Error("event does not exist");
         }
@@ -195,6 +201,42 @@ exports.setEventBudget = async (eventID, totalBudget, flightBudget, thresholdVal
             EventTotalBudget: totalBudget,
             EventFlightBudget: flightBudget, 
             FlightBudgetThreshold: thresholdVal
+        },
+        {transaction: t}
+        );
+
+        //creating audit logs
+        //TODO: work this section into a trigger function
+        //adding audit log for Total budget
+        await eventBudgetAuditLog.create({
+            UserID: userID,
+            EventID: eventID,
+            ColumnName: 'EventTotalBudget',
+            CurrentValue: totalBudget,
+            PreviousValue: OriginalTotalBudget
+        },
+        {transaction: t}
+        );
+        //adding audit log for flight budget
+        await eventBudgetAuditLog.create({
+            UserID: userID,
+            EventID: eventID,
+            ColumnName: 'EventFlightBudget',
+            CurrentValue: flightBudget,
+            PreviousValue: OriginalEventFlightBudget
+        },
+        {transaction: t}
+        );
+        //adding audit log for threshold
+        await eventBudgetAuditLog.create({
+            UserID: userID,
+            EventID: eventID,
+            ColumnName: 'FlightBudgetThreshold',
+            CurrentValue: thresholdVal,
+            PreviousValue: OriginalFlightBudgetThreshold,
+        },
+        {transaction: t}
+        );
         });
         return true;
     } catch (error) {
