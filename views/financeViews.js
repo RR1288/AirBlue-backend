@@ -1,4 +1,4 @@
-const {Itinerary, Event, EventStaff, Sequelize} = require("../models");
+const {Itinerary, Event, EventStaff, Sequelize, EventBudgetAuditLog, User} = require("../models");
 const EventController = require("../controllers/eventController");
 const { Op } = require("sequelize");
 
@@ -96,6 +96,43 @@ exports.getJoinableEventsFinance = async(organizationId) =>{
     }
 };
 
-//helpers
+/**
+ * This function is used to get the history from the audit logs for event budget and see who edited things and when
+ */
+exports.getBudgetLogs = async (eventID) => {
+    try {
+        let logs = await EventBudgetAuditLog.findAll({
+            attributes: [
+                ['ColumnName', 'chgCol'],
+                ['CurrentValue', 'new'],
+                ['previousValue', 'original'],
+                ['createdAt', 'dateEdited']
+            ],
+            include: [
+                {
+                    model: User,
+                    required: true,
+                    attributes: [['Email', 'user']]
+
+                }
+            ],
+            where: {EventID: eventID}
+        });
+        let results = [];
+        for (let i = 0 ; i < logs.length; i++){
+            results.push({
+                editor: logs[0].User.dataValues.user,
+                changedItem: logs[0].dataValues.chgCol,
+                newValue: logs[0].dataValues.new,
+                priorValue: logs[0].dataValues.original,
+                dateEdited: logs[0].dataValues.dateEdited,
+            });
+        }
+
+        return results;
+    } catch (error) {
+        throw new Error("failed to get BudgetHistory");
+    }
+};
 
 
