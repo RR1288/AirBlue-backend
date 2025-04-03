@@ -334,7 +334,8 @@ exports.declinePendingFlight = async (itineraryId) => {
 
         return await itinerary.save();
     } catch (error) {
-        throw new Error("Error in decline flight - controller: " + error);
+        console.error("Error in decline flight - controller: " + error);
+        throw new Error("Only pending itineraries can be declined");
     }
 };
 
