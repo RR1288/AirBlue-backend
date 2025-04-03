@@ -39,9 +39,8 @@ describe('flightController', () => {
         //Test 2 Error if network error
         it('Should throw an error when there is a network error', async () => {
             fetch.mockRejectedValueOnce(new Error('Network error'));
-
             await expect(fetchFlight('123')).rejects.toThrow('Error fetching offer');
-        });
+        }, 500);
     });
 
     // // Tests for bookOfferOrHold function
