@@ -234,3 +234,22 @@ exports.addToEventStaff = async (userID, eventID, role) => {
     }
 
 };
+
+exports.updateEvent = async (eventID, updates) => {
+    try {
+        // Find the event to update
+        const event = await Event.findByPk(eventID);
+        if (!event) {
+            throw new Error("Event not found");
+        }
+
+        // Update the event with the provided attributes
+        await event.update(updates);
+
+        return event; // Return the updated event
+    } catch (error) {
+        console.error(error);
+        throw new Error("Failed to update event");
+    }
+};
+

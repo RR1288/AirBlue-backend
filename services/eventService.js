@@ -230,3 +230,64 @@ exports.acceptInvitation = async (req, res) => {
         return sendError(res, "Internal server error", 500);
     }
 };
+
+exports.updateEvent = async (req, res) => {
+    try {
+        let { eventID, EventName, startDate, endDate, description, location, maxAttendees } = req.body;
+
+        // Validate required fields (we assume eventID is required for updating)
+        if (!eventID) return sendError(res, "Event ID is required", 400);
+
+        // Initialize an empty object to hold the updates
+        const updates = {};
+
+        // Validate and sanitize eventName
+        if (EventName) {
+            EventName = sanitizeEventName(EventName);
+            if (EventName === null) return sendError(res, "Invalid event name", 400);
+            updates.EventName = EventName;
+        }
+
+        // Validate and sanitize startDate and endDate
+        if (startDate) {
+            startDate = sanitizeDate(startDate);
+            if (startDate === null) return sendError(res, "Invalid start date", 400);
+            updates.EventStartDate = startDate;
+        }
+
+        if (endDate) {
+            endDate = sanitizeDate(endDate);
+            if (endDate === null) return sendError(res, "Invalid end date", 400);
+            updates.EventEndDate = endDate;
+        }
+
+        // Validate and sanitize location
+        if (location) {
+            location = sanitizeLocation(location);
+            if (location === null) return sendError(res, "Invalid location", 400);
+            updates.Location = location;
+        }
+
+        // Validate and sanitize description (optional)
+        if (description) {
+            description = sanitizeEventDescription(description);
+            if (description === null) return sendError(res, "Invalid description", 400);
+            updates.EventDescription = description;
+        }
+
+        // Validate maxAttendees (optional)
+        if (maxAttendees !== undefined) {
+            if (typeof(maxAttendees) !== "number" || maxAttendees < 0) return sendError(res, "Invalid value for max attendees", 400);
+            updates.MaxAttendees = maxAttendees;
+        }
+
+        // Call the controller to update the event
+        const updatedEvent = await EventController.updateEvent(eventID, updates);
+
+        return sendSuccess(res, "Event updated successfully", updatedEvent);
+    } catch (err) {
+        console.error(err);
+        return sendError(res, "Server error, unable to update event", 500);
+    }
+};
+
