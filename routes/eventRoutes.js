@@ -97,7 +97,7 @@ router.post('/create-event', protect, authorizedRoles(Roles.PLANNER), checkOrgan
  *                 example: 0.10
  *               
  *     responses:
- *       201:
+ *       200:
  *         description: user successfully created
  *       400:
  *         description: Bad request invalid input

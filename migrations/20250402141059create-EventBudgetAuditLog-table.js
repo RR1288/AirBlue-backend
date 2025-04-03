@@ -2,7 +2,7 @@
 
 module.exports = {
     up: async (queryInterface, Sequelize) => {
-        await queryInterface.createTable("EventBudgetAuditLog", {
+        await queryInterface.createTable("EventBudgetAuditLogs", {
             ID: {
                 type: Sequelize.BIGINT,
                 autoIncrement: true,
@@ -46,6 +46,6 @@ module.exports = {
     },
 
     down: async (queryInterface) => {
-        await queryInterface.dropTable("EventBudgetAuditLog");
+        await queryInterface.dropTable("EventBudgetAuditLogs");
     },
 };

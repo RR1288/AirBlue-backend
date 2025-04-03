@@ -1,6 +1,5 @@
-const { User, Organization, Event, EventGroup, EventStaff, Attendee, EventTypes, OrganizationEventType, DefaultEventType, sequelize, Sequelize, Invitation } = require("../models");
+const { User, Organization, Event, EventGroup, EventStaff, Attendee, EventTypes, OrganizationEventType, DefaultEventType, sequelize, Sequelize, Invitation, EventBudgetAuditLog } = require("../models");
 const { Op } = require("sequelize");
-const eventBudgetAuditLog = require("../models/eventBudgetAuditLog");
 
 /*
 CREATE EVENT
@@ -208,7 +207,7 @@ exports.setEventBudget = async (eventID, userID, totalBudget, flightBudget, thre
         //creating audit logs
         //TODO: work this section into a trigger function
         //adding audit log for Total budget
-        await eventBudgetAuditLog.create({
+        await EventBudgetAuditLog.create({
             UserID: userID,
             EventID: eventID,
             ColumnName: 'EventTotalBudget',
@@ -218,7 +217,7 @@ exports.setEventBudget = async (eventID, userID, totalBudget, flightBudget, thre
         {transaction: t}
         );
         //adding audit log for flight budget
-        await eventBudgetAuditLog.create({
+        await EventBudgetAuditLog.create({
             UserID: userID,
             EventID: eventID,
             ColumnName: 'EventFlightBudget',
@@ -228,7 +227,7 @@ exports.setEventBudget = async (eventID, userID, totalBudget, flightBudget, thre
         {transaction: t}
         );
         //adding audit log for threshold
-        await eventBudgetAuditLog.create({
+        await EventBudgetAuditLog.create({
             UserID: userID,
             EventID: eventID,
             ColumnName: 'FlightBudgetThreshold',
@@ -240,6 +239,7 @@ exports.setEventBudget = async (eventID, userID, totalBudget, flightBudget, thre
         });
         return true;
     } catch (error) {
+        console.log(error);
         throw new Error("failed to add budget");
     }
 

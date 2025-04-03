@@ -16,7 +16,7 @@ module.exports = (sequelize, DataTypes) => {
             references: {model: "Events", key: "EventID"},
         },
         ColumnName:{
-            type: Sequelize.ENUM('EventTotalBudget', 'EventFlightBudget', 'FlightBudgetThreshold'),
+            type: DataTypes.ENUM('EventTotalBudget', 'EventFlightBudget', 'FlightBudgetThreshold'),
         },
         CurrentValue: {
             type: DataTypes.DECIMAL(14,2), 
@@ -32,10 +32,10 @@ module.exports = (sequelize, DataTypes) => {
         paranoid: true
     });
 
-    Attendee.associate = function (models) {
+    EventBudgetAuditLog.associate = function (models) {
         EventBudgetAuditLog.belongsTo(models.User, {foreignKey: "UserID"});
         EventBudgetAuditLog.belongsTo(models.Event, {foreignKey: "EventID"});
     };
 
-    return Attendee;
+    return EventBudgetAuditLog;
 };
