@@ -2,10 +2,10 @@
 
 //Set up constants
 const { fetchFlight } = require('../controllers/flightController'); 
-const fetch = require('node-fetch');
 
 //Mock what we need
 jest.mock('node-fetch'); // Mock the fetch function
+const fetch = require('node-fetch');
 
 //Most of these tests are just for error catching as the success ones are in the service file
 
@@ -40,7 +40,7 @@ describe('flightController', () => {
         it('Should throw an error when there is a network error', async () => {
             fetch.mockRejectedValueOnce(new Error('Network error'));
             await expect(fetchFlight('123')).rejects.toThrow('Error fetching offer');
-        }, 500);
+        });
     });
 
     // // Tests for bookOfferOrHold function
