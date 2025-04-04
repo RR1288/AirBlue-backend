@@ -645,7 +645,38 @@ router.patch("/update-event-group",
   EventService.updateEventGroup
 );
 
-  
-
+/**
+ * @swagger
+ * /events/delete-event:
+ *   delete:
+ *     summary: Delete an event
+ *     description: Delete an event along with its associated attendees, staff, groups, and invitations. Event ID is provided in the body.
+ *     tags:
+ *       - Events
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               eventID:
+ *                 type: integer
+ *                 example: 1
+ *     responses:
+ *       200:
+ *         description: Event deleted successfully.
+ *       400:
+ *         description: Bad request – Invalid event ID.
+ *       404:
+ *         description: Event not found.
+ *       500:
+ *         description: Internal server error.
+ */
+router.delete("/delete-event", 
+  protect, 
+  authorizedRoles(Roles.PLANNER), 
+  checkOrganizationUser, 
+  EventService.deleteEvent);
 
 module.exports = router;

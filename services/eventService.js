@@ -321,3 +321,29 @@ exports.updateEventGroup = async (req, res) => {
     }
 };
 
+exports.deleteEvent = async (req, res) => {
+    try {
+        const { eventID } = req.body;
+
+        // Validate event ID
+        if (!eventID) {
+            return sendError(res, "Event ID is required", 400);
+        }
+
+        if (!validateEventID(eventID)) {
+            return sendError(res, "Invalid event ID", 400);
+        }
+
+        // Call the deleteEvent function from eventController
+        const result = await EventController.deleteEvent(eventID);
+        
+        if (result) {
+            return sendSuccess(res, "Event deleted successfully");
+        } else {
+            return sendError(res, "Failed to delete event", 500);
+        }
+    } catch (error) {
+        console.error(error);
+        return sendError(res, "Server error", 500);
+    }
+};
