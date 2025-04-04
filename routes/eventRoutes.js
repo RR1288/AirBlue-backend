@@ -7,7 +7,7 @@ const { checkOrganizationUser, checkUserInOrganization} = require("../middleware
 const {  createEvent, getAvailableEventTypes, } = require("../services/eventService.js");
 const EventService = require("../services/eventService");
 const EventPlannerService = require("../services/eventPlannerService.js");
-const { setEventBudget, getAllEventsFinance } = require("../services/financeService.js");
+const { setEventBudget, getAllEventsFinance, getEventBudgetLogs } = require("../services/financeService.js");
 const { InEventStaffFinance,  InEventStaffPlanner, checkEventOrganization , hasFinancePlanner, hasBudget} = require("../middleware/eventMiddleware.js");
 
 /**
@@ -522,6 +522,36 @@ router.get(
     EventPlannerService.getInvitees
 );
 
+/**
+ * @swagger
+ * /events/financeAuditLogs/{eventID}:
+ *   get:
+ *     summary: get all of the audit logs to track changes made to event budget
+ *     description: |
+ *       Returns a list of all the 
+ *     tags:
+ *       - Events
+ *     parameters:
+ *       - in: path
+ *         name: eventID
+ *         required: true
+ *         description: The ID of the event.
+ *         schema:
+ *           type: integer
+ *     responses:
+ *       200:
+ *         description: a list of changes made to the event budget.
+ *       400:
+ *         description: Bad request – missing event ID.
+ *       500:
+ *         description: Internal server error.
+ */
+router.get(
+    "/financeAuditLogs/:eventID",
+    protect,
+    authorizedRoles(Roles.FINANCE),
+    getEventBudgetLogs
+);
 /**
  * @swagger
  * /events/invitations/accept:

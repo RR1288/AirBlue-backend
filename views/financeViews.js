@@ -105,7 +105,7 @@ exports.getBudgetLogs = async (eventID) => {
             attributes: [
                 ['ColumnName', 'chgCol'],
                 ['CurrentValue', 'new'],
-                ['previousValue', 'original'],
+                ['PreviousValue', 'original'],
                 ['createdAt', 'dateEdited']
             ],
             include: [
