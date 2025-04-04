@@ -4,7 +4,6 @@ const organizationControllor = require('../controllers/organizationControllor');
 const {validateOrganizationID, sanitizeOrganizationName, sanitizeOrganizationDescription} = require('../utils/OrganizationSanitization');
 const {validateUserID} = require('../utils/UserSanitizations');
 
-
 exports.createOrganization = async (req, res) => {
     try {
         let requesterId = req.user.id;
@@ -86,6 +85,36 @@ exports.updateOrganization = async (req, res) => {
         return sendError(res, 'Failed to update organization', 500);
     }
 };
+
+
+
+// The service function to validate and add a role to a user's organization
+exports.addRoleUserOrganization = async (req, res) => {
+    try {
+        const { userId, role } = req.body; // Get the userId and role from the request body
+
+        // Validate the userId
+        if (!(await validateUserID(userId))) return sendError(res, 'Invalid userId', 400);
+
+        // Validate the role (it should be one of A, F, or E)
+        if (!['A', 'F', 'E'].includes(role)) {
+            return sendError(res, 'Invalid role. Allowed roles are A, F, or E', 400);
+        }
+
+        // Call the controller function to append the role to the user's organization
+        const success = await organizationControllor.appendRoleUserOrganization(userId, role);
+
+        if (!success) {
+            return sendError(res, 'Failed to append role to user organization', 400);
+        }
+
+        return sendSuccess(res, 'Successfully added role to user organization');
+    } catch (error) {
+        console.error(error);
+        return sendError(res, 'Failed to add role to user organization', 500);
+    }
+};
+
 
 
 

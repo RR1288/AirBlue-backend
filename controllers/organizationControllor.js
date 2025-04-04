@@ -1,4 +1,4 @@
-const { Organization, UserOrganization,Sequelize, sequelize } = require("../models");
+const { Organization, UserOrganization, Sequelize, sequelize } = require("../models");
 
 
 /*
@@ -86,3 +86,44 @@ exports.updateOrganization = async (userId, updates) => {
         throw new Error('Failed to update organization');
     }
 };
+
+
+
+exports.appendRoleUserOrganization = async (userId, role) => {
+    try {
+        // Start transaction
+        await sequelize.transaction(async (t) => {
+            // Step 1: Find the UserOrganization record for the given userId
+            const userOrganization = await UserOrganization.findOne({
+                where: { UserID: userId, StillActive: true },
+                transaction: t,
+            });
+
+            if (!userOrganization) {
+                throw new Error('User is not associated with any active organization');
+            }
+
+            // Step 2: Ensure that the user does not already have the role
+            if (userOrganization.Roles.includes(role)) {
+                throw new Error(`User already has the role: ${role}`);
+            }
+
+            // Step 3: Append the new role to the user's current roles
+            const updatedRoles = userOrganization.Roles += role;
+            userOrganization.Roles = updatedRoles;
+
+            // Step 4: Save the updated userOrganization record
+            await userOrganization.save({ transaction: t });
+
+            // Return the updated roles as part of the response
+            return { roles: userOrganization.Roles }; 
+
+        });
+
+        return true; 
+    } catch (error) {
+        console.error(error);
+        throw new Error('Failed to append role to user organization');
+    }
+};
+

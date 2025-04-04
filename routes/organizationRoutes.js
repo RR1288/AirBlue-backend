@@ -1,6 +1,6 @@
 const express = require("express");
 const router = express.Router();
-const {getOrganizationInfo, getOrganizationUsers, createOrganization, updateOrganization}= require("../services/organizationService.js");
+const {getOrganizationInfo, getOrganizationUsers, createOrganization, updateOrganization, addRoleUserOrganization} = require("../services/organizationService.js");
 const {authorizedRoles} = require("../middleware/roleMiddleware.js");
 const {Roles} = require("../utils/Roles.js");
 const {protect} = require("../middleware/authMiddleware.js");
@@ -112,6 +112,42 @@ router.get('/getOrganizationInfo', protect, getOrganizationInfo);
  */
 router.patch("/updateOrganization", protect, updateOrganization);
 
+/**
+ * @swagger
+ * /organizations/addRoleUserOrganization:
+ *   patch:
+ *     summary: Add a role to a user's organization
+ *     description: This endpoint allows an admin or authorized user to add a specific role (A, F, or E) to a user in an organization.
+ *     tags:
+ *       - Organizations
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - userId
+ *               - role
+ *             properties:
+ *               userId:
+ *                 type: integer
+ *                 example: 2
+ *               role:
+ *                 type: string
+ *                 enum: [A, F, E]
+ *                 example: A
+ *     responses:
+ *       200:
+ *         description: Role successfully added to user organization
+ *       400:
+ *         description: Invalid request data or userId not valid
+ *       404:
+ *         description: User or organization not found
+ *       500:
+ *         description: Internal server error
+ */
+router.patch("/addRoleUserOrganization", protect, authorizedRoles(Roles.ADMIN), addRoleUserOrganization);
 
 
 
