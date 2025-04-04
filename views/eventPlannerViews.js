@@ -243,6 +243,9 @@ exports.getEventsPlanner = async (organizationId, userId) => {
                         RoleID: {[Sequelize.Op.like]: `%E%`},
                     },
                 },
+                {
+                    model: EventGroup
+                }
             ],
             where: {OrganizationID: organizationId},
         });
