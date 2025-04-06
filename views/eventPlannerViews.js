@@ -273,7 +273,7 @@ exports.getEventReportPlanner = async (eventID) => {
             attributes: ['EventTotalBudget','budget'],
             where: {EventID: eventID}
         });
-        const totalSpent = await Itinerary.sum('TotalCost', {
+        let totalSpent = await Itinerary.sum('TotalCost', {
             where: { EventID: eventID }
         });
         //create object for return
