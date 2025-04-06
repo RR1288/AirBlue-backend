@@ -1,20 +1,24 @@
 //financeViews.test.js
 
 //Set up constants
-const { getEventsFinance, getJoinableEventsFinance } = require('../views/financeViews'); 
-const { Event, EventStaff, Sequelize } = require("../models");
+const { getEventsFinance, getJoinableEventsFinance, getEventFlightReport } = require('../views/financeViews'); 
+const { Event, EventStaff, Sequelize, Itinerary } = require("../models");
 const EventController = require("../controllers/eventController");
 
 //Mock it up
 jest.mock('../models', () => ({
   Event: {
     findAll: jest.fn(),
+    findOne: jest.fn(),
   },
   EventStaff: {},
   Sequelize: {
     Op: {
       like: jest.fn(),
     },
+  },
+  Itinerary: {
+    sum: jest.fn(), 
   },
 }));
 
@@ -144,4 +148,70 @@ describe('financeView', () => {
       await expect(getJoinableEventsFinance(1)).rejects.toThrow('failed to get events');
     });
   });
+
+   // Test cases for getEventFlightReport function
+   describe('getEventFlightReport', () => {
+
+    //Test 7: Return correct flight report
+    it('Should return correct flight report with total spent and budget', async () => {
+      const eventID = 1;
+      const mockTotalSpent = 5000;
+      const mockBudget = 10000;
+
+      Event.findOne.mockResolvedValue({
+        dataValues: {
+          budget: mockBudget,
+        },
+      });
+
+      Itinerary.sum.mockResolvedValue(mockTotalSpent);
+
+      const result = await getEventFlightReport(eventID);
+
+      expect(result).toEqual([mockTotalSpent, { dataValues: { budget: mockBudget } }]);
+    });
+
+    //Test 8: Return 0 if no itineraries are approved
+    it('Should return zero for total spent when no itineraries are approved', async () => {
+      const eventID = 1;
+      const mockBudget = 10000;
+
+      Event.findOne.mockResolvedValue({
+        dataValues: {
+          budget: mockBudget,
+        },
+      });
+
+      Itinerary.sum.mockResolvedValue(0);
+
+      const result = await getEventFlightReport(eventID);
+
+      expect(result).toEqual([0, { dataValues: { budget: mockBudget } }]);
+    });
+
+    //Test 9: Error if findOne fails
+    it('Should throw an error if Event.findOne fails', async () => {
+      const eventID = 1;
+
+      Event.findOne.mockRejectedValue(new Error('Database error'));
+
+      await expect(getEventFlightReport(eventID)).rejects.toThrow('failed to get the flight reports');
+    });
+
+    //Test 10: Error if Itinerary math fails
+    it('Should throw an error if Itinerary.sum fails', async () => {
+      const eventID = 1;
+
+      Event.findOne.mockResolvedValue({
+        dataValues: {
+          budget: 10000,
+        },
+      });
+
+      Itinerary.sum.mockRejectedValue(new Error('Database error'));
+
+      await expect(getEventFlightReport(eventID)).rejects.toThrow('failed to get the flight reports');
+    });
+  });
+
 });
