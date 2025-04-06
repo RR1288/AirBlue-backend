@@ -91,6 +91,7 @@ exports.getEventReportPlanner = async (req, res) => {
         if(!report) return sendError(res, 'failed to get report', 400);
         return sendSuccess(res, 'successfully got event report', report);
     } catch (error) {
+        console.log(error);
         return sendError(res, 'failed to get report');
     }
 };

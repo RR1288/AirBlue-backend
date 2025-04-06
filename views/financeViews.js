@@ -127,7 +127,7 @@ exports.getEventFlightReport = async (eventID) => {
             where: { EventID: eventID }
         });
         const totalSpent = await Itinerary.sum('TotalCost', {
-            where: { EventID: eventID }
+            where: { EventID: eventID,ApprovalStatus: 'approved' }
         });
         let results = [totalSpent, costs];
         //return results

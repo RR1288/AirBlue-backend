@@ -270,22 +270,23 @@ exports.getEventReportPlanner = async (eventID) => {
         let approvedAttendees = await Itinerary.count({where: {EventID: eventID, ApprovalStatus: 'approved'}});
         //get budget information
         let totalBudget = await Event.findOne({
-            attributes: ['EventTotalBudget','budget'],
+            attributes: [['EventTotalBudget','budget']],
             where: {EventID: eventID}
         });
         let totalSpent = await Itinerary.sum('TotalCost', {
-            where: { EventID: eventID }
+            where: { EventID: eventID, ApprovalStatus: 'approved'}
         });
         //create object for return
         let results = {
             'TotalAttendees': totalAttendees,
             'ApprovedAttendees': approvedAttendees,
-            'TotalBudget': totalBudget,
+            'TotalBudget': totalBudget.dataValues.budget,
             'TotalSpent': totalSpent
         };
         return results;
     
     } catch (error) {
+        console.log(error);
         throw new Error('failed to get report');
     }
 }
