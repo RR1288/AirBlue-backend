@@ -162,7 +162,7 @@ exports.deleteOrganization = async (userId) => {
                 { where: { OrganizationID: organization.OrganizationID }, transaction: t }
             );
 
-            // Optional Step 6: Destroy events attached to the organization (if needed)
+            // Optional Step 6: Destroy events attached to the organization (if we want)
             // await Event.destroy({ where: { OrganizationID: organization.OrganizationID }, transaction: t });
 
             return true; // Success
@@ -171,6 +171,7 @@ exports.deleteOrganization = async (userId) => {
         return result; // Return true if the transaction completes successfully
     } catch (error) {
         console.error(error);
-        throw new Error('Failed to delete organization');
+        throw error;  // Re-throw the original error, preserving the specific message
     }
 };
+
