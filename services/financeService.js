@@ -61,3 +61,18 @@ exports.getAllEventsFinance = async (req, res) => {
         return sendError(res, 'failed to get events', 400);
     }
 };
+
+exports.getEventBudgetReport = async (req, res) => {
+    try {
+       //get eventID from function call
+       let {eventID} = req.params;
+       //validation
+        if (!(await validateEventID(eventID))) return sendError(res, 'invalid eventID', 400);
+       //run function
+       let report = await FinanceViews.getEventFlightReport(eventID);
+       if (!report) return sendError(res, 'failed to get budget report', 400);
+       return report;
+    } catch (error) {
+        return sendError(res, 'failed to get budget report');
+    }
+}
