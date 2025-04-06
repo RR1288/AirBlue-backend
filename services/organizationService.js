@@ -116,5 +116,22 @@ exports.addRoleUserOrganization = async (req, res) => {
 };
 
 
+exports.deleteOrganization = async (req, res) => {
+    try {
+        const userId = req.user.id;  // Get the userId from the authenticated user
+
+        const result = await organizationControllor.deleteOrganization(userId); 
+
+        if (result) {
+            return sendSuccess(res, 'Organization successfully deleted');
+        } else {
+            return sendError(res, 'Failed to delete organization', 400);
+        }
+    } catch (error) {
+        console.error(error);
+        return sendError(res, 'Failed to delete organization', 500);
+    }
+};
 
 
+  

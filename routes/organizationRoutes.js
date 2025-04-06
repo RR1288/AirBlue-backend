@@ -1,10 +1,10 @@
 const express = require("express");
 const router = express.Router();
-const {getOrganizationInfo, getOrganizationUsers, createOrganization, updateOrganization, addRoleUserOrganization} = require("../services/organizationService.js");
+const {getOrganizationInfo, getOrganizationUsers, createOrganization, updateOrganization, addRoleUserOrganization, deleteOrganization} = require("../services/organizationService.js");
 const {authorizedRoles} = require("../middleware/roleMiddleware.js");
 const {Roles} = require("../utils/Roles.js");
 const {protect} = require("../middleware/authMiddleware.js");
-const { checkUserNotInOrganizaiton } = require("../middleware/organizationMiddleware.js");
+const { checkUserNotInOrganizaiton, checkUserInOrganization} = require("../middleware/organizationMiddleware.js");
 
 
 /**
@@ -149,6 +149,23 @@ router.patch("/updateOrganization", protect, updateOrganization);
  */
 router.patch("/addRoleUserOrganization", protect, authorizedRoles(Roles.ADMIN), addRoleUserOrganization);
 
+/**
+ * @swagger
+ * /organizations/deleteOrganization:
+ *   delete:
+ *     summary: Deletes the organization that the user is currently part of
+ *     description: This endpoint deletes the organization that the authenticated user is a part of.
+ *     tags:
+ *       - Organizations
+ *     responses:
+ *       200:
+ *         description: Organization successfully deleted
+ *       400:
+ *         description: User is not associated with any active organization
+ *       500:
+ *         description: Internal server error
+ */
+router.delete('/deleteOrganization', protect, authorizedRoles(Roles.ADMIN), deleteOrganization);
 
 
 module.exports = router;
