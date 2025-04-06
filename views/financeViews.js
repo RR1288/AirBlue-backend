@@ -1,4 +1,4 @@
-const {Itinerary, Event, EventStaff, Sequelize, Attendee} = require("../models");
+const { Itinerary, Event, EventStaff, Sequelize, Attendee } = require("../models");
 const EventController = require("../controllers/eventController");
 const { Op } = require("sequelize");
 
@@ -8,7 +8,7 @@ const { Op } = require("sequelize");
  * @param {*} organizationId 
  * @param {*} userId 
  */
-exports.getEventsFinance = async(organizationId, userId) =>{
+exports.getEventsFinance = async (organizationId, userId) => {
     try {
         //get all events where the finance user is a part of
         let events = await Event.findAll(
@@ -24,7 +24,7 @@ exports.getEventsFinance = async(organizationId, userId) =>{
                     ['EventFlightBudget', 'flightBudget'],
                     ["MaxAttendees", 'maxAttendees'],
                     ["FlightBudgetThreshold", "threshold"],
-                    
+
                 ],
 
                 include: [
@@ -32,18 +32,18 @@ exports.getEventsFinance = async(organizationId, userId) =>{
                         model: EventStaff,
                         attributes: [],
                         required: true,
-                        where: {UserID: userId, RoleID: { [Sequelize.Op.like]: `%F%` }}
+                        where: { UserID: userId, RoleID: { [Sequelize.Op.like]: `%F%` } }
                     }
                 ],
-                where: {OrganizationID: organizationId},
-        });
+                where: { OrganizationID: organizationId },
+            });
         /*
         TODO:
         add functionality to add the userName instead of id for the financeUser field
         add functiosn to return info for statistics
-         */ 
+         */
         if (!events || events.length === 0) return [];
-        
+
         return events;
     } catch (error) {
         throw new Error("failed to get events");
@@ -54,7 +54,7 @@ exports.getEventsFinance = async(organizationId, userId) =>{
  *  this function queries events to get all events that have no finance users
  * @param {*} organizationId 
  */
-exports.getJoinableEventsFinance = async(organizationId) =>{
+exports.getJoinableEventsFinance = async (organizationId) => {
     try {
         //get all events where the finance user is a part of
         let events = await Event.findAll(
@@ -70,13 +70,13 @@ exports.getJoinableEventsFinance = async(organizationId) =>{
                     ['EventFlightBudget', 'flightBudget'],
                     ["MaxAttendees", 'maxAttendees'],
                     ["FlightBudgetThreshold", "threshold"],
-                    
+
                 ],
-                where: {OrganizationID: organizationId},
-        });
+                where: { OrganizationID: organizationId },
+            });
 
         // Fetch event staff data concurrently for all events
-        const eventStaffPromises = events.map(event => 
+        const eventStaffPromises = events.map(event =>
             EventController.getEventStaffByRole(event.dataValues.id, 'F')
         );
 
@@ -109,31 +109,25 @@ exports.getEventFlightReport = async (eventID) => {
         //run query
         let costs = await Event.findOne({
             attributes: [
-                ['EventTotalBudget','budget']
+                ['EventTotalBudget', 'budget']
             ],
             //get the attendees
-            include:[
+            include: [
                 {
-                    model: Attendee,
-                    attributes: [], //leaving attributes empty since I don't want finance to see any user info
-                    required: true,
-                    include:[
-                        {
-                            model: Itinerary,
-                            attributes: [
-                                ['TotalCost', 'totalCost'],
-                                ['BaseCost', 'ticketCost'],
-                                ['TaxCost', 'tax']
-                            ],
-                            where: {ApprovalStatus: 'approved'}
-                        }
-                    ]
+                    model: Itinerary,
+                    attributes: [
+                        ['TotalCost', 'totalCost'],
+                        ['BaseCost', 'ticketCost'],
+                        ['TaxCost', 'tax']
+                    ],
+                    where: { ApprovalStatus: 'approved' }
+
                 }
             ],
-            where: {EventID: eventID}
+            where: { EventID: eventID }
         });
         const totalSpent = await Itinerary.sum('TotalCost', {
-            where: {EventID: eventID}
+            where: { EventID: eventID }
         });
         let results = [totalSpent, costs];
         //return results
