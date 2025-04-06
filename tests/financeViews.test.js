@@ -1,7 +1,7 @@
 //financeViews.test.js
 
 //Set up constants
-const { getEventsFinance, getJoinableEventsFinance } = require('../views/financeViews'); // Path to the file being tested
+const { getEventsFinance, getJoinableEventsFinance } = require('../views/financeViews'); 
 const { Event, EventStaff, Sequelize } = require("../models");
 const EventController = require("../controllers/eventController");
 
@@ -108,7 +108,7 @@ describe('financeView', () => {
 
       expect(joinableEvents).toHaveLength(1);
       expect(joinableEvents[0].dataValues.title).toBe('Event 1');
-      expect(joinableEvents[0].financeUser).toBeNull();
+      expect(joinableEvents[0].financeUser).toBe(undefined);
     });
 
     //Test 5: Return empty array if all the events already have a finance user attached

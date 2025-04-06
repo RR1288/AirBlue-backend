@@ -12,6 +12,7 @@ module.exports = (sequelize, DataTypes) => {
         EventEndDate: DataTypes.DATE,
         ExpectedAttendees: DataTypes.INTEGER,
         EventFlightBudget: DataTypes.DECIMAL(12,2),
+        FlightBudgetThreshold: DataTypes.DECIMAL(6,2),
         MaxAttendees:  DataTypes.INTEGER,
         Location:  DataTypes.STRING(50), 
         TypeID: {
