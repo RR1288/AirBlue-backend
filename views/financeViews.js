@@ -1,4 +1,4 @@
-const {Itinerary, Event, EventStaff, Sequelize} = require("../models");
+const {Itinerary, Event, EventStaff, Sequelize, Attendee} = require("../models");
 const EventController = require("../controllers/eventController");
 const { Op } = require("sequelize");
 
@@ -96,6 +96,49 @@ exports.getJoinableEventsFinance = async(organizationId) =>{
     }
 };
 
-//helpers
 
 
+/**
+ * 
+ * @param {*} eventID the events id
+ * This function is used to get all of the itinerary values for each attendee in an event
+ * This function gets all itineraries that where approved and returns a list of objects that are just the breakdown of amount spent.
+ */
+exports.getEventFlightReport = async (eventID) => {
+    try {
+        //run query
+        let costs = await Event.findOne({
+            attributes: [
+                ['EventTotalBudget','budget']
+            ],
+            //get the attendees
+            include:[
+                {
+                    model: Attendee,
+                    attributes: [], //leaving attributes empty since I don't want finance to see any user info
+                    required: true,
+                    include:[
+                        {
+                            model: Itinerary,
+                            attributes: [
+                                ['TotalCost', 'totalCost'],
+                                ['BaseCost', 'ticketCost'],
+                                ['TaxCost', 'tax']
+                            ],
+                            where: {ApprovalStatus: 'approved'}
+                        }
+                    ]
+                }
+            ],
+            where: {EventID: eventID}
+        });
+        const totalSpent = await Itinerary.sum('TotalCost', {
+            where: {EventID: eventID}
+        });
+        let results = [totalSpent, costs];
+        //return results
+        return results;
+    } catch (error) {
+        throw new Error('failed to get the flight reports');
+    }
+};
