@@ -359,4 +359,48 @@ router.delete("/remove", protect, authorizedRoles(Roles.PLANNER), AttendeeServic
  */
 router.delete("/cancel", protect, AttendeeService.cancelOwnParticipation);
 
+/**
+ * @swagger
+ * /attendees/update-event-group:
+ *   patch:
+ *     summary: Update an attendee's event group.
+ *     description: Endpoint to update the event group of an attendee.
+ *     tags:
+ *       - Attendees
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               attendeeId:
+ *                 type: integer
+ *                 example: 1
+ *               eventGroupId:
+ *                 type: integer
+ *                 example: 2
+ *     responses:
+ *       200:
+ *         description: Attendee's event group updated successfully.
+ *       400:
+ *         description: Invalid input, missing fields, or invalid attendee/event group ID.
+ *       404:
+ *         description: Attendee not found.
+ *       500:
+ *         description: Internal server error.
+ */
+
+
+
+// Define the route to update the attendee's event group
+router.patch(
+  "/update-event-group", 
+  protect, 
+  authorizedRoles(Roles.PLANNER), 
+  AttendeeService.updateAttendeeEventGroup
+);
+
+
+
 module.exports = router;
