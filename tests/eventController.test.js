@@ -2,7 +2,9 @@
 
 //Set up the constants
 const { getAttendees, getEventStaffByRole, setEventBudget } = require("../controllers/eventController");
-const { User, Event, EventStaff, Attendee, Sequelize } = require("../models");
+const { User, Event, EventStaff, Attendee, Sequelize, EventBudgetAuditLog} = require("../models");
+
+const { Op } = require("sequelize");
 
 jest.mock("../models", () => ({
   User: {
@@ -19,18 +21,24 @@ jest.mock("../models", () => ({
     findAll: jest.fn(),
   },
   Sequelize: {
-    Op: {
-      like: jest.fn(),
-    },
+    Op: { like: jest.fn() },
+    transaction: jest.fn(),
+  },
+  EventBudgetAuditLog: {
+    create: jest.fn(),
   },
 }));
 
+//Testing time
 describe("eventController", () => {
   beforeEach(async () => {
     await jest.clearAllMocks();
   });
 
+  //Test for getAttendees function
   describe("getAttendees", () => {
+
+    //Test 1: Fetch attendees when given eventId
     it("Should fetch attendees for a given eventId", async () => {
       const mockEventId = 1;
       const mockAttendees = [
@@ -54,6 +62,7 @@ describe("eventController", () => {
       expect(result).toEqual(mockAttendees);
     });
 
+    //Test 2: Empty array if notin
     it("Should return an empty array if no attendees found", async () => {
       const mockEventId = 1;
       Attendee.findAll.mockResolvedValue([]);
@@ -71,7 +80,10 @@ describe("eventController", () => {
     });
   });
 
+  //Tests for getEventStaffByRole
   describe("getEventStaffByRole", () => {
+
+    //Test 3: Fetch the staff via eventId and role
     it("Should fetch event staff based on eventId and role", async () => {
       const mockEventId = 1;
       const mockRole = "E";
@@ -99,6 +111,7 @@ describe("eventController", () => {
       expect(result).toEqual(mockEventStaff);
     });
 
+    //Test 4: Empty array if notin
     it("Should return an empty array if no event staff found", async () => {
       const mockEventId = 1;
       const mockRole = "F";
@@ -120,49 +133,5 @@ describe("eventController", () => {
     });
   });
 
-  //Tests for setEventBudget
-  describe('setEventBudget', () => {
-    let eventData;
-
-    beforeEach(() => {
-        eventData = {
-            EventID: 1,
-            EventTotalBudget: 10000,
-            EventFlightBudget: 2000,
-            FlightBudgetThreshold: 0.5 // Threshold as a decimal (e.g., 0.5 = 50%)
-        };
-    });
-
-    //Test 5: Successfully update budget
-    it('Should successfully update event budget when event exists', async () => {
-    
-      const mockEvent = {
-          update: jest.fn().mockResolvedValue(true), 
-          EventID: 1,
-          EventFlightBudget: 2000
-      };
-
-      Event.findByPk = jest.fn().mockResolvedValue(mockEvent);
-
-      const result = await setEventBudget(1, 10000, 2000, 0.5);
-
-      expect(result).toBe(true);
-      expect(Event.findByPk).toHaveBeenCalledWith(1);
-      expect(mockEvent.update).toHaveBeenCalledWith({
-          EventTotalBudget: 10000,
-          EventFlightBudget: 2000,
-          FlightBudgetThreshold: 0.5
-      });
-  });
-
-    //Test 6: Handle errors
-    it('Should handle errors when updating event budget', async () => {
-
-        Event.findByPk = jest.fn().mockResolvedValue({
-            update: jest.fn().mockRejectedValue(new Error('Database Error'))
-        });
-
-        await expect(setEventBudget(1, 10000, 2000, 0.5)).rejects.toThrow('failed to add budget');
-    });
-});
+  //Tests for setEventBudget have been moved to eventControllerSet.test.js
 });
