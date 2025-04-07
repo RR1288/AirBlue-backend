@@ -628,5 +628,81 @@ router.patch("/update-event",
   checkOrganizationUser, 
   EventService.updateEvent);
 
+/**
+ * @swagger
+ * /events/update-event-group:
+ *   patch:
+ *     summary: Update an existing event group
+ *     description: Endpoint to update name and budget of an event group based on the event group ID.
+ *     tags:
+ *       - Events
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - eventGroupID
+ *             properties:
+ *               eventGroupID:
+ *                 type: integer
+ *                 example: 1
+ *               name:
+ *                 type: string
+ *                 example: "Updated Event Group Name"
+ *               budget:
+ *                 type: number
+ *                 format: float
+ *                 example: 6000.50
+ *     responses:
+ *       200:
+ *         description: Event group updated successfully.
+ *       400:
+ *         description: Invalid input or missing event group ID.
+ *       404:
+ *         description: Event group not found.
+ *       500:
+ *         description: Internal server error.
+ */
+router.patch("/update-event-group", 
+  protect, 
+  authorizedRoles(Roles.PLANNER), 
+  EventService.updateEventGroup
+);
+
+/**
+ * @swagger
+ * /events/delete-event:
+ *   delete:
+ *     summary: Delete an event
+ *     description: Delete an event along with its associated attendees, staff, groups, and invitations. Event ID is provided in the body.
+ *     tags:
+ *       - Events
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               eventID:
+ *                 type: integer
+ *                 example: 1
+ *     responses:
+ *       200:
+ *         description: Event deleted successfully.
+ *       400:
+ *         description: Bad request – Invalid event ID.
+ *       404:
+ *         description: Event not found.
+ *       500:
+ *         description: Internal server error.
+ */
+router.delete("/delete-event", 
+  protect, 
+  authorizedRoles(Roles.PLANNER), 
+  checkOrganizationUser, 
+  EventService.deleteEvent);
 
 module.exports = router;

@@ -16,7 +16,9 @@ module.exports = {
         references: {
           model: 'Attendees',
           key: 'AttendeeID'
-        }
+        },
+        onUpdate: 'CASCADE',
+        onDelete: 'CASCADE',
       },
 
       DuffelOrderID: { type: Sequelize.STRING(30), allowNull: false },

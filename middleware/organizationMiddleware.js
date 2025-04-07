@@ -30,10 +30,10 @@ exports.checkUserInOrganization = async (req, res, next) => {
         const decoded = jwt.verify(token, process.env.JWT_SECRET);
         const organizationID = parseInt(decoded.OrganizationID); //getting org ID from token
 
-        user = await UserOrganization.findOne({ where: { UserID: userID, OrganizationID: organizationID } });
+        const user = await UserOrganization.findOne({ where: { UserID: userID, OrganizationID: organizationID } });
         if (!user) return sendError(res, "User not found in organization", 400);
         next();
-    } catch (error) {
+    } catch (err) {
         console.error(err);
         return sendError(res, "user not in organization", 401);
     }

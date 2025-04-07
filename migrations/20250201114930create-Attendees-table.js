@@ -7,8 +7,17 @@ module.exports = {
       AttendeeID: { type: Sequelize.BIGINT,
         autoIncrement: true,
         primaryKey: true, },
-      UserID: { type: Sequelize.BIGINT, references: { model: 'Users', key: 'UserID' }, allowNull: false },
-      EventID: { type: Sequelize.BIGINT, references: { model: 'Events', key: 'EventID' }, allowNull: false },
+      UserID: { 
+        type: Sequelize.BIGINT, 
+        references: { model: 'Users', key: 'UserID' }, allowNull: false 
+      },
+      EventID: { 
+        type: Sequelize.BIGINT, 
+        references: { model: 'Events', key: 'EventID' }, 
+        onUpdate: 'CASCADE',
+        onDelete: 'CASCADE',
+        allowNull: false 
+      },
       EventGroupID: { type: Sequelize.BIGINT, references: { model: 'EventGroups', key: 'EventGroupID' }, allowNull: false },
       Confirmed: { type: Sequelize.BOOLEAN, defaultValue: false },
       createdAt: { type: Sequelize.DATE, allowNull: false, defaultValue: Sequelize.NOW },
