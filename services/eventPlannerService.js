@@ -80,3 +80,18 @@ exports.getAllEventsPlanner = async (req, res) => {
         return sendError(res, 'Something went wrong while fetching event planners');
     }
 };
+
+exports.getEventReportPlanner = async (req, res) => {
+    try {
+        let {eventID} = req.params;
+        eventID = parseInt(eventID);
+        if(!(await validateEventID(eventID))) return sendError(res, 'invalid eventID', 400);
+
+        let report = await eventPlannerViews.getEventReportPlanner(eventID);
+        if(!report) return sendError(res, 'failed to get report', 400);
+        return sendSuccess(res, 'successfully got event report', report);
+    } catch (error) {
+        console.log(error);
+        return sendError(res, 'failed to get report');
+    }
+};

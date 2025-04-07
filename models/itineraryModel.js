@@ -11,7 +11,10 @@ module.exports = (sequelize, DataTypes) => {
                 type: DataTypes.BIGINT,
                 references: {model: "Attendees", key: "AttendeeID"},
             },
-
+            EventID: {
+                type: DataTypes.BIGINT,
+                references: {model: "Events", key: "EventID"},
+            },
 
             DuffelOrderID: DataTypes.STRING(30),
             DuffelPassID: DataTypes.STRING(30),
@@ -45,6 +48,7 @@ module.exports = (sequelize, DataTypes) => {
     );
     Itinerary.associate = function (models) {
         Itinerary.belongsTo(models.Attendee, {foreignKey: "AttendeeID"});
+        Itinerary.belongsTo(models.Event, {foreignKey: "EventID"});
         models.Attendee.hasMany(Itinerary, {foreignKey: "AttendeeID"});
         Itinerary.hasMany(models.Slice, {foreignKey: 'ItineraryID'});
     };

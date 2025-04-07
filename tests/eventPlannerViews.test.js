@@ -8,32 +8,37 @@ const {getAttendees} = require('../views/eventPlannerViews');
 
 // Mocking Sequelize models
 jest.mock('../models', () => ({
-    Sequelize: { Op: {} },
-    Attendee: {
-        findAll: jest.fn()
-    },
-    Itinerary: {
-        findAll: jest.fn(),
-      },
-    Invitation: {
-        findAll: jest.fn()
-    },
-    User: {
-        findAll: jest.fn(),
-      },
-    EventGroup: {
-        findAll: jest.fn(),
-      },
-    EventStaff: {
-        findAll: jest.fn(),
-      },
-    Event: {
-        findAll: jest.fn()
-    },
-    Slice: {
-        findAll: jest.fn(),
-      }
+  Sequelize: { Op: {} },
+  Attendee: {
+      findAll: jest.fn(),
+      count: jest.fn(), // Mock count method
+  },
+  Itinerary: {
+      findAll: jest.fn(),
+      count: jest.fn(), // Mock count method
+      sum: jest.fn(), // Mock sum method
+  },
+  Invitation: {
+      findAll: jest.fn(),
+  },
+  User: {
+      findAll: jest.fn(),
+  },
+  EventGroup: {
+      findAll: jest.fn(),
+  },
+  EventStaff: {
+      findAll: jest.fn(),
+  },
+  Event: {
+      findAll: jest.fn(),
+      findOne: jest.fn(), // Mock findOne method
+  },
+  Slice: {
+      findAll: jest.fn(),
+  }
 }));
+
 
 //Testing time
 describe('EventPlannerViews', () => {
@@ -337,5 +342,98 @@ describe('EventPlannerViews', () => {
         });   
           
     });
+
+    describe('getEventReportPlanner', () => {
+
+      // Test 13: Return event report data with total attendees, approved attendees, budget, and spent amount
+      it('Should return event report with total attendees, approved attendees, total budget, and total spent', async () => {
+          // Mocking the necessary return values from Sequelize models
+          const mockTotalAttendees = 100;
+          const mockApprovedAttendees = 80;
+          const mockTotalBudget = 5000;
+          const mockTotalSpent = 4000;
+  
+          Attendee.count.mockResolvedValue(mockTotalAttendees);
+          Itinerary.count.mockResolvedValue(mockApprovedAttendees);
+          Event.findOne.mockResolvedValue({ dataValues: { budget: mockTotalBudget } });
+          Itinerary.sum.mockResolvedValue(mockTotalSpent);
+  
+          const eventID = 1;
+  
+          const result = await eventPlannerViews.getEventReportPlanner(eventID);
+  
+          expect(Attendee.count).toHaveBeenCalledWith({ where: { EventID: eventID } });
+          expect(Itinerary.count).toHaveBeenCalledWith({ where: { EventID: eventID, ApprovalStatus: 'approved' } });
+          expect(Event.findOne).toHaveBeenCalledWith({ attributes: [['EventTotalBudget', 'budget']], where: { EventID: eventID } });
+          expect(Itinerary.sum).toHaveBeenCalledWith('TotalCost', { where: { EventID: eventID, ApprovalStatus: 'approved' } });
+  
+          expect(result).toEqual({
+              TotalAttendees: mockTotalAttendees,
+              ApprovedAttendees: mockApprovedAttendees,
+              TotalBudget: mockTotalBudget,
+              TotalSpent: mockTotalSpent
+          });
+      });
+  
+      // Test 14: Handle when no attendees are found
+      it('Should return a report with zero attendees and budget data when no attendees are found', async () => {
+          const mockTotalAttendees = 0;
+          const mockApprovedAttendees = 0;
+          const mockTotalBudget = 5000;
+          const mockTotalSpent = 0;
+  
+          Attendee.count.mockResolvedValue(mockTotalAttendees);
+          Itinerary.count.mockResolvedValue(mockApprovedAttendees);
+          Event.findOne.mockResolvedValue({ dataValues: { budget: mockTotalBudget } });
+          Itinerary.sum.mockResolvedValue(mockTotalSpent);
+  
+          const eventID = 1;
+  
+          const result = await eventPlannerViews.getEventReportPlanner(eventID);
+  
+          expect(result).toEqual({
+              TotalAttendees: mockTotalAttendees,
+              ApprovedAttendees: mockApprovedAttendees,
+              TotalBudget: mockTotalBudget,
+              TotalSpent: mockTotalSpent
+          });
+      });
+  
+      // Test 15: Handle when event budget is missing
+      it('Should handle cases where the event budget is missing', async () => {
+          const mockTotalAttendees = 100;
+          const mockApprovedAttendees = 80;
+          const mockTotalBudget = null;
+          const mockTotalSpent = 4000;
+  
+          Attendee.count.mockResolvedValue(mockTotalAttendees);
+          Itinerary.count.mockResolvedValue(mockApprovedAttendees);
+          Event.findOne.mockResolvedValue({ dataValues: { budget: mockTotalBudget } });
+          Itinerary.sum.mockResolvedValue(mockTotalSpent);
+  
+          const eventID = 1;
+  
+          const result = await eventPlannerViews.getEventReportPlanner(eventID);
+  
+          expect(result).toEqual({
+              TotalAttendees: mockTotalAttendees,
+              ApprovedAttendees: mockApprovedAttendees,
+              TotalBudget: null, 
+              TotalSpent: mockTotalSpent
+          });
+      });
+  
+      // Test 16: Error handling
+      it('Should throw an error when an exception occurs during the report generation', async () => {
+
+          Attendee.count.mockRejectedValue(new Error('Database error'));
+          
+          const eventID = 1;
+  
+          await expect(eventPlannerViews.getEventReportPlanner(eventID)).rejects.toThrow('failed to get report');
+      });
+  
+  });
+  
 
 });

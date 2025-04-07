@@ -1,8 +1,8 @@
 //financeViews.test.js
 
 //Set up constants
-const { getEventsFinance, getJoinableEventsFinance } = require('../views/financeViews'); 
-const { Event, EventStaff, Sequelize, EventBudgetAuditLog, User } = require("../models");
+const { getEventsFinance, getJoinableEventsFinance, getEventFlightReport } = require('../views/financeViews'); 
+const { Event, EventStaff, Sequelize, Itinerary } = require("../models");
 const EventController = require("../controllers/eventController");
 const financeViews = require("../views/financeViews");
 
@@ -10,6 +10,7 @@ const financeViews = require("../views/financeViews");
 jest.mock('../models', () => ({
   Event: {
     findAll: jest.fn(),
+    findOne: jest.fn(),
   },
   EventStaff: {},
   Sequelize: {
@@ -17,13 +18,9 @@ jest.mock('../models', () => ({
       like: jest.fn(),
     },
   },
-  EventBudgetAuditLog: {
-    findAll: jest.fn(),  
+  Itinerary: {
+    sum: jest.fn(), 
   },
-  User: {
-    findAll: jest.fn(),
-  }
-
 }));
 
 jest.mock("../controllers/eventController", () => ({
@@ -153,78 +150,69 @@ describe('financeView', () => {
     });
   });
 
-  //Tests for getbudgetLogs function
-  describe('getBudgetLogs', () => {
+   // Test cases for getEventFlightReport function
+   describe('getEventFlightReport', () => {
 
-    //Test 7: Return budget logs
-    it('Should return the budget logs for an event', async () => {
-      
-        const mockLogs = [
-            {
-                dataValues: {
-                    chgCol: 'Budget',
-                    new: 1000,
-                    original: 800,
-                    dateEdited: '2025-04-06T10:00:00.000Z',
-                },
-                User: {
-                    dataValues: {
-                        user: 'financeuser@example.com',
-                    },
-                },
-            },
-        ];
-        
-        EventBudgetAuditLog.findAll.mockResolvedValue(mockLogs);
+    //Test 7: Return correct flight report
+    it('Should return correct flight report with total spent and budget', async () => {
+      const eventID = 1;
+      const mockTotalSpent = 5000;
+      const mockBudget = 10000;
 
-        const eventID = 1;
-        const result = await financeViews.getBudgetLogs(eventID);
+      Event.findOne.mockResolvedValue({
+        dataValues: {
+          budget: mockBudget,
+        },
+      });
 
-        expect(result).toEqual([
-            {
-                editor: 'financeuser@example.com',
-                changedItem: 'Budget',
-                newValue: 1000,
-                priorValue: 800,
-                dateEdited: '2025-04-06T10:00:00.000Z',
-            },
-        ]);
+      Itinerary.sum.mockResolvedValue(mockTotalSpent);
 
-        expect(EventBudgetAuditLog.findAll).toHaveBeenCalledWith({
-            attributes: [
-                ['ColumnName', 'chgCol'],
-                ['CurrentValue', 'new'],
-                ['PreviousValue', 'original'],
-                ['createdAt', 'dateEdited'],
-            ],
-            include: [
-                {
-                    model: User,
-                    required: true,
-                    attributes: [['Email', 'user']],
-                },
-            ],
-            where: { EventID: eventID },
-        });
+      const result = await getEventFlightReport(eventID);
+
+      expect(result).toEqual([mockTotalSpent, { dataValues: { budget: mockBudget } }]);
     });
 
-    //Test 8: Empty array if no logs
-    it('Should return an empty array if no logs are found', async () => {
+    //Test 8: Return 0 if no itineraries are approved
+    it('Should return zero for total spent when no itineraries are approved', async () => {
+      const eventID = 1;
+      const mockBudget = 10000;
 
-        EventBudgetAuditLog.findAll.mockResolvedValue([]);
+      Event.findOne.mockResolvedValue({
+        dataValues: {
+          budget: mockBudget,
+        },
+      });
 
-        const eventID = 1;
-        const result = await financeViews.getBudgetLogs(eventID);
+      Itinerary.sum.mockResolvedValue(0);
 
-        expect(result).toEqual([]);
+      const result = await getEventFlightReport(eventID);
+
+      expect(result).toEqual([0, { dataValues: { budget: mockBudget } }]);
     });
 
-    //Test 9: Error if query fails
-    it('Should throw an error if the query fails', async () => {
+    //Test 9: Error if findOne fails
+    it('Should throw an error if Event.findOne fails', async () => {
+      const eventID = 1;
 
-        EventBudgetAuditLog.findAll.mockRejectedValue(new Error('Database error'));
+      Event.findOne.mockRejectedValue(new Error('Database error'));
 
-        await expect(financeViews.getBudgetLogs(1)).rejects.toThrow('failed to get BudgetHistory');
+      await expect(getEventFlightReport(eventID)).rejects.toThrow('failed to get the flight reports');
     });
-});
+
+    //Test 10: Error if Itinerary math fails
+    it('Should throw an error if Itinerary.sum fails', async () => {
+      const eventID = 1;
+
+      Event.findOne.mockResolvedValue({
+        dataValues: {
+          budget: 10000,
+        },
+      });
+
+      Itinerary.sum.mockRejectedValue(new Error('Database error'));
+
+      await expect(getEventFlightReport(eventID)).rejects.toThrow('failed to get the flight reports');
+    });
+  });
+
 });

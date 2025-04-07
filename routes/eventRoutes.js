@@ -7,7 +7,7 @@ const { checkOrganizationUser, checkUserInOrganization} = require("../middleware
 const {  createEvent, getAvailableEventTypes, } = require("../services/eventService.js");
 const EventService = require("../services/eventService");
 const EventPlannerService = require("../services/eventPlannerService.js");
-const { setEventBudget, getAllEventsFinance, getEventBudgetLogs } = require("../services/financeService.js");
+const { setEventBudget, getAllEventsFinance, getEventBudgetLogs, getEventBudgetReport} = require("../services/financeService.js");
 const { InEventStaffFinance,  InEventStaffPlanner, checkEventOrganization , hasFinancePlanner, hasBudget} = require("../middleware/eventMiddleware.js");
 
 /**
@@ -575,6 +575,68 @@ router.get(
  *         description: Internal server error
  */
 router.post("/invitations/accept", protect, EventService.acceptInvitation);
+
+//REPORTS:
+/**
+ * @swagger
+ * /events/EventReportPlanner/{eventID}:
+ *   get:
+ *     summary: Gets a report made up of the total event budget, amount spent, total attendees, and approved attendees
+ *     description: Gets a report made up of the total event budget, amount spent, total attendees, and approved attendees
+ *     tags:
+ *       - Events
+ *     parameters:
+ *       - in: path
+ *         name: eventID
+ *         required: true
+ *         description: The ID of the event.
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: report has successfully been returned
+ *       400:
+ *         description: Bad request – Event ID is required.
+ *       500:
+ *         description: Internal server error.
+ */
+router.get(
+    "/EventReportPlanner/:eventID",
+    protect,
+    authorizedRoles(Roles.PLANNER),
+    EventPlannerService.getEventReportPlanner
+);
+
+/**
+ * @swagger
+ * /events/EventReportFinance/{eventID}:
+ *   get:
+ *     summary: Get detailed financial info for an event
+ *     description: returns a list where the first index is the amount spent, and the second index is the event and all of the realted finance records of flights
+ *     tags:
+ *       - Events
+ *     parameters:
+ *       - in: path
+ *         name: eventID
+ *         required: true
+ *         description: The ID of the event.
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: report has successfully been returned
+ *       400:
+ *         description: Bad request – Event ID is required.
+ *       500:
+ *         description: Internal server error.
+ */
+router.get(
+    "/EventReportFinance/:eventID",
+    protect,
+    authorizedRoles(Roles.FINANCE),
+    getEventBudgetReport
+);
+
 
 /**
  * @swagger
