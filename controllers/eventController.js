@@ -295,3 +295,65 @@ exports.updateEvent = async (eventID, updates) => {
     }
 };
 
+exports.updateEventGroup = async (eventGroupID, updates) => {
+    try {
+        // Find the event group to update
+        const eventGroup = await EventGroup.findByPk(eventGroupID);
+        if (!eventGroup) {
+            throw new Error("Event Group not found");
+        }
+
+        // Update the event group with the provided attributes
+        await eventGroup.update(updates);
+
+        return eventGroup; // Return the updated event group
+    } catch (error) {
+        console.error(error);
+        throw new Error("Failed to update event group");
+    }
+};
+
+exports.deleteEvent = async (eventID) => {
+    try {
+        // Check if the event exists
+        const event = await Event.findByPk(eventID);
+        if (!event) {
+            throw new Error("Event not found");
+        }
+
+        // Use a transaction to ensure that all related deletions happen atomically
+        await sequelize.transaction(async (t) => {
+            // Delete related attendees
+            await Attendee.destroy({
+                where: { EventID: eventID },
+                transaction: t
+            });
+
+            // Delete related event staff
+            await EventStaff.destroy({
+                where: { EventID: eventID },
+                transaction: t
+            });
+
+            // Delete related event groups
+            await EventGroup.destroy({
+                where: { EventID: eventID },
+                transaction: t
+            });
+
+            // Delete related invitations
+            await Invitation.destroy({
+                where: { EventID: eventID },
+                transaction: t
+            });
+
+            // Finally, delete the event
+            await event.destroy({ transaction: t });
+        });
+
+        return true; // Return true if deletion was successful
+    } catch (error) {
+        console.error(error);
+        throw new Error("Failed to delete event");
+    }
+};
