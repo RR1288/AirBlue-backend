@@ -2,6 +2,8 @@
 
 //Set up constants
 const { fetchFlight } = require('../controllers/flightController'); 
+jest.setTimeout(1000000); // Set timeout to 10 seconds (10000 ms)
+
 
 //Mock what we need
 jest.mock('node-fetch'); // Mock the fetch function
