@@ -18,7 +18,7 @@ const generateTokenPair = (user) => {
             : null;
 
     const accessToken = jwt.sign(
-        {id: user.UserID, username: user.UserName, roles, organizationID},
+        {id: user.UserID, username: user.UserName, roles, OrganizationID: organizationID},
         process.env.JWT_SECRET,
         {expiresIn: process.env.JWT_EXPIRES_IN || "1h"}
     );

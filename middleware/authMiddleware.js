@@ -19,7 +19,7 @@ exports.protect = async (req, res, next) => {
         user.roles = decoded.roles; // Attach roles to user
         user.username = decoded.username;   // Attach username to user
         user.id = decoded.id;
-        user.OrganizationID = decoded.organizationID;
+        user.OrganizationID = decoded.OrganizationID;
         req.user = user; // Attach user to request
 
         
