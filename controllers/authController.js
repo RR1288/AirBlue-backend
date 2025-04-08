@@ -233,9 +233,15 @@ exports.refreshToken = async (req, res) => {
         });
 
         console.log("Set-Cookie header:", res.getHeader("Set-Cookie"));
+        const userInfo = {
+            userId: user.UserID,
+            username: user.UserName,
+            roles: user.UserOrganizations[0]?.dataValues.Roles || "",
+        };
 
         return sendSuccess(res, "Token refreshed successfully", {
             token: accessToken,
+            ...userInfo,
         });
     } catch (err) {
         console.error(err);
