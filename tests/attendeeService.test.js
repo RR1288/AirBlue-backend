@@ -120,18 +120,24 @@ describe('attendeeService tests', () => {
   }); */
 
   //Test 4
-  test('revokeInvitations - Should send success response when invitations are revoked', async () => {
-    req.body.eventId = 'event1';
-    req.body.emails = ['test@example.com'];
+  test('revokeInvitations - Should revoke invitations successfully', async () => {
+    const eventId = 1;
+    const invitationIds = [2, 3];
 
-    // Mocking the AttendeeController.revokeInvitations method to return a dummy value
+    // Set up the mock for AttendeeController.revokeInvitations
     AttendeeController.revokeInvitations.mockResolvedValue(true);
 
+    req.body = { eventId, invitationIds };
+
+    // Call the function
     await revokeInvitations(req, res);
 
-    expect(sendSuccess).toHaveBeenCalledWith(res, 'Invitations removed successfully');
+    // Check if success response is called with correct message
+    expect(sendSuccess).toHaveBeenCalledWith(
+      res,
+      'Invitations removed successfully'
+    );
   });
-
   //Test 5
   test('revokeInvitations - Should send error when eventId or emails are missing', async () => {
     req.body.eventId = ''; // Missing eventId
