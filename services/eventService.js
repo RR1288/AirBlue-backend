@@ -291,3 +291,59 @@ exports.updateEvent = async (req, res) => {
     }
 };
 
+exports.updateEventGroup = async (req, res) => {
+    try {
+        let { eventGroupID, name, budget } = req.body;
+
+        // Ensure at least one update field is provided
+        if (!eventGroupID) return sendError(res, "Event Group ID is required", 400);
+
+        // Validate the inputs
+        if (name && sanitizeGroupName(name) === null) {
+            return sendError(res, "Invalid event group name", 400);
+        }
+        if (budget && sanitizeGroupFlightBudget(budget) === null) {
+            return sendError(res, "Invalid flight budget", 400);
+        }
+
+        // Create the updates object
+        const updates = {};
+        if (name) updates.Name = name;
+        if (budget) updates.FlightBudget = budget;
+
+        // Call the controller to update the event group
+        const updatedEventGroup = await EventController.updateEventGroup(eventGroupID, updates);
+        
+        return sendSuccess(res, "Event group updated successfully", updatedEventGroup);
+    } catch (error) {
+        console.error(error);
+        return sendError(res, "Server error, unable to update event group", 500);
+    }
+};
+
+exports.deleteEvent = async (req, res) => {
+    try {
+        const { eventID } = req.body;
+
+        // Validate event ID
+        if (!eventID) {
+            return sendError(res, "Event ID is required", 400);
+        }
+
+        if (!validateEventID(eventID)) {
+            return sendError(res, "Invalid event ID", 400);
+        }
+
+        // Call the deleteEvent function from eventController
+        const result = await EventController.deleteEvent(eventID);
+        
+        if (result) {
+            return sendSuccess(res, "Event deleted successfully");
+        } else {
+            return sendError(res, "Failed to delete event", 500);
+        }
+    } catch (error) {
+        console.error(error);
+        return sendError(res, "Server error", 500);
+    }
+};

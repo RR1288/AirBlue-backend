@@ -218,6 +218,28 @@ exports.removeConfirmedAttendees = async (
     return removed.length > 0 ? removed : false;
 };
 
+exports.updateAttendeeEventGroup = async (attendeeId, eventGroupId) => {
+    try {
+        // Find the attendee by attendeeId
+        const attendee = await Attendee.findByPk(attendeeId);
+        if (!attendee) {
+            throw new Error("Attendee not found");
+        }
+
+        // Update the attendee's eventGroupId
+        attendee.EventGroupID = eventGroupId;
+        await attendee.save(); // Persist the change
+
+        return attendee; // Return the updated attendee
+    } catch (error) {
+        console.error(error);
+        throw new Error("Failed to update attendee's event group");
+    }
+};
+
+
+
+
 //=========== UTILS ===============================================
 exports.checkPlannerAuthorization = async (
     requesterRole,

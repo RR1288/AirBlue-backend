@@ -6,6 +6,10 @@ const {sanitizeEmail} = require("../utils/UserSanitizations");
 const {validateEventID} = require("../utils/eventSanitization");
 const {validateEventGroup} = require("../utils/sanitizeEventGroup");
 const {deleteCSV, processCSV} = require("../utils/csvReader");
+const {Attendee, Event} = require("../models");
+const {checkPlannerAuthorization} = require("../controllers/attendeeController");
+const { updateAttendeeEventGroup } = require("../controllers/attendeeController"); 
+
 /**
  * Invite an attendee by email.
  */
@@ -246,5 +250,46 @@ exports.updateTokenOnCreation = async (req, res) => {
     return sendSuccess(res, 'successfully updated token')
   } catch (error) {
       return sendError(res, 'failed to update token');
+  }
+};
+
+exports.updateAttendeeEventGroup = async (req, res) => {
+  try {
+      // Destructure the necessary parameters from the request body
+      const { attendeeId, eventGroupId } = req.body;
+
+      // Validate required fields
+      if (!attendeeId) return sendError(res, "Attendee ID is required", 400);
+      if (!eventGroupId) return sendError(res, "Event Group ID is required", 400);
+
+      // Validate that attendeeId and eventGroupId are numbers
+      if (isNaN(attendeeId) || attendeeId <= 0) return sendError(res, "Invalid Attendee ID", 400);
+      if (isNaN(eventGroupId) || eventGroupId <= 0) return sendError(res, "Invalid Event Group ID", 400);
+
+      // Find the attendee by attendeeId
+      const attendee = await Attendee.findByPk(attendeeId);
+      if (!attendee) {
+          return sendError(res, "Attendee not found", 404);
+      }
+
+      // Update the attendee's EventGroupID with the new eventGroupId
+      attendee.EventGroupID = eventGroupId;
+      await attendee.save(); // Save the changes to the database
+
+      // Return a success response with the updated attendee data
+      return sendSuccess(res, "Attendee's event group updated successfully", {
+          AttendeeID: attendee.AttendeeID,
+          UserID: attendee.UserID,
+          EventID: attendee.EventID,
+          EventGroupID: attendee.EventGroupID, // Include EventGroupID in the response
+          Confirmed: attendee.Confirmed,
+          createdAt: attendee.createdAt,
+          updatedAt: attendee.updatedAt,
+          deletedAt: attendee.deletedAt,
+      });
+
+  } catch (err) {
+      console.error(err);
+      return sendError(res, "Error updating attendee event group.", 500);
   }
 };

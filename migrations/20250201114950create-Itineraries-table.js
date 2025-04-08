@@ -16,6 +16,16 @@ module.exports = {
         references: {
           model: 'Attendees',
           key: 'AttendeeID'
+        },
+        onUpdate: 'CASCADE',
+        onDelete: 'CASCADE',
+      },
+      EventID: {
+        type: Sequelize.BIGINT,
+        allowNull: false,
+        references: {
+          model: 'Events',
+          key: 'EventID'
         }
       },
 

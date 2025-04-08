@@ -3,6 +3,7 @@ module.exports = {
     return queryInterface.bulkInsert('Itineraries', [
       {
         AttendeeID: 1,
+        EventID: 1,
         DuffelOrderID: "ord_001",
         DuffelPassID: "pas_001",
         DuffelOfferID: "off_001",
@@ -19,6 +20,7 @@ module.exports = {
       },
       {
         AttendeeID: 2,
+        EventID: 2,
         DuffelOrderID: "ord_002",
         DuffelPassID: "pas_002",
         DuffelOfferID: "off_002",
@@ -35,6 +37,7 @@ module.exports = {
       },
       {
         AttendeeID: 3,
+        EventID: 1,
         DuffelOrderID: "ord_006",
         DuffelPassID: "pas_006",
         DuffelOfferID: "off_006",
@@ -51,6 +54,7 @@ module.exports = {
       },
       {
         AttendeeID: 4,
+        EventID: 3,
         DuffelOrderID: "ord_007",
         DuffelPassID: "pas_007",
         DuffelOfferID: "off_007",

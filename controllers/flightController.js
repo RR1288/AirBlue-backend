@@ -173,6 +173,7 @@ exports.holdOffer = async (user_id, event_id, offer_id, passengers) => {
         const itinerary = await Itinerary.create(
             {
                 AttendeeID: attendee.dataValues.AttendeeID,
+                EventID: event_id,
                 DuffelOrderID: data.id,
                 DuffelPassID: data?.passengers?.[0]?.id || null, // Safe access to passenger ID
                 DuffelOfferID: offer_id,

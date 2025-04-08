@@ -7,7 +7,7 @@ const { checkOrganizationUser, checkUserInOrganization} = require("../middleware
 const {  createEvent, getAvailableEventTypes, } = require("../services/eventService.js");
 const EventService = require("../services/eventService");
 const EventPlannerService = require("../services/eventPlannerService.js");
-const { setEventBudget, getAllEventsFinance } = require("../services/financeService.js");
+const { setEventBudget, getAllEventsFinance, getEventBudgetLogs, getEventBudgetReport} = require("../services/financeService.js");
 const { InEventStaffFinance,  InEventStaffPlanner, checkEventOrganization , hasFinancePlanner, hasBudget} = require("../middleware/eventMiddleware.js");
 
 /**
@@ -97,7 +97,7 @@ router.post('/create-event', protect, authorizedRoles(Roles.PLANNER), checkOrgan
  *                 example: 0.10
  *               
  *     responses:
- *       201:
+ *       200:
  *         description: user successfully created
  *       400:
  *         description: Bad request invalid input
@@ -524,6 +524,36 @@ router.get(
 
 /**
  * @swagger
+ * /events/financeAuditLogs/{eventID}:
+ *   get:
+ *     summary: get all of the audit logs to track changes made to event budget
+ *     description: |
+ *       Returns a list of all the 
+ *     tags:
+ *       - Events
+ *     parameters:
+ *       - in: path
+ *         name: eventID
+ *         required: true
+ *         description: The ID of the event.
+ *         schema:
+ *           type: integer
+ *     responses:
+ *       200:
+ *         description: a list of changes made to the event budget.
+ *       400:
+ *         description: Bad request – missing event ID.
+ *       500:
+ *         description: Internal server error.
+ */
+router.get(
+    "/financeAuditLogs/:eventID",
+    protect,
+    authorizedRoles(Roles.FINANCE),
+    getEventBudgetLogs
+);
+/**
+ * @swagger
  * /events/invitations/accept:
  *   post:
  *     summary: Accept an event invitation
@@ -545,6 +575,68 @@ router.get(
  *         description: Internal server error
  */
 router.post("/invitations/accept", protect, EventService.acceptInvitation);
+
+//REPORTS:
+/**
+ * @swagger
+ * /events/EventReportPlanner/{eventID}:
+ *   get:
+ *     summary: Gets a report made up of the total event budget, amount spent, total attendees, and approved attendees
+ *     description: Gets a report made up of the total event budget, amount spent, total attendees, and approved attendees
+ *     tags:
+ *       - Events
+ *     parameters:
+ *       - in: path
+ *         name: eventID
+ *         required: true
+ *         description: The ID of the event.
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: report has successfully been returned
+ *       400:
+ *         description: Bad request – Event ID is required.
+ *       500:
+ *         description: Internal server error.
+ */
+router.get(
+    "/EventReportPlanner/:eventID",
+    protect,
+    authorizedRoles(Roles.PLANNER),
+    EventPlannerService.getEventReportPlanner
+);
+
+/**
+ * @swagger
+ * /events/EventReportFinance/{eventID}:
+ *   get:
+ *     summary: Get detailed financial info for an event
+ *     description: returns a list where the first index is the amount spent, and the second index is the event and all of the realted finance records of flights
+ *     tags:
+ *       - Events
+ *     parameters:
+ *       - in: path
+ *         name: eventID
+ *         required: true
+ *         description: The ID of the event.
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: report has successfully been returned
+ *       400:
+ *         description: Bad request – Event ID is required.
+ *       500:
+ *         description: Internal server error.
+ */
+router.get(
+    "/EventReportFinance/:eventID",
+    protect,
+    authorizedRoles(Roles.FINANCE),
+    getEventBudgetReport
+);
+
 
 /**
  * @swagger
@@ -598,5 +690,81 @@ router.patch("/update-event",
   checkOrganizationUser, 
   EventService.updateEvent);
 
+/**
+ * @swagger
+ * /events/update-event-group:
+ *   patch:
+ *     summary: Update an existing event group
+ *     description: Endpoint to update name and budget of an event group based on the event group ID.
+ *     tags:
+ *       - Events
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - eventGroupID
+ *             properties:
+ *               eventGroupID:
+ *                 type: integer
+ *                 example: 1
+ *               name:
+ *                 type: string
+ *                 example: "Updated Event Group Name"
+ *               budget:
+ *                 type: number
+ *                 format: float
+ *                 example: 6000.50
+ *     responses:
+ *       200:
+ *         description: Event group updated successfully.
+ *       400:
+ *         description: Invalid input or missing event group ID.
+ *       404:
+ *         description: Event group not found.
+ *       500:
+ *         description: Internal server error.
+ */
+router.patch("/update-event-group", 
+  protect, 
+  authorizedRoles(Roles.PLANNER), 
+  EventService.updateEventGroup
+);
+
+/**
+ * @swagger
+ * /events/delete-event:
+ *   delete:
+ *     summary: Delete an event
+ *     description: Delete an event along with its associated attendees, staff, groups, and invitations. Event ID is provided in the body.
+ *     tags:
+ *       - Events
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               eventID:
+ *                 type: integer
+ *                 example: 1
+ *     responses:
+ *       200:
+ *         description: Event deleted successfully.
+ *       400:
+ *         description: Bad request – Invalid event ID.
+ *       404:
+ *         description: Event not found.
+ *       500:
+ *         description: Internal server error.
+ */
+router.delete("/delete-event", 
+  protect, 
+  authorizedRoles(Roles.PLANNER), 
+  checkOrganizationUser, 
+  EventService.deleteEvent);
 
 module.exports = router;
