@@ -67,17 +67,10 @@ exports.login = async (req, res) => {
             });
         }
 
-        const {accessToken, refreshToken} = generateTokenPair(user);
         // Generate tokens
-        // Set refresh token in HTTP-only cookie
-        res.cookie("refreshToken", refreshToken, {
-            httpOnly: true,
-            secure: false, // Enable in production
-            sameSite: "Strict", // Allow cross-origin requests
-            maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
-        });
+        const {accessToken, refreshToken} = generateTokenPair(user);
 
-        console.log("Set-Cookie header:", res.getHeader("Set-Cookie"));
+        // DO NOT SET REFRESH TOKEN IN COOKIE if 2FA is not enabled
         return sendSuccess(res, "Login successful", {
             token: accessToken,
             ...userInfo,
