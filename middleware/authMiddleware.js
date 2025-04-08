@@ -10,6 +10,8 @@ exports.protect = async (req, res, next) => {
 
         // Verify token
         const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        console.log("decoded: ", decoded);
+        
         // Fetch user login info from UserLogin table
         const user = await UserLogin.findByPk(decoded.id);
         if (!user) return sendError(res, "User not found", 404);
@@ -17,7 +19,7 @@ exports.protect = async (req, res, next) => {
         user.roles = decoded.roles; // Attach roles to user
         user.username = decoded.username;   // Attach username to user
         user.id = decoded.id;
-        user.OrganizationID = decoded.OrganizationID;
+        user.OrganizationID = decoded.organizationID;
         req.user = user; // Attach user to request
 
         
