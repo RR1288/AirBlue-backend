@@ -283,9 +283,12 @@ exports.updateTokenOnUserCreation = async (inviteToken) => {
             where: {token: inviteToken},
         });
         //get invitedEmail
-
+        const email = invitation.dataValues.Email;
         //get user where invitedEmail == email
-
+        let user = await User.findOne({
+            attributes: ['UserID', 'id'],
+            where: {Email: email}
+        });
         //set user id to the recieved users id
         let userId;
         invitation.update({
