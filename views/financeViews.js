@@ -1,4 +1,4 @@
-const {Itinerary, Event, EventStaff, Sequelize, EventBudgetAuditLog, User} = require("../models");
+const {Itinerary, Event, EventStaff, Sequelize, EventBudgetAuditLog, User,Attendee} = require("../models");
 const EventController = require("../controllers/eventController");
 const { Op } = require("sequelize");
 
@@ -147,7 +147,11 @@ exports.getEventFlightReport = async (eventID) => {
         //run query
         let costs = await Event.findOne({
             attributes: [
-                ['EventTotalBudget', 'budget']
+                ['EventName', 'name'],
+                ['EventStartDate', 'startDate'],
+                ['EventEndDate', 'endDate'],
+                ['EventTotalBudget', 'currentBudget'],
+                ['FlightBudgetThreshold','currentThreshold']
             ],
             //get the attendees
             include: [
@@ -156,7 +160,10 @@ exports.getEventFlightReport = async (eventID) => {
                     attributes: [
                         ['TotalCost', 'totalCost'],
                         ['BaseCost', 'ticketCost'],
-                        ['TaxCost', 'tax']
+                        ['TaxCost', 'tax'],
+                        ['BudgetOnBook', 'budget'],
+                        ['ThresholdOnBook','threshold'],
+                        ['GroupName','groupname']
                     ],
                     where: { ApprovalStatus: 'approved' }
 
@@ -164,13 +171,24 @@ exports.getEventFlightReport = async (eventID) => {
             ],
             where: { EventID: eventID }
         });
+        //getting amount spent in the event
         const totalSpent = await Itinerary.sum('TotalCost', {
             where: { EventID: eventID,ApprovalStatus: 'approved' }
         });
-        let results = [totalSpent, costs];
+        //getting attendee information
+        let totalAttendees = await Attendee.count({where: {EventID: eventID}});
+        let approvedAttendees = await Itinerary.count({where: {EventID: eventID, ApprovalStatus: 'approved'}});
+
+        let results = {
+            TotalSpent: totalSpent, 
+            TotalAttendees: totalAttendees,
+            ApporvedAttendees: approvedAttendees,
+            Event: costs
+        };
         //return results
         return results;
     } catch (error) {
+        console.log(error);
         throw new Error('failed to get the flight reports');
     }
 };
