@@ -1,16 +1,8 @@
-<<<<<<< HEAD
-const { Attendee, Invitation, User, Event, EventStaff } = require("../models");
-const { Op } = require("sequelize");
-const { Sequelize } = require("sequelize");
-const { sendInvitation, sendAccountSetupEmail } = require("../utils/emailSender");
-const { Roles } = require("../utils/Roles");
-=======
 const {Attendee, Invitation, User, Event, EventStaff, sequelize, Sequelize} = require("../models");
 const {Op} = require("sequelize");
 // const {Sequelize} = require("sequelize");
 const {sendInvitation, sendAccountSetupEmail} = require("../utils/emailSender");
 const {Roles} = require("../utils/Roles");
->>>>>>> staging
 const crypto = require("crypto");
 
 /**
@@ -215,13 +207,7 @@ exports.removeConfirmedAttendees = async (
     const removed = [];
     // Looks for attendees, not users
     for (const userId of userIds) {
-<<<<<<< HEAD
-        const attendee = await Attendee.findOne({
-            where: { EventID: eventId, UserID: userId },
-        });
-=======
         const attendee = await Attendee.findByPk(userId);
->>>>>>> staging
         if (attendee) {
             attendee.Confirmed = false;
             await attendee.save();
@@ -280,15 +266,9 @@ exports.checkPlannerAuthorization = async (
 };
 
 exports.invalidInvitation = async (invitation, transaction) => {
-<<<<<<< HEAD
-    invitation.expiresAt = new Date.now(); // Invalid invitation
-    await invitation.save({ transaction }); // Save before deleting it
-    await invitation.destroy({ transaction });
-=======
     invitation.expiresAt = new Date(); // Invalid invitation
     await invitation.save({transaction}); // Save before deleting it
     await invitation.destroy({transaction});
->>>>>>> staging
 };
 
 exports.updateTokenOnUserCreation = async (inviteToken) => {
