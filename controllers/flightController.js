@@ -169,11 +169,11 @@ exports.holdOffer = async (user_id, event_id, offer_id, passengers) => {
         const data = order.data;
         
         //get the attendees eventGroup for its budget
-        const eventGroup = await EventGroup.findeOne({where: {EventGroupID: attendee.dataValues.EventGroupID}});
+        const eventGroup = await EventGroup.findOne({where: {EventGroupID: attendee.dataValues.EventGroupID}});
         const budget = eventGroup.dataValues.FlightBudget;
         const groupName = eventGroup.dataValues.Name;
         //get the events threshold
-        const event = await Event.findeByPk(event_id);
+        const event = await Event.findByPk(event_id);
         const threshold = event.dataValues.FlightBudgetThreshold;
         // Save itinerary
         const itinerary = await Itinerary.create(
@@ -267,6 +267,7 @@ exports.holdOffer = async (user_id, event_id, offer_id, passengers) => {
     } catch (error) {
         // Rollback transaction in case of any error
         await transaction.rollback();
+        console.error("Error in holdOffer:", error);
         throw new Error("Error holding flight");
     }
 };
