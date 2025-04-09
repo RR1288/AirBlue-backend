@@ -16,6 +16,16 @@ module.exports = {
         references: {
           model: 'Attendees',
           key: 'AttendeeID'
+        },
+        onUpdate: 'CASCADE',
+        onDelete: 'CASCADE',
+      },
+      EventID: {
+        type: Sequelize.BIGINT,
+        allowNull: false,
+        references: {
+          model: 'Events',
+          key: 'EventID'
         }
       },
 
@@ -27,7 +37,9 @@ module.exports = {
       TotalCost: { type: Sequelize.DECIMAL(6, 2), allowNull: false },
       BaseCost: { type: Sequelize.DECIMAL(6, 2), allowNull: false },
       TaxCost: { type: Sequelize.DECIMAL(6, 2), allowNull: false },
-
+      ThresholdOnBook: { type: Sequelize.DECIMAL(6,2), allowNull: false },
+      BudgetOnBook: { type: Sequelize.DECIMAL(6,2), allowNull: false },
+      GroupName: { type: Sequelize.STRING(30), allowNull: false },
       ApprovalStatus: { type: Sequelize.ENUM('pending', 'denied', 'approved', 'expired'), allowNull: false },
 
       heldAt: { type: Sequelize.DATE, defaultValue: null },     // User selects an offer

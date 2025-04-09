@@ -230,3 +230,120 @@ exports.acceptInvitation = async (req, res) => {
         return sendError(res, "Internal server error", 500);
     }
 };
+
+exports.updateEvent = async (req, res) => {
+    try {
+        let { eventID, EventName, startDate, endDate, description, location, maxAttendees } = req.body;
+
+        // Validate required fields (we assume eventID is required for updating)
+        if (!eventID) return sendError(res, "Event ID is required", 400);
+
+        // Initialize an empty object to hold the updates
+        const updates = {};
+
+        // Validate and sanitize eventName
+        if (EventName) {
+            EventName = sanitizeEventName(EventName);
+            if (EventName === null) return sendError(res, "Invalid event name", 400);
+            updates.EventName = EventName;
+        }
+
+        // Validate and sanitize startDate and endDate
+        if (startDate) {
+            startDate = sanitizeDate(startDate);
+            if (startDate === null) return sendError(res, "Invalid start date", 400);
+            updates.EventStartDate = startDate;
+        }
+
+        if (endDate) {
+            endDate = sanitizeDate(endDate);
+            if (endDate === null) return sendError(res, "Invalid end date", 400);
+            updates.EventEndDate = endDate;
+        }
+
+        // Validate and sanitize location
+        if (location) {
+            location = sanitizeLocation(location);
+            if (location === null) return sendError(res, "Invalid location", 400);
+            updates.Location = location;
+        }
+
+        // Validate and sanitize description (optional)
+        if (description) {
+            description = sanitizeEventDescription(description);
+            if (description === null) return sendError(res, "Invalid description", 400);
+            updates.EventDescription = description;
+        }
+
+        // Validate maxAttendees (optional)
+        if (maxAttendees !== undefined) {
+            if (typeof(maxAttendees) !== "number" || maxAttendees < 0) return sendError(res, "Invalid value for max attendees", 400);
+            updates.MaxAttendees = maxAttendees;
+        }
+
+        // Call the controller to update the event
+        const updatedEvent = await EventController.updateEvent(eventID, updates);
+
+        return sendSuccess(res, "Event updated successfully", updatedEvent);
+    } catch (err) {
+        console.error(err);
+        return sendError(res, "Server error, unable to update event", 500);
+    }
+};
+
+exports.updateEventGroup = async (req, res) => {
+    try {
+        let { eventGroupID, name, budget } = req.body;
+
+        // Ensure at least one update field is provided
+        if (!eventGroupID) return sendError(res, "Event Group ID is required", 400);
+
+        // Validate the inputs
+        if (name && sanitizeGroupName(name) === null) {
+            return sendError(res, "Invalid event group name", 400);
+        }
+        if (budget && sanitizeGroupFlightBudget(budget) === null) {
+            return sendError(res, "Invalid flight budget", 400);
+        }
+
+        // Create the updates object
+        const updates = {};
+        if (name) updates.Name = name;
+        if (budget) updates.FlightBudget = budget;
+
+        // Call the controller to update the event group
+        const updatedEventGroup = await EventController.updateEventGroup(eventGroupID, updates);
+        
+        return sendSuccess(res, "Event group updated successfully", updatedEventGroup);
+    } catch (error) {
+        console.error(error);
+        return sendError(res, "Server error, unable to update event group", 500);
+    }
+};
+
+exports.deleteEvent = async (req, res) => {
+    try {
+        const { eventID } = req.body;
+
+        // Validate event ID
+        if (!eventID) {
+            return sendError(res, "Event ID is required", 400);
+        }
+
+        if (!validateEventID(eventID)) {
+            return sendError(res, "Invalid event ID", 400);
+        }
+
+        // Call the deleteEvent function from eventController
+        const result = await EventController.deleteEvent(eventID);
+        
+        if (result) {
+            return sendSuccess(res, "Event deleted successfully");
+        } else {
+            return sendError(res, "Failed to delete event", 500);
+        }
+    } catch (error) {
+        console.error(error);
+        return sendError(res, "Server error", 500);
+    }
+};

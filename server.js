@@ -9,11 +9,18 @@ const eventRoutes = require("./routes/eventRoutes");
 const attendeeRoutes = require("./routes/attendeeRoutes");
 const organizationRoutes = require('./routes/organizationRoutes');
 const setupSwagger = require("./swagger"); // Import Swagger setup
+const cookieParser = require("cookie-parser");
+
 
 dotenv.config(); // Load environment variables
 
 const app = express();
-app.use(cors());
+app.use(cookieParser());
+app.use(cors({
+    origin: process.env.FRONTEND_URL,
+    credentials: true, // Allow sending cookies
+})
+);
 app.use(express.json());
 
 // Set up Swagger
@@ -31,6 +38,25 @@ app.use("/organizations", organizationRoutes);
 app.get("/", (req, res) => {
     res.send("Welcome to AirBlue API");
 });
+
+
+app.get("/test-cookie", (req, res) => {
+    res.cookie("test", "value", {
+        httpOnly: true,
+        secure: false,
+        sameSite: "Strict",
+        maxAge: 1000 * 60 * 10, // 10 minutes
+    });
+    res.send("Cookie set");
+});
+
+app.get("/check-cookie", (req, res) => {
+    console.log("Cookies:", req.cookies);
+    res.send(req.cookies);
+});
+
+
+
 
 // Test Database Connection
 sequelize

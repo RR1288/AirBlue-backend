@@ -1,4 +1,4 @@
-const { User, Organization, Event, EventGroup, EventStaff, Attendee, EventTypes, OrganizationEventType, DefaultEventType, sequelize, Sequelize, Invitation } = require("../models");
+const { User, Organization, Event, EventGroup, EventStaff, Attendee, EventTypes, OrganizationEventType, DefaultEventType, sequelize, Sequelize, Invitation, EventBudgetAuditLog } = require("../models");
 const { Op } = require("sequelize");
 
 /*
@@ -36,7 +36,7 @@ exports.createEventGroup = async (eventID, name, budget) => {
         const eventGroup = await EventGroup.create({
             Name: name,
             EventID: eventID,
-            flightBudget: budget
+            FlightBudget: budget
         });
         return
     } catch (error) {
@@ -184,19 +184,62 @@ exports.getEventByOrganization = async (organizationId) => {
     }
 }
 
-exports.setEventBudget = async (eventID, totalBudget, flightBudget) => {
+exports.setEventBudget = async (eventID, userID, totalBudget, flightBudget, thresholdVal) => {
     try {
-        let event = await Event.findByPk(eventID);
+        await sequelize.transaction(async (t) => {
+        let event = await Event.findByPk(eventID, {transaction: t});
+        //getting initial values
+        let OriginalTotalBudget = Event.EventTotalBudget;
+        let OriginalEventFlightBudget = Event.EventTotalBudget;
+        let OriginalFlightBudgetThreshold = Event.EventTotalBudget;
         if (!event) {
             throw new Error("event does not exist");
         }
 
         await event.update({
             EventTotalBudget: totalBudget,
-            EventFlightBudget: flightBudget
+            EventFlightBudget: flightBudget, 
+            FlightBudgetThreshold: thresholdVal
+        },
+        {transaction: t}
+        );
+
+        //creating audit logs
+        //TODO: work this section into a trigger function
+        //adding audit log for Total budget
+        await EventBudgetAuditLog.create({
+            UserID: userID,
+            EventID: eventID,
+            ColumnName: 'EventTotalBudget',
+            CurrentValue: totalBudget,
+            PreviousValue: OriginalTotalBudget
+        },
+        {transaction: t}
+        );
+        //adding audit log for flight budget
+        await EventBudgetAuditLog.create({
+            UserID: userID,
+            EventID: eventID,
+            ColumnName: 'EventFlightBudget',
+            CurrentValue: flightBudget,
+            PreviousValue: OriginalEventFlightBudget
+        },
+        {transaction: t}
+        );
+        //adding audit log for threshold
+        await EventBudgetAuditLog.create({
+            UserID: userID,
+            EventID: eventID,
+            ColumnName: 'FlightBudgetThreshold',
+            CurrentValue: thresholdVal,
+            PreviousValue: OriginalFlightBudgetThreshold,
+        },
+        {transaction: t}
+        );
         });
         return true;
     } catch (error) {
+        console.log(error);
         throw new Error("failed to add budget");
     }
 
@@ -232,4 +275,85 @@ exports.addToEventStaff = async (userID, eventID, role) => {
         throw new Error("failed to add user to event staff");
     }
 
+};
+
+exports.updateEvent = async (eventID, updates) => {
+    try {
+        // Find the event to update
+        const event = await Event.findByPk(eventID);
+        if (!event) {
+            throw new Error("Event not found");
+        }
+
+        // Update the event with the provided attributes
+        await event.update(updates);
+
+        return event; // Return the updated event
+    } catch (error) {
+        console.error(error);
+        throw new Error("Failed to update event");
+    }
+};
+
+exports.updateEventGroup = async (eventGroupID, updates) => {
+    try {
+        // Find the event group to update
+        const eventGroup = await EventGroup.findByPk(eventGroupID);
+        if (!eventGroup) {
+            throw new Error("Event Group not found");
+        }
+
+        // Update the event group with the provided attributes
+        await eventGroup.update(updates);
+
+        return eventGroup; // Return the updated event group
+    } catch (error) {
+        console.error(error);
+        throw new Error("Failed to update event group");
+    }
+};
+
+exports.deleteEvent = async (eventID) => {
+    try {
+        // Check if the event exists
+        const event = await Event.findByPk(eventID);
+        if (!event) {
+            throw new Error("Event not found");
+        }
+
+        // Use a transaction to ensure that all related deletions happen atomically
+        await sequelize.transaction(async (t) => {
+            // Delete related attendees
+            await Attendee.destroy({
+                where: { EventID: eventID },
+                transaction: t
+            });
+
+            // Delete related event staff
+            await EventStaff.destroy({
+                where: { EventID: eventID },
+                transaction: t
+            });
+
+            // Delete related event groups
+            await EventGroup.destroy({
+                where: { EventID: eventID },
+                transaction: t
+            });
+
+            // Delete related invitations
+            await Invitation.destroy({
+                where: { EventID: eventID },
+                transaction: t
+            });
+
+            // Finally, delete the event
+            await event.destroy({ transaction: t });
+        });
+
+        return true; // Return true if deletion was successful
+    } catch (error) {
+        console.error(error);
+        throw new Error("Failed to delete event");
+    }
 };

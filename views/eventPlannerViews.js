@@ -218,7 +218,6 @@ exports.getInvitees = async (eventID) => {
 exports.getEventsPlanner = async (organizationId, userId) => {
     try {
         //get all events where the finance user is a part of
-        console.log("in getting events planner");
         let events = await Event.findAll({
             attributes: [
                 ["EventID", "id"],
@@ -231,6 +230,7 @@ exports.getEventsPlanner = async (organizationId, userId) => {
                 ["EventFlightBudget", "flightBudget"],
                 ["MaxAttendees", "maxAttendees"],
                 ["ExpectedAttendees", "expectedAttendees"],
+                ["FlightBudgetThreshold", "threshold"],
             ],
 
             include: [
@@ -243,10 +243,13 @@ exports.getEventsPlanner = async (organizationId, userId) => {
                         RoleID: {[Sequelize.Op.like]: `%E%`},
                     },
                 },
-                {model: EventGroup, required: true},
+                {
+                    model: EventGroup
+                }
             ],
             where: {OrganizationID: organizationId},
         });
+
         //TODO add functionality to format the results into single non nested objects with no info on tables names
         if (!events || events === null) return [];
         return events;
@@ -255,3 +258,35 @@ exports.getEventsPlanner = async (organizationId, userId) => {
         throw new Error("failed to get events");
     }
 };
+
+/**
+ * This function takes an eventID and gets the total number of attendees in that event as well as the total number of approved Itineraries
+ * Additionally it gets the events total budget and the current budget spent and returns it as an object
+ */
+exports.getEventReportPlanner = async (eventID) => {
+    try {
+        //get attendee count information
+        let totalAttendees = await Attendee.count({where: {EventID: eventID}});
+        let approvedAttendees = await Itinerary.count({where: {EventID: eventID, ApprovalStatus: 'approved'}});
+        //get budget information
+        let totalBudget = await Event.findOne({
+            attributes: [['EventTotalBudget','budget']],
+            where: {EventID: eventID}
+        });
+        let totalSpent = await Itinerary.sum('TotalCost', {
+            where: { EventID: eventID, ApprovalStatus: 'approved'}
+        });
+        //create object for return
+        let results = {
+            'TotalAttendees': totalAttendees,
+            'ApprovedAttendees': approvedAttendees,
+            'TotalBudget': totalBudget.dataValues.budget,
+            'TotalSpent': totalSpent
+        };
+        return results;
+    
+    } catch (error) {
+        console.log(error);
+        throw new Error('failed to get report');
+    }
+}
