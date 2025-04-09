@@ -26,7 +26,7 @@ module.exports = (sequelize, DataTypes) => {
             TaxCost: DataTypes.DECIMAL(6, 2),
             ThresholdOnBook: DataTypes.DECIMAL(6,2),
             BudgetOnBook: DataTypes.DECIMAL(6,2),
-
+            GroupName: DataTypes.STRING(30),
             ApprovalStatus: DataTypes.ENUM(
                 "pending",
                 "denied",

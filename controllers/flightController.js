@@ -1,6 +1,6 @@
 const DUFFEL_API_KEY = process.env.DUFFEL_API_KEY;
 const {where} = require("sequelize");
-const {Itinerary, Slice, Segment, sequelize, Attendee} = require("../models");
+const {Itinerary, Slice, Segment, sequelize, Attendee, Event, EventGroup} = require("../models");
 const {parseDuration} = require("../utils/flightUtils");
 
 exports.createOfferRequest = async ({
@@ -167,8 +167,14 @@ exports.holdOffer = async (user_id, event_id, offer_id, passengers) => {
 
         const order = await response.json();
         const data = order.data;
-        console.log(data);
-
+        
+        //get the attendees eventGroup for its budget
+        const eventGroup = await EventGroup.findeOne({where: {EventGroupID: attendee.dataValues.EventGroupID}});
+        const budget = eventGroup.dataValues.FlightBudget;
+        const groupName = eventGroup.dataValues.Name;
+        //get the events threshold
+        const event = await Event.findeByPk(event_id);
+        const threshold = event.dataValues.FlightBudgetThreshold;
         // Save itinerary
         const itinerary = await Itinerary.create(
             {
@@ -181,6 +187,9 @@ exports.holdOffer = async (user_id, event_id, offer_id, passengers) => {
                 TotalCost: data.total_amount,
                 BaseCost: data.base_amount,
                 TaxCost: data.tax_amount,
+                ThresholdOnBook: threshold,
+                BudgetOnBook: budget,
+                GroupName: groupName,
                 ApprovalStatus: "pending",
                 heldAt: new Date(),
                 expiresAt: new Date(data.payment_status.payment_required_by),
