@@ -405,8 +405,8 @@ router.patch(
  * @swagger
  * /attendees/update-event-invite-token:
  *   patch:
- *     summary: Update an attendee's event group.
- *     description: Endpoint to update the event group of an attendee.
+ *     summary: Update an attendee's invite post account creation
+ *     description: this function is used in the scenario where a user account has just been created through our email workflow
  *     tags:
  *       - Attendees
  *     requestBody:
@@ -430,8 +430,7 @@ router.patch(
  *         description: Internal server error.
  */
 router.patch(
-  "/update-event-invite-token", 
-  protect,
+  "/update-event-invite-token", //figure out proper middleware for this tommorow
   AttendeeService.updateTokenOnCreation
 );
 
