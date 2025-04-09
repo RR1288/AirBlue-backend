@@ -1,8 +1,16 @@
+<<<<<<< HEAD
 const { Attendee, Invitation, User, Event, EventStaff } = require("../models");
 const { Op } = require("sequelize");
 const { Sequelize } = require("sequelize");
 const { sendInvitation, sendAccountSetupEmail } = require("../utils/emailSender");
 const { Roles } = require("../utils/Roles");
+=======
+const {Attendee, Invitation, User, Event, EventStaff, sequelize, Sequelize} = require("../models");
+const {Op} = require("sequelize");
+// const {Sequelize} = require("sequelize");
+const {sendInvitation, sendAccountSetupEmail} = require("../utils/emailSender");
+const {Roles} = require("../utils/Roles");
+>>>>>>> staging
 const crypto = require("crypto");
 
 /**
@@ -95,7 +103,7 @@ exports.revokeInvitations = async (
         if (!event) throw new Error("Event not found");
 
         // 2. Check authorization
-        const isAuthorized = await checkPlannerAuthorization(
+        const isAuthorized = await this.checkPlannerAuthorization(
             requesterRole,
             eventId,
             requesterId
@@ -110,7 +118,7 @@ exports.revokeInvitations = async (
         const invitations = await Invitation.findAll({
             where: {
                 EventID: eventId,
-                InvitationID: { [Op.in]: invitationIds },
+                InvitationID: {[Op.in]: invitationIds},
                 status: "pending",
             },
         });
@@ -126,7 +134,7 @@ exports.revokeInvitations = async (
 
             for (const invitation of invitations) {
                 // Mark invitation as invalid and destroy it within the transaction
-                await invalidInvitation(invitation, transaction); // Pass transaction
+                await this.invalidInvitation(invitation, transaction); // Pass transaction
                 revoked.push(invitation.InvitationID);
             }
 
@@ -144,7 +152,6 @@ exports.revokeInvitations = async (
         throw new Error("Error processing request");
     }
 };
-
 
 /**
  * Cancel the logged-in user's own pending invitation or attendance.
@@ -193,7 +200,7 @@ exports.removeConfirmedAttendees = async (
     requesterRole
 ) => {
     // 1. Check authorization
-    const isAuthorized = await checkPlannerAuthorization(
+    const isAuthorized = await this.checkPlannerAuthorization(
         requesterRole,
         eventId,
         requesterId
@@ -206,10 +213,15 @@ exports.removeConfirmedAttendees = async (
 
     // 2. For each user id remove their attendance
     const removed = [];
+    // Looks for attendees, not users
     for (const userId of userIds) {
+<<<<<<< HEAD
         const attendee = await Attendee.findOne({
             where: { EventID: eventId, UserID: userId },
         });
+=======
+        const attendee = await Attendee.findByPk(userId);
+>>>>>>> staging
         if (attendee) {
             attendee.Confirmed = false;
             await attendee.save();
@@ -268,11 +280,16 @@ exports.checkPlannerAuthorization = async (
 };
 
 exports.invalidInvitation = async (invitation, transaction) => {
+<<<<<<< HEAD
     invitation.expiresAt = new Date.now(); // Invalid invitation
     await invitation.save({ transaction }); // Save before deleting it
     await invitation.destroy({ transaction });
+=======
+    invitation.expiresAt = new Date(); // Invalid invitation
+    await invitation.save({transaction}); // Save before deleting it
+    await invitation.destroy({transaction});
+>>>>>>> staging
 };
-
 
 exports.updateTokenOnUserCreation = async (inviteToken) => {
     try {
@@ -299,6 +316,6 @@ exports.updateTokenOnUserCreation = async (inviteToken) => {
         //return true on success
         return true;
     } catch (error) {
-        throw new Error('failed to update token');
+        throw new Error("failed to update token");
     }
 };

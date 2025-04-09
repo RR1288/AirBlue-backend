@@ -20,6 +20,14 @@ module.exports = {
         onUpdate: 'CASCADE',
         onDelete: 'CASCADE',
       },
+      EventID: {
+        type: Sequelize.BIGINT,
+        allowNull: false,
+        references: {
+          model: 'Events',
+          key: 'EventID'
+        }
+      },
 
       DuffelOrderID: { type: Sequelize.STRING(30), allowNull: false },
       DuffelPassID: { type: Sequelize.STRING(30), allowNull: false },

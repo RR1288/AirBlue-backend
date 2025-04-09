@@ -117,7 +117,7 @@ exports.getAttendees = async (req, res) => {
  */
 exports.revokeInvitations = async (req, res) => {
   try {
-    const { eventId, emails: invitationIds } = req.body;
+    const { eventId, invitationIds } = req.body;
     const requesterId = req.user.id; // Authenticated user's ID
     const requesterRoles = req.user.roles; // Must be an Event Planner
 
@@ -183,7 +183,7 @@ exports.removeConfirmedAttendees = async (req, res) => {
   try {
     const { eventId, userIds } = req.body;
     const requesterId = req.user.id;
-    const requesterRole = req.user.role;
+    const requesterRole = req.user.roles;    
     if (
       !eventId ||
       !userIds ||
