@@ -75,12 +75,21 @@ exports.getInvitesAttendee = async (userId) =>{
         let invites = await Invitation.findAll({
             include: [
                 {
-                attributes: [
-                    ['UserID', 'UserID']
-                ],
                 model: User,
                 as: 'user',
-                requird: true
+                attributes: [],
+                required: true
+                },
+                {
+                    model: Event,
+                    as: 'event',
+                    attributes: [
+                        ['EventName', 'name'],
+                        ['Location', 'location'],
+                        ['EventStartDate', 'startDate'],
+                        ['EventEndDate', 'endDate'],
+                    ],
+                    required: true
                 }
             ],
             where: {'UserID': userId}
