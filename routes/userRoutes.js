@@ -97,7 +97,6 @@ router.post("/create-end-user", registerUserEndUser);
  *               - email
  *               - country
  *               - password
- *               - organizationID
  *               - roles
  *             properties:
  *               fname:
@@ -125,9 +124,6 @@ router.post("/create-end-user", registerUserEndUser);
  *                 type: string
  *                 format: password
  *                 example: SecurePassword123!
- *               organizationID:
- *                 type: integer
- *                 example: 1
  *               roles:
  *                 type: string
  *                 example: E
