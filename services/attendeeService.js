@@ -246,10 +246,11 @@ exports.updateTokenOnCreation = async (req, res) => {
   try {
     const {token} = req.body;
     
-
-    return sendSuccess(res, 'successfully updated token')
+    let success = AttendeeController.updateTokenOnUserCreation(token);
+    if (!success) return sendError(res, 'unable to updated invitation', 400);
+    return sendSuccess(res, 'successfully updated invitation')
   } catch (error) {
-      return sendError(res, 'failed to update token');
+      return sendError(res, 'failed to update invitation');
   }
 };
 
