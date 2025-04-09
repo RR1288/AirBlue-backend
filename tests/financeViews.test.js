@@ -2,7 +2,7 @@
 
 //Set up constants
 const { getEventsFinance, getJoinableEventsFinance, getEventFlightReport } = require('../views/financeViews'); 
-const { Event, EventStaff, Sequelize, Itinerary } = require("../models");
+const { Event, EventStaff, Sequelize, Itinerary, Attendee } = require("../models");
 const EventController = require("../controllers/eventController");
 const financeViews = require("../views/financeViews");
 
@@ -19,7 +19,11 @@ jest.mock('../models', () => ({
     },
   },
   Itinerary: {
-    sum: jest.fn(), 
+    sum: jest.fn(),
+    count: jest.fn(), 
+  },
+  Attendee: {
+    count: jest.fn()
   },
 }));
 
@@ -154,42 +158,122 @@ describe('financeView', () => {
    describe('getEventFlightReport', () => {
 
     //Test 7: Return correct flight report
-    it('Should return correct flight report with total spent and budget', async () => {
-      const eventID = 1;
-      const mockTotalSpent = 5000;
-      const mockBudget = 10000;
+    it('Should fetch flight report data correctly', async () => {
+      const mockEventID = 1;
+      const mockEventData = {
+          dataValues: {
+              name: 'Sample Event',
+              startDate: '2025-04-08',
+              endDate: '2025-04-10',
+              currentBudget: 10000,
+              currentThreshold: 5000
+          }
+      };
+  
+      const mockItineraries = [
+          {
+              dataValues: {
+                  totalCost: 200,
+                  ticketCost: 150,
+                  tax: 50,
+                  budget: 250,
+                  threshold: 300,
+                  groupname: 'Group A'
+              }
+          }
+      ];
+  
+      Event.findOne.mockResolvedValue(mockEventData);
+      Itinerary.sum.mockResolvedValue(500);
+      Itinerary.count.mockResolvedValue(10);
+      Attendee.count.mockResolvedValue(15);
+  
+      const result = await getEventFlightReport(mockEventID);
+  
+      expect(result).toEqual({
+          TotalSpent: 500,
+          TotalAttendees: 15,
+          ApporvedAttendees: 10,
+          Event: {
+              dataValues: {
+                  name: 'Sample Event',
+                  startDate: '2025-04-08',
+                  endDate: '2025-04-10',
+                  currentBudget: 10000,
+                  currentThreshold: 5000
+              }
+          }
+      });
+  
+      expect(Event.findOne).toHaveBeenCalledWith({
+          attributes: [
+              ['EventName', 'name'],
+              ['EventStartDate', 'startDate'],
+              ['EventEndDate', 'endDate'],
+              ['EventTotalBudget', 'currentBudget'],
+              ['FlightBudgetThreshold', 'currentThreshold']
+          ],
+          include: [
+              {
+                  model: Itinerary,
+                  attributes: [
+                      ['TotalCost', 'totalCost'],
+                      ['BaseCost', 'ticketCost'],
+                      ['TaxCost', 'tax'],
+                      ['BudgetOnBook', 'budget'],
+                      ['ThresholdOnBook', 'threshold'],
+                      ['GroupName', 'groupname']
+                  ],
+                  where: { ApprovalStatus: 'approved' }
+              }
+          ],
+          where: { EventID: mockEventID }
+      });
+  
+      expect(Itinerary.sum).toHaveBeenCalledWith('TotalCost', {
+          where: { EventID: mockEventID, ApprovalStatus: 'approved' }
+      });
+  
+      expect(Itinerary.count).toHaveBeenCalledWith({
+          where: { EventID: mockEventID, ApprovalStatus: 'approved' }
+      });
+  
+      expect(Attendee.count).toHaveBeenCalledWith({ where: { EventID: mockEventID } });
+  });
 
+   // Test 8: Return 0 if no itineraries are approved
+    it('Should return zero for total spent when no itineraries are approved', async () => {
+      const eventID = 1;
+      const mockApprovedAttendees = 10;
+      const mockTotalAttendees = 15;
+      const mockBudget = 10000;
+      const mockTotalSpent = 0;
+    
       Event.findOne.mockResolvedValue({
-        dataValues: {
-          budget: mockBudget,
-        },
+          dataValues: {
+              currentBudget: mockBudget,
+          },
       });
 
       Itinerary.sum.mockResolvedValue(mockTotalSpent);
+      Attendee.count.mockResolvedValue(mockTotalAttendees);
+      Itinerary.count.mockResolvedValue(mockApprovedAttendees);
 
       const result = await getEventFlightReport(eventID);
 
-      expect(result).toEqual([mockTotalSpent, { dataValues: { budget: mockBudget } }]);
-    });
-
-    //Test 8: Return 0 if no itineraries are approved
-    it('Should return zero for total spent when no itineraries are approved', async () => {
-      const eventID = 1;
-      const mockBudget = 10000;
-
-      Event.findOne.mockResolvedValue({
-        dataValues: {
-          budget: mockBudget,
-        },
+      expect(result).toEqual({
+          TotalSpent: mockTotalSpent,
+          TotalAttendees: mockTotalAttendees,
+          ApporvedAttendees: mockApprovedAttendees,
+          Event: {
+              dataValues: {
+                  currentBudget: mockBudget,
+                  currentThreshold: undefined 
+              }
+          }
       });
-
-      Itinerary.sum.mockResolvedValue(0);
-
-      const result = await getEventFlightReport(eventID);
-
-      expect(result).toEqual([0, { dataValues: { budget: mockBudget } }]);
-    });
-
+    });   
+    
     //Test 9: Error if findOne fails
     it('Should throw an error if Event.findOne fails', async () => {
       const eventID = 1;
