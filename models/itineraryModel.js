@@ -21,9 +21,11 @@ module.exports = (sequelize, DataTypes) => {
             DuffelOfferID: DataTypes.STRING(30),
 
             BookingReference: DataTypes.STRING(6),
-            TotalCost: DataTypes.DECIMAL(4, 2),
-            BaseCost: DataTypes.DECIMAL(4, 2),
-            TaxCost: DataTypes.DECIMAL(4, 2),
+            TotalCost: DataTypes.DECIMAL(6, 2),
+            BaseCost: DataTypes.DECIMAL(6, 2),
+            TaxCost: DataTypes.DECIMAL(6, 2),
+            ThresholdOnBook: DataTypes.DECIMAL(6,2),
+            BudgetOnBook: DataTypes.DECIMAL(6,2),
 
             ApprovalStatus: DataTypes.ENUM(
                 "pending",

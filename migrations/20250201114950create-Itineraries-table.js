@@ -37,7 +37,8 @@ module.exports = {
       TotalCost: { type: Sequelize.DECIMAL(6, 2), allowNull: false },
       BaseCost: { type: Sequelize.DECIMAL(6, 2), allowNull: false },
       TaxCost: { type: Sequelize.DECIMAL(6, 2), allowNull: false },
-
+      ThresholdOnBook: { type: Sequelize.DECIMAL(6,2), allowNull: false },
+      BudgetOnBook: { type: Sequelize.DECIMAL(6,2), allowNull: false },
       ApprovalStatus: { type: Sequelize.ENUM('pending', 'denied', 'approved', 'expired'), allowNull: false },
 
       heldAt: { type: Sequelize.DATE, defaultValue: null },     // User selects an offer
