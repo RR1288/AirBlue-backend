@@ -15,7 +15,7 @@ exports.protect = async (req, res, next) => {
         // Fetch user login info from UserLogin table
         const user = await UserLogin.findByPk(decoded.id);
         if (!user) return sendError(res, "User not found", 404);
-
+        if (!user.dataValues.two_fa_enabled) return sendError(res, '2fa is not enabled', 400);
         user.roles = decoded.roles; // Attach roles to user
         user.username = decoded.username;   // Attach username to user
         user.id = decoded.id;

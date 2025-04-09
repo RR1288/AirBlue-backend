@@ -401,6 +401,37 @@ router.patch(
   AttendeeService.updateAttendeeEventGroup
 );
 
-
+/**
+ * @swagger
+ * /attendees/update-event-invite-token:
+ *   patch:
+ *     summary: Update an attendee's invite post account creation
+ *     description: this function is used in the scenario where a user account has just been created through our email workflow
+ *     tags:
+ *       - Attendees
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               token:
+ *                 type: string
+ *                 example: adsfbagdbkabgd
+ *     responses:
+ *       200:
+ *         description: Attendee's event group updated successfully.
+ *       400:
+ *         description: Invalid input, missing fields, or invalid attendee/event group ID.
+ *       404:
+ *         description: Attendee not found.
+ *       500:
+ *         description: Internal server error.
+ */
+router.patch(
+  "/update-event-invite-token", //figure out proper middleware for this tommorow
+  AttendeeService.updateTokenOnCreation
+);
 
 module.exports = router;

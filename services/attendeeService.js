@@ -9,7 +9,7 @@ const {deleteCSV, processCSV} = require("../utils/csvReader");
 const {Attendee, Event} = require("../models");
 const {checkPlannerAuthorization} = require("../controllers/attendeeController");
 const { updateAttendeeEventGroup } = require("../controllers/attendeeController"); 
-
+const {validateToken} = require('../utils/invitationValidation');
 /**
  * Invite an attendee by email.
  */
@@ -245,11 +245,12 @@ exports.getInvitesAttendeee = async(req,res) => {
 exports.updateTokenOnCreation = async (req, res) => {
   try {
     const {token} = req.body;
-    
-
-    return sendSuccess(res, 'successfully updated token')
+    if (!validateToken(token)) return sendError(res, 'invalid token', 400);
+    let success = AttendeeController.updateTokenOnUserCreation(token);
+    if (!success) return sendError(res, 'unable to updated invitation', 400);
+    return sendSuccess(res, 'successfully updated invitation')
   } catch (error) {
-      return sendError(res, 'failed to update token');
+      return sendError(res, 'failed to update invitation');
   }
 };
 
