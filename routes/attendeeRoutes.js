@@ -401,6 +401,38 @@ router.patch(
   AttendeeService.updateAttendeeEventGroup
 );
 
-
+/**
+ * @swagger
+ * /attendees/update-event-invite-token:
+ *   patch:
+ *     summary: Update an attendee's event group.
+ *     description: Endpoint to update the event group of an attendee.
+ *     tags:
+ *       - Attendees
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               token:
+ *                 type: string
+ *                 example: adsfbagdbkabgd
+ *     responses:
+ *       200:
+ *         description: Attendee's event group updated successfully.
+ *       400:
+ *         description: Invalid input, missing fields, or invalid attendee/event group ID.
+ *       404:
+ *         description: Attendee not found.
+ *       500:
+ *         description: Internal server error.
+ */
+router.patch(
+  "/update-event-invite-token", 
+  protect,
+  AttendeeService.updateTokenOnCreation
+);
 
 module.exports = router;
