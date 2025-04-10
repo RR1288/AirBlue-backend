@@ -16,43 +16,6 @@ describe("updateEventGroup", () => {
     afterEach(() => {
         jest.clearAllMocks();
     });
-
-    /*
-
-    Commenting this test out for now. Works irl, but causes problems in unit testing
-
-    it("should update the event group successfully and return the updated event group", async () => {
-        const eventGroupID = 1;
-        const updates = { Name: "Updated Event Group", flightBudget: 5000 };
-    
-        // Mock event group before update
-        const mockEventGroup = {
-            EventGroupID: eventGroupID,
-            Name: "Old Event Group",
-            flightBudget: 1000,
-            update: jest.fn().mockResolvedValue({
-                // Return a new object to simulate the updated event group
-                EventGroupID: eventGroupID,
-                ...updates, // Add the updated fields
-            }),
-        };
-    
-        // Mock the findByPk method to return the mockEventGroup
-        EventGroup.findByPk.mockResolvedValue(mockEventGroup);
-    
-        // Call the function being tested
-        const result = await updateEventGroup(eventGroupID, updates);
-    
-        // Assertions
-        expect(EventGroup.findByPk).toHaveBeenCalledWith(eventGroupID);
-        expect(mockEventGroup.update).toHaveBeenCalledWith(updates);
-        expect(result).toEqual({
-            EventGroupID: eventGroupID,
-            Name: "Updated Event Group",   // Updated Name
-            flightBudget: 5000,            // Updated flightBudget
-        });
-    });
-    */
     
     //Test 1: Error if no event group
     it("Should throw an error if event group is not found", async () => {

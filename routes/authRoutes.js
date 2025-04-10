@@ -1,7 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const authController = require("../controllers/authController");
-const { protect } = require("../middleware/authMiddleware");
+const { protect, protectOnSetup } = require("../middleware/authMiddleware");
 
 /**
  * @swagger
@@ -94,7 +94,7 @@ router.post("/refresh", authController.refreshToken);
  *       200:
  *         description: 2FA setup successful, returns QR code
  */
-router.post("/2fa/setup", protect, authController.setup2FA);
+router.post("/2fa/setup", protectOnSetup, authController.setup2FA);
 
 /**
  * @swagger

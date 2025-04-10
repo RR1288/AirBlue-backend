@@ -23,13 +23,8 @@ describe("Flight Controller", () => {
     //Tests for declinePendingFlight
     describe("declinePendingFlight", () => {
 
-        //Test 1: Error if no itinerary
-        // it("Should throw an error if itinerary is not found", async () => {
-        //     Itinerary.findByPk.mockResolvedValue(null);  // Simulate itinerary not found
-        //     await expect(declinePendingFlight(1)).rejects.toThrow("Itinerary not found");
-        // });
 
-        //Test 2: Error if tryiing to decline a non-pending itineary
+        //Test 1: Error if tryiing to decline a non-pending itineary
         it("Should throw an error if trying to decline a non-pending itinerary", async () => {
             const mockItinerary = { ApprovalStatus: "approved" };
             Itinerary.findByPk.mockResolvedValue(mockItinerary);
@@ -42,13 +37,13 @@ describe("Flight Controller", () => {
     //Test for cancelApprovedFlight function
     describe("cancelApprovedFlight", () => {
 
-        //Test 3: Error if no itineary
+        //Test 2: Error if no itineary
         it("Should throw an error if itinerary is not found", async () => {
             Itinerary.findByPk.mockResolvedValue(null);  // Simulate itinerary not found
             await expect(cancelApprovedFlight(1)).rejects.toThrow("Itinerary not found");
         });
 
-        //Test 4: Error if trying to cancel ghost itinerary
+        //Test 3: Error if trying to cancel ghost itinerary
         it("Should throw an error if trying to cancel a non-approved itinerary", async () => {
             const mockItinerary = { ApprovalStatus: "pending" };
             Itinerary.findByPk.mockResolvedValue(mockItinerary);
