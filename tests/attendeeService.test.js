@@ -109,16 +109,6 @@ describe('attendeeService tests', () => {
     );
   });
 
-  /* This test passes but the formatting is weird to show in testing. All good here.
-  test('getAttendees - should send error when eventId is missing', async () => {
-    req.params.eventId = ''; // Missing eventId
-  
-    await getAttendees(req, res);
-  
-    // Adjusting the expectation to match the correct call
-    expect(sendError).toHaveBeenCalledWith(res, 'Event ID is required', 400);
-  }); */
-
   //Test 4
   test('revokeInvitations - Should revoke invitations successfully', async () => {
     const eventId = 1;
@@ -171,19 +161,5 @@ describe('attendeeService tests', () => {
 
     expect(sendError).toHaveBeenCalledWith(res, 'Event ID is required', 400);
   });
-
-  /* This test passes, but I can't figure out how to like make it pass unit testin. All is good though
-  test('removeConfirmedAttendees - should send success response when attendees are removed', async () => {
-    req.body.eventId = 'event1';
-    req.body.userIds = ['user123', 'user456'];
-
-    // Mocking the AttendeeController.removeConfirmedAttendees method to return a dummy value
-    AttendeeController.removeConfirmedAttendees.mockResolvedValue({ removed: true });
-
-    await removeConfirmedAttendees(req, res);
-
-    expect(sendSuccess).toHaveBeenCalledWith(res, 'Attendees removed successfully', { removed: true });
-
-  }); */
   
 });
