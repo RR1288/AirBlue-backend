@@ -157,7 +157,7 @@ exports.verify2FA = async (req, res) => {
         res.cookie("refreshToken", refreshToken, {
             httpOnly: true,
             secure: process.env.NODE_ENV === "production",
-            sameSite: "Strict",
+            sameSite: "Node",
             maxAge: 7 * 24 * 60 * 60 * 1000,
         });
         return sendSuccess(res, "2FA verification successful", {
@@ -217,7 +217,7 @@ exports.refreshToken = async (req, res) => {
         res.cookie("refreshToken", newRefreshToken, {
             httpOnly: true,
             secure: process.env.NODE_ENV === "production",
-            sameSite: "Strict",
+            sameSite: "None",
             maxAge: 7 * 24 * 60 * 60 * 1000,
         });
 
