@@ -156,11 +156,10 @@ exports.verify2FA = async (req, res) => {
         // Set refresh token in HTTP-only cookie
         res.cookie("refreshToken", refreshToken, {
             httpOnly: true,
-            secure: false,
-            sameSite: "Strict",
+            secure: process.env.NODE_ENV === "production",
+            sameSite: "Node",
             maxAge: 7 * 24 * 60 * 60 * 1000,
         });
-        console.log("Set-Cookie header:", res.getHeader("Set-Cookie"));
         return sendSuccess(res, "2FA verification successful", {
             token: accessToken,
         });
@@ -190,9 +189,6 @@ exports.disable2FA = async (req, res) => {
 // refreshToken
 exports.refreshToken = async (req, res) => {
     try {
-        console.log("Headers:", req.headers);
-        console.log("Cookies:", req.cookies);
-
         const refreshToken = req.cookies.refreshToken;
         if (!refreshToken) return sendError(res, "Refresh token missing", 401);
 
@@ -220,12 +216,11 @@ exports.refreshToken = async (req, res) => {
         // Set new refresh token
         res.cookie("refreshToken", newRefreshToken, {
             httpOnly: true,
-            secure: false,
-            sameSite: "Strict",
+            secure: process.env.NODE_ENV === "production",
+            sameSite: "None",
             maxAge: 7 * 24 * 60 * 60 * 1000,
         });
 
-        console.log("Set-Cookie header:", res.getHeader("Set-Cookie"));
         const userInfo = {
             userId: user.UserID,
             username: user.UserName,
