@@ -1,6 +1,6 @@
-const {Attendee, Invitation, User, Event, EventStaff} = require("../models");
+const {Attendee, Invitation, User, Event, EventStaff, sequelize, Sequelize} = require("../models");
 const {Op} = require("sequelize");
-const { Sequelize } = require("sequelize");
+// const {Sequelize} = require("sequelize");
 const {sendInvitation, sendAccountSetupEmail} = require("../utils/emailSender");
 const {Roles} = require("../utils/Roles");
 const crypto = require("crypto");
@@ -12,7 +12,7 @@ const crypto = require("crypto");
  */
 exports.inviteAttendee = async (eventId, email, eventGroupId) => {
     // Check if user exists (case-insensitive search)
-    const user = await User.findOne({where: {Email: {[Op.iLike]: email}}});
+    const user = await User.findOne({ where: { Email: { [Op.iLike]: email } } });
 
     // Prepare invitation data
     const invitationData = {
@@ -64,16 +64,16 @@ exports.inviteAttendee = async (eventId, email, eventGroupId) => {
 exports.getAttendees = async (eventId) => {
     // Retrieve accepted attendees
     const attendees = await Attendee.findAll({
-        where: {EventID: eventId},
+        where: { EventID: eventId },
         include: [
-            {model: User, attributes: ["UserID", "FName", "LName", "Email"]},
-            {model: Event, attributes: ["EventID", "EventName"]},
+            { model: User, attributes: ["UserID", "FName", "LName", "Email"] },
+            { model: Event, attributes: ["EventID", "EventName"] },
         ],
     });
 
     // Retrieve pending invitations
     const pendingInvitations = await Invitation.findAll({
-        where: {EventID: eventId, status: "pending"},
+        where: { EventID: eventId, status: "pending" },
         attributes: ["InvitationID", "invitedEmail", "status"],
     });
 
@@ -95,7 +95,7 @@ exports.revokeInvitations = async (
         if (!event) throw new Error("Event not found");
 
         // 2. Check authorization
-        const isAuthorized = await checkPlannerAuthorization(
+        const isAuthorized = await this.checkPlannerAuthorization(
             requesterRole,
             eventId,
             requesterId
@@ -110,7 +110,7 @@ exports.revokeInvitations = async (
         const invitations = await Invitation.findAll({
             where: {
                 EventID: eventId,
-                InvitationID: { [Op.in]: invitationIds },
+                InvitationID: {[Op.in]: invitationIds},
                 status: "pending",
             },
         });
@@ -126,7 +126,7 @@ exports.revokeInvitations = async (
 
             for (const invitation of invitations) {
                 // Mark invitation as invalid and destroy it within the transaction
-                await invalidInvitation(invitation, transaction); // Pass transaction
+                await this.invalidInvitation(invitation, transaction); // Pass transaction
                 revoked.push(invitation.InvitationID);
             }
 
@@ -145,14 +145,13 @@ exports.revokeInvitations = async (
     }
 };
 
-
 /**
  * Cancel the logged-in user's own pending invitation or attendance.
  */
 exports.cancelOwnParticipation = async (eventId, requesterId) => {
     // Attempt to cancel a pending invitation first.
     const invitation = await Invitation.findOne({
-        where: {EventID: eventId, UserID: requesterId},
+        where: { EventID: eventId, UserID: requesterId },
     });
 
     if (invitation) {
@@ -160,12 +159,12 @@ exports.cancelOwnParticipation = async (eventId, requesterId) => {
         invitation.expiresAt = new Date();
         await invitation.save();
         await invitation.destroy();
-        return {canceled: true, method: "invitation", id: invitation.id};
+        return { canceled: true, method: "invitation", id: invitation.id };
     }
 
     // If no invitation exists, check if the user is a confirmed attendee.
     const attendee = await Attendee.findOne({
-        where: {EventID: eventId, UserID: requesterId},
+        where: { EventID: eventId, UserID: requesterId },
     });
 
     if (attendee) {
@@ -173,7 +172,7 @@ exports.cancelOwnParticipation = async (eventId, requesterId) => {
         invitation.expiresAt = new Date();
         await invitation.save();
         await attendee.destroy();
-        return {canceled: true, method: "attendee", id: attendee.id};
+        return { canceled: true, method: "attendee", id: attendee.id };
     }
 
     // If neither record exists, throw an error.
@@ -193,7 +192,7 @@ exports.removeConfirmedAttendees = async (
     requesterRole
 ) => {
     // 1. Check authorization
-    const isAuthorized = await checkPlannerAuthorization(
+    const isAuthorized = await this.checkPlannerAuthorization(
         requesterRole,
         eventId,
         requesterId
@@ -206,10 +205,9 @@ exports.removeConfirmedAttendees = async (
 
     // 2. For each user id remove their attendance
     const removed = [];
+    // Looks for attendees, not users
     for (const userId of userIds) {
-        const attendee = await Attendee.findOne({
-            where: {EventID: eventId, UserID: userId},
-        });
+        const attendee = await Attendee.findByPk(userId);
         if (attendee) {
             attendee.Confirmed = false;
             await attendee.save();
@@ -219,6 +217,28 @@ exports.removeConfirmedAttendees = async (
     }
     return removed.length > 0 ? removed : false;
 };
+
+exports.updateAttendeeEventGroup = async (attendeeId, eventGroupId) => {
+    try {
+        // Find the attendee by attendeeId
+        const attendee = await Attendee.findByPk(attendeeId);
+        if (!attendee) {
+            throw new Error("Attendee not found");
+        }
+
+        // Update the attendee's eventGroupId
+        attendee.EventGroupID = eventGroupId;
+        await attendee.save(); // Persist the change
+
+        return attendee; // Return the updated attendee
+    } catch (error) {
+        console.error(error);
+        throw new Error("Failed to update attendee's event group");
+    }
+};
+
+
+
 
 //=========== UTILS ===============================================
 exports.checkPlannerAuthorization = async (
@@ -232,7 +252,7 @@ exports.checkPlannerAuthorization = async (
             where: {
                 EventID: eventId,
                 UserID: requesterId,
-                RoleID: {[Sequelize.Op.like]: `%${Roles.PLANNER}%`},
+                RoleID: { [Sequelize.Op.like]: `%${Roles.PLANNER}%` },
             },
         });
 
@@ -246,7 +266,36 @@ exports.checkPlannerAuthorization = async (
 };
 
 exports.invalidInvitation = async (invitation, transaction) => {
-    invitation.expiresAt = new Date.now(); // Invalid invitation
+    invitation.expiresAt = new Date(); // Invalid invitation
     await invitation.save({transaction}); // Save before deleting it
     await invitation.destroy({transaction});
+};
+
+exports.updateTokenOnUserCreation = async (inviteToken) => {
+    try {
+        //start transaction
+        await sequelize.transaction(async (t) => {
+            //get invitation
+            let invitation = await Invitation.findOne({
+                where: { token: inviteToken },
+            }, { transaction: t });
+            //get invitedEmail
+            const email = invitation.dataValues.Email;
+            //get user where invitedEmail == email
+            let user = await User.findOne({
+                attributes: ['UserID', 'id'],
+                where: { Email: email }
+            }, { transaction: t });
+            //set user id to the recieved users id
+            let userId;
+            invitation.update({
+                UserID: userId,
+            }, { transaction: t });
+            //close transaction
+        });
+        //return true on success
+        return true;
+    } catch (error) {
+        throw new Error("failed to update token");
+    }
 };

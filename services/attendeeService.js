@@ -6,6 +6,10 @@ const {sanitizeEmail} = require("../utils/UserSanitizations");
 const {validateEventID} = require("../utils/eventSanitization");
 const {validateEventGroup} = require("../utils/sanitizeEventGroup");
 const {deleteCSV, processCSV} = require("../utils/csvReader");
+const {Attendee, Event} = require("../models");
+const {checkPlannerAuthorization} = require("../controllers/attendeeController");
+const { updateAttendeeEventGroup } = require("../controllers/attendeeController"); 
+const {validateToken} = require('../utils/invitationValidation');
 /**
  * Invite an attendee by email.
  */
@@ -113,7 +117,7 @@ exports.getAttendees = async (req, res) => {
  */
 exports.revokeInvitations = async (req, res) => {
   try {
-    const { eventId, emails: invitationIds } = req.body;
+    const { eventId, invitationIds } = req.body;
     const requesterId = req.user.id; // Authenticated user's ID
     const requesterRoles = req.user.roles; // Must be an Event Planner
 
@@ -179,7 +183,7 @@ exports.removeConfirmedAttendees = async (req, res) => {
   try {
     const { eventId, userIds } = req.body;
     const requesterId = req.user.id;
-    const requesterRole = req.user.role;
+    const requesterRole = req.user.roles;    
     if (
       !eventId ||
       !userIds ||
@@ -235,5 +239,58 @@ exports.getInvitesAttendeee = async(req,res) => {
     return sendSuccess(res, 'successfully got all invitations', invites);
   } catch (error) {
     return sendError(res, 'failed to get invites');
+  }
+};
+
+exports.updateTokenOnCreation = async (req, res) => {
+  try {
+    const {token} = req.body;
+    if (!validateToken(token)) return sendError(res, 'invalid token', 400);
+    let success = AttendeeController.updateTokenOnUserCreation(token);
+    if (!success) return sendError(res, 'unable to updated invitation', 400);
+    return sendSuccess(res, 'successfully updated invitation')
+  } catch (error) {
+      return sendError(res, 'failed to update invitation');
+  }
+};
+
+exports.updateAttendeeEventGroup = async (req, res) => {
+  try {
+      // Destructure the necessary parameters from the request body
+      const { attendeeId, eventGroupId } = req.body;
+
+      // Validate required fields
+      if (!attendeeId) return sendError(res, "Attendee ID is required", 400);
+      if (!eventGroupId) return sendError(res, "Event Group ID is required", 400);
+
+      // Validate that attendeeId and eventGroupId are numbers
+      if (isNaN(attendeeId) || attendeeId <= 0) return sendError(res, "Invalid Attendee ID", 400);
+      if (isNaN(eventGroupId) || eventGroupId <= 0) return sendError(res, "Invalid Event Group ID", 400);
+
+      // Find the attendee by attendeeId
+      const attendee = await Attendee.findByPk(attendeeId);
+      if (!attendee) {
+          return sendError(res, "Attendee not found", 404);
+      }
+
+      // Update the attendee's EventGroupID with the new eventGroupId
+      attendee.EventGroupID = eventGroupId;
+      await attendee.save(); // Save the changes to the database
+
+      // Return a success response with the updated attendee data
+      return sendSuccess(res, "Attendee's event group updated successfully", {
+          AttendeeID: attendee.AttendeeID,
+          UserID: attendee.UserID,
+          EventID: attendee.EventID,
+          EventGroupID: attendee.EventGroupID, // Include EventGroupID in the response
+          Confirmed: attendee.Confirmed,
+          createdAt: attendee.createdAt,
+          updatedAt: attendee.updatedAt,
+          deletedAt: attendee.deletedAt,
+      });
+
+  } catch (err) {
+      console.error(err);
+      return sendError(res, "Error updating attendee event group.", 500);
   }
 };

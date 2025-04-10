@@ -7,24 +7,33 @@ const bcrypt = require("bcryptjs");
 const {sendSuccess, sendError} = require("../utils/responseHelpers");
 
 // Generate token
-const generateToken = (user) => {
-    if (user.UserOrganizations.length > 0) {
-        const roles = user.UserOrganizations[0].Roles;
-        const organizationID = user.UserOrganizations[0].OrganizationID;
-        signature = {
-            id: user.UserID,
-            username: user.UserName,
-            roles: roles,
-            OrganizationID: organizationID,
-        };
-    } else {
-        signature = {id: user.UserID, username: user.UserName};
-    }
+const generateTokenPair = (user) => {
+    const roles =
+        user.UserOrganizations.length > 0
+            ? user.UserOrganizations[0].Roles
+            : "";
+    const organizationID =
+        user.UserOrganizations.length > 0
+            ? user.UserOrganizations[0].OrganizationID
+            : null;
 
-    return jwt.sign(signature, process.env.JWT_SECRET, {
-        expiresIn: process.env.JWT_EXPIRES_IN,
-    });
+    const accessToken = jwt.sign(
+        {id: user.UserID, username: user.UserName, roles, OrganizationID: organizationID},
+        process.env.JWT_SECRET,
+        {expiresIn: process.env.JWT_EXPIRES_IN || "1h"}
+    );
+
+    const refreshToken = jwt.sign(
+        {id: user.UserID, username: user.UserName, roles},
+        process.env.JWT_REFRESH_SECRET,
+        {expiresIn: process.env.JWT_REFRESH_EXPIRES_IN || "7d"}
+    );
+
+    return {accessToken, refreshToken};
 };
+
+const refreshTokensBlacklist = [];
+const isTokenRevoked = (token) => refreshTokensBlacklist.includes(token);
 
 // Login
 exports.login = async (req, res) => {
@@ -43,18 +52,13 @@ exports.login = async (req, res) => {
         const isMatch = await bcrypt.compare(password, userPass.trim());
         if (!isMatch) return sendError(res, "Invalid credentials", 400);
 
-        // Prepare additional user info to return
-        let uRoles = user.UserOrganizations[0];
-        if (!uRoles) {
-            uRoles = '';
-        }else {
-            uRoles = user.UserOrganizations[0].dataValues.Roles;
-        }
+        // Prepare user info to return
         const userInfo = {
             userId: user.UserID,
             username: user.UserName,
-            roles: uRoles,
+            roles: user.UserOrganizations[0]?.dataValues.Roles || "",
         };
+
         // If 2FA is enabled
         if (user.UserLogin.two_fa_enabled) {
             return sendSuccess(res, "2FA required", {
@@ -63,10 +67,12 @@ exports.login = async (req, res) => {
             });
         }
 
-        // Else just generate jwt token
-        const token = generateToken(user);
+        // Generate tokens
+        const {accessToken, refreshToken} = generateTokenPair(user);
+
+        // DO NOT SET REFRESH TOKEN IN COOKIE if 2FA is not enabled
         return sendSuccess(res, "Login successful", {
-            token: token,
+            token: accessToken,
             ...userInfo,
         });
     } catch (err) {
@@ -145,10 +151,17 @@ exports.verify2FA = async (req, res) => {
 
         if (!verified) return sendError(res, "Invalid 2FA token", 400);
 
-        // Create JWT token
-        const jwtToken = generateToken(user);
+        // Generate access and refresh tokens
+        const {accessToken, refreshToken} = generateTokenPair(user);
+        // Set refresh token in HTTP-only cookie
+        res.cookie("refreshToken", refreshToken, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === "production",
+            sameSite: "None",
+            maxAge: 7 * 24 * 60 * 60 * 1000,
+        });
         return sendSuccess(res, "2FA verification successful", {
-            token: jwtToken,
+            token: accessToken,
         });
     } catch (err) {
         console.error(err);
@@ -171,4 +184,66 @@ exports.disable2FA = async (req, res) => {
         console.error(err);
         return sendError(res, "Failed to disable 2FA", 500);
     }
+};
+
+// refreshToken
+exports.refreshToken = async (req, res) => {
+    try {
+        const refreshToken = req.cookies.refreshToken;
+        if (!refreshToken) return sendError(res, "Refresh token missing", 401);
+
+        // Verify refresh token
+        if (isTokenRevoked(refreshToken)) {
+            return sendError(res, "Refresh token revoked", 401);
+        }
+
+        // Verify refresh token
+        const payload = jwt.verify(
+            refreshToken,
+            process.env.JWT_REFRESH_SECRET
+        );
+
+        // Fetch the user for verification
+        const user = await User.findByPk(payload.id, {
+            include: [UserOrganization],
+        });
+        if (!user) return sendError(res, "User not found", 404);
+
+        // Generate new tokens
+        const {accessToken, refreshToken: newRefreshToken} =
+            generateTokenPair(user);
+
+        // Set new refresh token
+        res.cookie("refreshToken", newRefreshToken, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === "production",
+            sameSite: "None",
+            maxAge: 7 * 24 * 60 * 60 * 1000,
+        });
+
+        const userInfo = {
+            userId: user.UserID,
+            username: user.UserName,
+            roles: user.UserOrganizations[0]?.dataValues.Roles || "",
+        };
+
+        return sendSuccess(res, "Token refreshed successfully", {
+            token: accessToken,
+            ...userInfo,
+        });
+    } catch (err) {
+        console.error(err);
+        return sendError(res, "Invalid or expired refresh token", 401);
+    }
+};
+
+exports.logout = (req, res) => {
+    const refreshToken = req.cookies.refreshToken;
+
+    if (refreshToken) {
+        refreshTokensBlacklist.push(refreshToken); // Add token to blacklist
+    }
+
+    res.clearCookie("refreshToken"); // Remove the refresh token cookie
+    return sendSuccess(res, "Logged out successfully");
 };

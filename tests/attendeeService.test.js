@@ -109,29 +109,25 @@ describe('attendeeService tests', () => {
     );
   });
 
-  /* This test passes but the formatting is weird to show in testing. All good here.
-  test('getAttendees - should send error when eventId is missing', async () => {
-    req.params.eventId = ''; // Missing eventId
-  
-    await getAttendees(req, res);
-  
-    // Adjusting the expectation to match the correct call
-    expect(sendError).toHaveBeenCalledWith(res, 'Event ID is required', 400);
-  }); */
-
   //Test 4
-  test('revokeInvitations - Should send success response when invitations are revoked', async () => {
-    req.body.eventId = 'event1';
-    req.body.emails = ['test@example.com'];
+  test('revokeInvitations - Should revoke invitations successfully', async () => {
+    const eventId = 1;
+    const invitationIds = [2, 3];
 
-    // Mocking the AttendeeController.revokeInvitations method to return a dummy value
+    // Set up the mock for AttendeeController.revokeInvitations
     AttendeeController.revokeInvitations.mockResolvedValue(true);
 
+    req.body = { eventId, invitationIds };
+
+    // Call the function
     await revokeInvitations(req, res);
 
-    expect(sendSuccess).toHaveBeenCalledWith(res, 'Invitations removed successfully');
+    // Check if success response is called with correct message
+    expect(sendSuccess).toHaveBeenCalledWith(
+      res,
+      'Invitations removed successfully'
+    );
   });
-
   //Test 5
   test('revokeInvitations - Should send error when eventId or emails are missing', async () => {
     req.body.eventId = ''; // Missing eventId
@@ -165,19 +161,5 @@ describe('attendeeService tests', () => {
 
     expect(sendError).toHaveBeenCalledWith(res, 'Event ID is required', 400);
   });
-
-  /* This test passes, but I can't figure out how to like make it pass unit testin. All is good though
-  test('removeConfirmedAttendees - should send success response when attendees are removed', async () => {
-    req.body.eventId = 'event1';
-    req.body.userIds = ['user123', 'user456'];
-
-    // Mocking the AttendeeController.removeConfirmedAttendees method to return a dummy value
-    AttendeeController.removeConfirmedAttendees.mockResolvedValue({ removed: true });
-
-    await removeConfirmedAttendees(req, res);
-
-    expect(sendSuccess).toHaveBeenCalledWith(res, 'Attendees removed successfully', { removed: true });
-
-  }); */
   
 });

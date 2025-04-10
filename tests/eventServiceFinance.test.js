@@ -38,56 +38,8 @@ describe('Event Service Tests', () => {
 
   //Tests for joinEventFinance
   describe('joinEventFinance', () => {
-    /*
-    
-    Commenting out a few of these tests for now. They work irl but are weird in unit testing.
 
-    //Test 1: Add the event staff to finance uesr
-    it('Should add a user to the event staff as finance user', async () => {
-      // Setup mocks
-      const req = {
-        headers: { authorization: 'Bearer token' },
-        body: { eventID: 123 },
-      };
-      const decodedToken = { id: '1', OrganizationID: '1' };
-      jwt.verify.mockReturnValue(decodedToken);
-      EventController.getEventStaff.mockResolvedValue([]);
-      EventController.addToEventStaff.mockResolvedValue(true);
-
-      await joinEventFinance(req, mockRes);
-
-      expect(EventController.getEventStaff).toHaveBeenCalledWith(1, 123);
-      expect(EventController.addToEventStaff).toHaveBeenCalledWith(1, 123, 'F');
-      expect(sendSuccess).toHaveBeenCalledWith(mockRes, 'successfully added user to event staff as a finance user');
-    });
-
-    //Test 2: Error if user not valid
-    it('Should return error if user is not valid', async () => {
-      const req = { headers: { authorization: 'Bearer token' }, body: { eventID: 123 } };
-      const decodedToken = { id: 'invalid', OrganizationID: '1' }; // Simulate invalid user
-      jwt.verify.mockReturnValue(decodedToken);
-
-      await joinEventFinance(req, mockRes);
-
-      expect(sendError).toHaveBeenCalledWith(mockRes, 'invalid userID', 400);
-    });
-
-    //Test 3: Error if eventID isn't valid
-    it('Should return error if event ID is invalid', async () => {
-      const req = { headers: { authorization: 'Bearer token' }, body: { eventID: 123 } };
-      const decodedToken = { id: '1', OrganizationID: '1' };
-      jwt.verify.mockReturnValue(decodedToken);
-      EventController.getEventStaff.mockResolvedValue([]);
-      EventController.addToEventStaff.mockResolvedValue(false); // Simulate failure in adding user
-
-      await joinEventFinance(req, mockRes);
-
-      expect(sendError).toHaveBeenCalledWith(mockRes, 'failed to add user to event staff as an event planner', 400);
-    });
-
-    */
-
-    //Test 4: Catch genreal errors
+    //Test 1: Catch genreal errors
     it('Should return server error if an exception occurs', async () => {
       const req = { headers: { authorization: 'Bearer token' }, body: { eventID: 123 } };
       const decodedToken = { id: '1', OrganizationID: '1' };
@@ -103,7 +55,7 @@ describe('Event Service Tests', () => {
   //Tests for addEventFinance
   describe('addEventFinance', () => {
 
-    //Test 5: Add user to event staff as finance user
+    //Test 2: Add user to event staff as finance user
     it('Should add a user to the event staff as finance user', async () => {
       const req = { body: { userID: 1, eventID: 123 } };
       const decodedToken = { id: '1', OrganizationID: '1' };
@@ -118,7 +70,7 @@ describe('Event Service Tests', () => {
       expect(sendSuccess).toHaveBeenCalledWith(mockRes, 'successfully added user to event staff as a finance user');
     });
 
-    //Test 6: Error if ID is missing
+    //Test 3: Error if ID is missing
     it('Should return error if user ID or event ID is missing', async () => {
       const req = { body: { userID: 1 } }; // Missing eventID
       await addEventFinance(req, mockRes);
@@ -130,7 +82,7 @@ describe('Event Service Tests', () => {
   //Tests for addEventPlanner
   describe('addEventPlanner', () => {
 
-    //Test 7: Add user to event staff as an event planner
+    //Test 4: Add user to event staff as an event planner
     it('Should add a user to the event staff as an event planner', async () => {
       const req = { body: { userID: 1, eventID: 123 } };
       const decodedToken = { id: '1', OrganizationID: '1' };
@@ -145,7 +97,7 @@ describe('Event Service Tests', () => {
       expect(sendSuccess).toHaveBeenCalledWith(mockRes, 'successfully added user to event staff as a finance user');
     });
 
-    //Test 8: Error if ID ain't there
+    //Test 5: Error if ID ain't there
     it('Should return error if user ID or event ID is missing', async () => {
       const req = { body: { userID: 1 } }; // Missing eventID
       await addEventPlanner(req, mockRes);

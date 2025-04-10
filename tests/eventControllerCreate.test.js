@@ -34,46 +34,8 @@ describe('Event Functions', () => {
   
   // Test for createEvent function
   describe('createEvent', () => {
-    /*
-
-    Works IRL, that's all I care about at this point. Also it used to work here idk what happened.
-
-    //Test 1: Create event and return event ID
-    it('Should create an event and return event ID', async () => {
-      const userId = 1;
-      const name = "Test Event";
-      const startDate = "2025-03-11T10:00:00Z";
-      const endDate = "2025-03-11T18:00:00Z";
-      const description = "Test event description";
-      const typeID = 2;
-      const organizationID = 3;
-
-      // Mock the Event.create method to simulate event creation
-      const mockEvent = {
-        EventID: 101,
-      };
-      Event.create.mockResolvedValue(mockEvent);
-
-      // Mock EventStaff.create to simulate creating staff for the event
-      const mockEventStaff = {};
-      EventStaff.create.mockResolvedValue(mockEventStaff);
-
-      const eventId = await createEvent(userId, name, startDate, endDate, description, typeID, organizationID);
-
-      expect(Event.create).toHaveBeenCalledWith({
-        EventName: name,
-        EventStartDate: startDate,
-        EventEndDate: endDate,
-        EventDescription: description,
-        TypeID: typeID,
-        OrganizationID: organizationID,
-      });
-     
-      expect(eventId).toBe(mockEvent.EventID);
-    });
-    */
-
-    //Test 2: Error if event creation fails
+   
+    //Test 1: Error if event creation fails
     it('should throw error if event creation fails', async () => {
       const userId = 1;
       const name = "Test Event";
@@ -97,7 +59,7 @@ describe('Event Functions', () => {
   // Test for getEventTypes function
   describe('getEventTypes', () => {
 
-    //Test 3: Return list of event types
+    //Test 2: Return list of event types
     it('Should return combined list of default and organization event types', async () => {
       const organizationID = 1;
 
@@ -132,7 +94,7 @@ describe('Event Functions', () => {
       ]);
     });
 
-    //Event 4: Return empty list if no events are found
+    //Event 3: Return empty list if no events are found
     it('Should return an empty list if no event types are found', async () => {
       const organizationID = 1;
 

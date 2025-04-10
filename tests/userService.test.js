@@ -11,6 +11,7 @@ const { sendError, sendSuccess } = require("../utils/responseHelpers");
 const { registerUserFull, registerBasic, setOrganization } = require("../controllers/userController");
 const { sanitizeEmail, sanitizeName, sanitizeCountry, sanitizePassword, sanitizeCity, sanitizeState } = require("../utils/UserSanitizations");
 const { sanitizeRoles } = require("../utils/UserOrganizationSanitizations");
+const { validateOrganizationID } = require("../utils/OrganizationSanitization");
 
 // Mocking the imported functions
 jest.mock("../utils/responseHelpers", () => ({
@@ -36,6 +37,11 @@ jest.mock("../utils/UserSanitizations", () => ({
 jest.mock("../utils/UserOrganizationSanitizations", () => ({
   sanitizeRoles: jest.fn(),
 }));
+
+jest.mock("../utils/OrganizationSanitization", () => ({
+  validateOrganizationID: jest.fn(), // Ensure it's a function mock
+}));
+
 
 //Test for User Service
 describe("User Service", () => {
@@ -181,30 +187,6 @@ describe("User Service", () => {
 
       expect(sendError).toHaveBeenCalledWith(res, "Invalid input for email", 400);
     });
-    
-
-    //Test 7: Sucessfully register user
-   /* it("Should successfully register a user", async () => {
-      const req = {
-        body: {
-          fname: "John",
-          lname: "Doe",
-          country: "US",
-          email: "john.doe@example.com"
-        }
-      };
-      const res = {};
-
-      sanitizeEmail.mockReturnValue("john.doe@example.com");
-      sanitizeName.mockReturnValue("John");
-      sanitizeCountry.mockReturnValue("US");
-      registerBasic.mockResolvedValue({ userId: 1 });
-      
-
-      await registerBasic(req, res);
-
-      expect(sendSuccess).toHaveBeenCalledWith(res, "User registered successfully");
-    }); */
 
     //Test 7: Error if registration fails
     it("Should return an error if registration fails", async () => {
@@ -231,111 +213,96 @@ describe("User Service", () => {
 
   //Tests for registerUserOrganization Funciton
   describe("registerUserOrganization", () => {
-
-    //Test 8: Error if required fields are missing
-    it("Should return an error if required fields are missing", async () => {
-      const req = {
+    let req;
+    let res;
+  
+    beforeEach(() => {
+      req = {
         body: {
           fname: "John",
           lname: "Doe",
-          country: "US",
+          password: "password123",
+          city: "New York",
+          country: "USA",
+          state: "NY",
           email: "john.doe@example.com",
-          organizationID: "",
-          roles: "E"
-        }
+          roles: ["admin"],
+        },
+        user: {
+          OrganizationID: "1",
+        },
+        headers: {
+          authorization: "Bearer valid-token",
+        },
       };
-      const res = {};
-      
-      // Simulate missing fields (password)
+      res = {
+        json: jest.fn(),
+      };
+      jest.clearAllMocks();
+    });
+  
+    //Test 8: Error if registration fails
+    it("Should return an error if user registration fails", async () => {
+      sanitizeEmail.mockReturnValue("john.doe@example.com");
+      sanitizeName.mockReturnValue("John");
+      sanitizeCountry.mockReturnValue("USA");
+      sanitizeState.mockReturnValue("NY");
+      sanitizeCity.mockReturnValue("New York");
+      sanitizePassword.mockReturnValue("password123");
+      sanitizeRoles.mockReturnValue(["admin"]);
+      validateOrganizationID.mockReturnValue(true);
+      registerUserFull.mockResolvedValue(null);
+      sendError.mockImplementation((res, msg, status) => {
+        res.json({ message: msg, status });
+      });
+  
       await registerUserOrganization(req, res);
-
+  
+      expect(sendError).toHaveBeenCalledWith(
+        res,
+        "Could not register this user",
+        404
+      );
+    });
+  
+    //Test 9: Error if org is invalid
+    it("Should return an error if organization validation fails", async () => {
+      sanitizeEmail.mockReturnValue("john.doe@example.com");
+      sanitizeName.mockReturnValue("John");
+      sanitizeCountry.mockReturnValue("USA");
+      sanitizeState.mockReturnValue("NY");
+      sanitizeCity.mockReturnValue("New York");
+      sanitizePassword.mockReturnValue("password123");
+      sanitizeRoles.mockReturnValue(["admin"]);
+      validateOrganizationID.mockReturnValue(false);
+      sendError.mockImplementation((res, msg, status) => {
+        res.json({ message: msg, status });
+      });
+  
+      await registerUserOrganization(req, res);
+  
+      expect(sendError).toHaveBeenCalledWith(res, "Invalid input for organization", 400);
+    });
+  
+    //Test 10: Error if fields missing
+    it("Should return an error if required fields are missing", async () => {
+      const incompleteReq = { ...req, body: { ...req.body, fname: undefined } };
+  
+      await registerUserOrganization(incompleteReq, res);
+  
       expect(sendError).toHaveBeenCalledWith(res, "Arguments missing", 401);
     });
-
-    //Test 9: Error if sanitization fails
-    it("Should return an error if sanitization fails", async () => {
-      const req = {
-        body: {
-          fname: "John",
-          lname: "Doe",
-          password: "password123",
-          city: "New York",
-          state: "NY",
-          country: "US",
-          email: "invalidemail",
-          organizationID: "org123",
-          roles: "E"
-        }
-      };
-      const res = {};
-
+  
+    //Test 11: Error if email sanitization fails
+    it("Should return an error if email sanitization fails", async () => {
       sanitizeEmail.mockReturnValue(null);
-
-      await registerUserOrganization(req, res);
-
-      expect(sendError).toHaveBeenCalledWith(res, "Invalid input for email", 400);
-    });
-
-    //Test 11: Successfully register a user to organization
-    /*it("Should successfully register a user to an organization", async () => {
-      const req = {
-        body: {
-          fname: "John",
-          lname: "Doe",
-          password: "password123",
-          city: "New York",
-          state: "NY",
-          country: "US",
-          email: "john.doe@example.com",
-          organizationID: "org123",
-          roles: "E"
-        }
-      };
-      const res = {};
-
-      sanitizeEmail.mockReturnValue("john.doe@example.com");
-      sanitizeName.mockReturnValue("John");
-      sanitizeCountry.mockReturnValue("US");
-      sanitizePassword.mockReturnValue("password123");
-      sanitizeRoles.mockReturnValue("E");
-      registerUserFull.mockResolvedValue({ userId: 1 });
-      setOrganization.mockResolvedValue(true);
-
-      await registerUserOrganization(req, res);
-
-      expect(sendSuccess).toHaveBeenCalledWith(res, "User registered successfully to organization", {
-        registeredUser: { userId: 1 }
+      sendError.mockImplementation((res, msg, status) => {
+        res.json({ message: msg, status });
       });
-    }); */
-
-    //Test 10: Error if registration for organization fails
-    it("Should return an error if registration to organization fails", async () => {
-      const req = {
-        body: {
-          fname: "John",
-          lname: "Doe",
-          password: "password123",
-          city: "New York",
-          state: "NY",
-          country: "US",
-          email: "john.doe@example.com",
-          organizationID: "org123",
-          roles: "E"
-        }
-      };
-      const res = {};
-
-      sanitizeEmail.mockReturnValue("john.doe@example.com");
-      sanitizeName.mockReturnValue("John");
-      sanitizeCountry.mockReturnValue("US");
-      sanitizePassword.mockReturnValue("password123");
-      sanitizeRoles.mockReturnValue("E");
-      registerUserFull.mockResolvedValue({ userId: 1 });
-      setOrganization.mockResolvedValue(false);
-
+  
       await registerUserOrganization(req, res);
-
-      expect(sendError).toHaveBeenCalledWith(res, "Invalid input for organization", 400);
+  
+      expect(sendError).toHaveBeenCalledWith(res, "Invalid input for email", 400);
     });
   });
 

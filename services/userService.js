@@ -128,10 +128,10 @@ exports.registerUserOrganization = async (req, res) => {
             country,
             state,
             email,
-            organizationID,
             roles,
         } = req.body;
         // Validate that all attributes exist
+        let organizationID = parseInt(req.user.OrganizationID);
         if (
             !fname ||
             !lname ||

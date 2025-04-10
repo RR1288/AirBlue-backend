@@ -201,45 +201,6 @@ describe('attendeeController', () => {
   
   
 
-  /*
-  Some weird stuff happening here. Circle back if time permits
-  describe('revokeInvitations', () => {
-    it('should revoke invitations for an authorized planner', async () => {
-      const eventId = 1;
-      const invitationIds = [1, 2];
-      const requesterId = 1;
-      const requesterRole = [Roles.PLANNER];
-
-      const invitationMock = { InvitationID: 1, status: 'pending' };
-      Event.findByPk.mockResolvedValue({ EventID: eventId });
-      EventStaff.findOne.mockResolvedValue({ UserID: requesterId, RoleID: Roles.PLANNER });
-      Invitation.findOne.mockResolvedValue(invitationMock);
-      Invitation.destroy.mockResolvedValue(true);
-
-      const result = await revokeInvitations(eventId, invitationIds, requesterId, requesterRole);
-
-      expect(Event.findByPk).toHaveBeenCalledWith(eventId);
-      expect(EventStaff.findOne).toHaveBeenCalledWith(expect.objectContaining({
-        where: { EventID: eventId, UserID: requesterId }
-      }));
-      expect(Invitation.destroy).toHaveBeenCalledWith({ where: { InvitationID: 1 } });
-      expect(result).toEqual([1]);
-    });
-
-    it('should throw an error if not authorized', async () => {
-      const eventId = 1;
-      const invitationIds = [1];
-      const requesterId = 1;
-      const requesterRole = ['USER']; // Not a planner
-
-      Event.findByPk.mockResolvedValue({ EventID: eventId });
-      EventStaff.findOne.mockResolvedValue(null); // No staff record
-
-      await expect(revokeInvitations(eventId, invitationIds, requesterId, requesterRole)).rejects.toThrow('Not authorized');
-    });
-  });
-  */
-
   //Tests for cancelOwnParticipation function
   describe('cancelOwnParticipation', () => {
     
@@ -285,42 +246,4 @@ describe('attendeeController', () => {
       await expect(cancelOwnParticipation(eventId, requesterId)).rejects.toThrow('No invitation or attendance record found for cancellation.');
     });
   });
-
-  /*
-
-  Commenting out as there is some weird stuff happeing. Its working, but I cant get the tests to output correctly
-
-  describe('removeConfirmedAttendees', () => {
-    it('should remove confirmed attendees for an authorized planner', async () => {
-      const eventId = 1;
-      const userIds = [1];
-      const requesterId = 1;
-      const requesterRole = [Roles.PLANNER];
-
-      const attendeeMock = { AttendeeID: 1, Confirmed: true, save: jest.fn(), destroy: jest.fn() };
-
-      Event.findByPk.mockResolvedValue({ EventID: eventId });
-      EventStaff.findOne.mockResolvedValue({ UserID: requesterId, RoleID: Roles.PLANNER });
-      Attendee.findOne.mockResolvedValue(attendeeMock);
-
-      const result = await removeConfirmedAttendees(eventId, userIds, requesterId, requesterRole);
-
-      expect(Attendee.findOne).toHaveBeenCalledWith(expect.objectContaining({ where: { EventID: eventId, UserID: 1 } }));
-      expect(attendeeMock.destroy).toHaveBeenCalled();
-      expect(result).toEqual([1]);
-    });
-
-    it('should throw an error if not authorized', async () => {
-      const eventId = 1;
-      const userIds = [1];
-      const requesterId = 1;
-      const requesterRole = ['USER']; // Not a planner
-
-      Event.findByPk.mockResolvedValue({ EventID: eventId });
-      EventStaff.findOne.mockResolvedValue(null); // No staff record
-
-      await expect(removeConfirmedAttendees(eventId, userIds, requesterId, requesterRole)).rejects.toThrow('Not authorized');
-    });
-  });
-  */
 });

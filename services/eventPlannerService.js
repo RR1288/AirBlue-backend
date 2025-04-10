@@ -32,6 +32,22 @@ exports.getAttendees = async (req, res) => {
         return sendError(res, 'failed to retrieve attendees', 400);
     }
 };
+
+exports.getAttendeesForApproval = async (req, res) => {
+    try {
+        let userID = parseInt(req.user.id);
+        if(!(await validateUserID(userID))) return sendError(res, 'invalid userId', 400); //check to make sure that this isn't an await
+
+        //run the function
+        const attendees = await eventPlannerViews.getAttendeesForApproval(userID);
+        if(!attendees) return sendError(res, 'failed to get attendees', 400);
+        return sendSuccess(res, "successfully retrieved attendees", attendees);
+    } catch (error) {
+        console.log(error);
+        return sendError(res, 'failed to retrieve attendees', 400);
+    }
+};
+
 exports.getInvitees = async (req, res) => {
     try {
         const {eventId} = req.query;
@@ -62,5 +78,20 @@ exports.getAllEventsPlanner = async (req, res) => {
     } catch (error) {
         console.error(error);
         return sendError(res, 'Something went wrong while fetching event planners');
+    }
+};
+
+exports.getEventReportPlanner = async (req, res) => {
+    try {
+        let {eventID} = req.params;
+        eventID = parseInt(eventID);
+        if(!(await validateEventID(eventID))) return sendError(res, 'invalid eventID', 400);
+
+        let report = await eventPlannerViews.getEventReportPlanner(eventID);
+        if(!report) return sendError(res, 'failed to get report', 400);
+        return sendSuccess(res, 'successfully got event report', report);
+    } catch (error) {
+        console.log(error);
+        return sendError(res, 'failed to get report');
     }
 };

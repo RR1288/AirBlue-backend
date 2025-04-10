@@ -1,7 +1,21 @@
 const express = require("express");
 const router = express.Router();
 const authController = require("../controllers/authController");
-const {protect} = require("../middleware/authMiddleware");
+const { protect, protectOnSetup } = require("../middleware/authMiddleware");
+
+/**
+ * @swagger
+ * components:
+ *   securitySchemes:
+ *     bearerAuth:
+ *       type: http
+ *       scheme: bearer
+ *       bearerFormat: JWT
+ *     cookieAuth:
+ *       type: apiKey
+ *       in: cookie
+ *       name: refreshToken
+ */
 
 /**
  * @swagger
@@ -30,6 +44,46 @@ router.post("/login", authController.login);
 
 /**
  * @swagger
+ * /auth/logout:
+ *   post:
+ *     summary: Logout the user and revoke the refresh token
+ *     tags: [Auth]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Logout successful
+ *       401:
+ *         description: Unauthorized
+ */
+router.post("/logout", protect, authController.logout);
+
+/**
+ * @swagger
+ * /auth/refresh:
+ *   post:
+ *     summary: Refresh access token using the refresh token
+ *     tags: [Auth]
+ *     security:
+ *       - cookieAuth: []
+ *     responses:
+ *       200:
+ *         description: New access token issued
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 token:
+ *                   type: string
+ *                   description: New access token
+ *       401:
+ *         description: Invalid or expired refresh token
+ */
+router.post("/refresh", authController.refreshToken);
+
+/**
+ * @swagger
  * /auth/2fa/setup:
  *   post:
  *     summary: Setup 2FA for the authenticated user
@@ -40,7 +94,7 @@ router.post("/login", authController.login);
  *       200:
  *         description: 2FA setup successful, returns QR code
  */
-router.post("/2fa/setup", protect, authController.setup2FA);
+router.post("/2fa/setup", protectOnSetup, authController.setup2FA);
 
 /**
  * @swagger
@@ -64,6 +118,24 @@ router.post("/2fa/setup", protect, authController.setup2FA);
  *     responses:
  *       200:
  *         description: 2FA verification successful, returns JWT token
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 token: 
+ *                   type: string
+ *                   description: Short-lived JWT token
+ *         headers:
+ *           Set-Cookie:
+ *             description: Refresh token
+ *             schema:
+ *               type: string
+ *               example: refreshToken=<token>
+ *       400:
+ *         description: Invalid 2FA token
+ *       404:
+ *         description: User not found or 2FA not enabled
  */
 router.post("/2fa/verify", authController.verify2FA);
 
@@ -80,5 +152,8 @@ router.post("/2fa/verify", authController.verify2FA);
  *         description: 2FA disabled successfully
  */
 router.post("/2fa/disable", protect, authController.disable2FA);
+
+
+
 
 module.exports = router;
